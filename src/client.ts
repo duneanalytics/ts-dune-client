@@ -2,7 +2,7 @@ import { Headers } from "node-fetch";
 import fetch from "node-fetch";
 import { ExecutionResponse, GetStatusResponse, ResultsResponse } from "./responseTypes";
 
-const BASE_URL = "https://api.dune.com/api/v1/query";
+const BASE_URL = "https://api.dune.com/api/v1";
 
 export class DuneClient {
   header: Headers;
