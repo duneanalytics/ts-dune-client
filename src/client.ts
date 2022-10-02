@@ -53,15 +53,14 @@ export class DuneClient {
 
   async get_result(jobID: string): Promise<ResultsResponse> {
     const data = await this._get(`${BASE_URL}/execution/${jobID}/results`);
-    const result = data.result
-      ? { rows: data.result.rows, metadata: data.result.metadata }
-      : undefined;
     return {
       executionID: data.execution_id,
       queryID: data.query_id,
       state: data.state,
       // times: parseTimesFrom(data)
-      result,
+      result: data.result
+      ? { rows: data.result.rows, metadata: data.result.metadata }
+      : undefined,
     };
   }
 
