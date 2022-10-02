@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "author": "Ben Smith <bh2smith@gmail.com>",
   "license": "MIT",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "files": [
-    "lib/**/*"
+    "/lib"
   ],
   "scripts": {
     "build": "tsc",
@@ -12,7 +14,6 @@
     "fmt": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint -p tsconfig.json"
   },
-  "type": "module",
   "devDependencies": {
     "@types/chai": "^4.3.3",
     "@types/mocha": "^10.0.0",
@@ -26,7 +27,6 @@
     "typescript": "^4.8.4"
   },
   "dependencies": {
-    "@types/node-fetch": "^2.6.2",
-    "node-fetch": "^3.2.10"
+    "axios": "^0.27.2"
   }
 }

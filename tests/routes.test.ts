@@ -1,11 +1,14 @@
-import { expect } from "chai";
+// import { expect } from "chai";
 import { DuneClient } from "../src/client";
-// import {} from "../src/responseTypes"
 
-describe("Sample Test", () => {
-  it("testing test", async () => {
+// import * as mocha from "mocha";
+import * as chai from "chai";
+
+const expect = chai.expect;
+describe("DuneClient: execute", () => {
+  it("Sample Test", async () => {
     const client = new DuneClient("incorrect key");
-    // console.log(client);
+    const x = await client.execute(123);
     expect(2).to.be.oneOf([0, 1]);
   });
 });

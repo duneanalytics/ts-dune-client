@@ -1,44 +1,58 @@
-import { Headers } from "node-fetch";
-import fetch from "node-fetch";
-import { ExecutionResponse, GetStatusResponse, ResultsResponse } from "./responseTypes";
+import {
+  ExecutionResponse,
+  ExecutionState,
+  GetStatusResponse,
+  ResultsResponse,
+} from "./responseTypes";
+import axios from "axios";
 
 const BASE_URL = "https://api.dune.com/api/v1";
 
 export class DuneClient {
-  header: Headers;
+  apiKey: string;
 
   constructor(apiKey: string) {
-    this.header = new Headers({
-      "x-dune-api-key": apiKey,
-    });
+    this.apiKey = apiKey;
   }
 
   private async _get(url: string): Promise<any> {
     console.debug(`GET received input url=${url}`);
-    const response = await fetch(url, {
-      method: "GET",
-      headers: this.header,
+    const response = await axios.get(url, {
+      headers: {
+        "x-dune-api-key": this.apiKey,
+      },
     });
+    console.log(`GET response: ${response.data}`);
     // TODO - handle response errors
-    return response.json();
+    return response.data;
   }
 
   private async _post(url: string, params?: any): Promise<any> {
     console.debug(`POST received input url=${url}, params=${params}`);
-    const response = await fetch(url, {
-      method: "POST",
-      body: JSON.stringify(params),
-      headers: this.header,
-    });
-    return response.json();
+    const response = axios
+      .post(url, {
+        body: JSON.stringify(params),
+        headers: {
+          "x-dune-api-key": this.apiKey,
+        },
+      })
+      .then((response) => {
+        console.log(`POST response: ${response.data}`);
+        return response.data;
+      })
+      .catch((error) => {
+        console.error(`POST error ${JSON.stringify(error.response.data)}`);
+        return error.response.data;
+      });
+    return response;
   }
 
   async execute(queryID: number): Promise<ExecutionResponse> {
-    const responseData = await this._post(`${BASE_URL}/query/${queryID}/execute`, {});
-    return {
-      executionID: responseData.execution_id,
-      state: responseData.state,
-    };
+    const responseData: ExecutionResponse = await this._post(
+      `${BASE_URL}/query/${queryID}/execute`,
+      {},
+    );
+    return responseData;
   }
 
   async get_status(jobID: string): Promise<GetStatusResponse> {
@@ -59,8 +73,8 @@ export class DuneClient {
       state: data.state,
       // times: parseTimesFrom(data)
       result: data.result
-      ? { rows: data.result.rows, metadata: data.result.metadata }
-      : undefined,
+        ? { rows: data.result.rows, metadata: data.result.metadata }
+        : undefined,
     };
   }
 
