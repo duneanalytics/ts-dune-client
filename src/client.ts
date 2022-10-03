@@ -5,7 +5,7 @@ import {
   ResultsResponse,
 } from "./responseTypes";
 import axios from "axios";
-
+import fetch from "cross-fetch";
 const BASE_URL = "https://api.dune.com/api/v1";
 
 export class DuneClient {
@@ -17,41 +17,52 @@ export class DuneClient {
 
   private async _get(url: string): Promise<any> {
     console.debug(`GET received input url=${url}`);
-    const response = await axios.get(url, {
+    const response = fetch(url, {
+      method: "GET",
       headers: {
         "x-dune-api-key": this.apiKey,
       },
-    });
-    console.log(`GET response: ${response.data}`);
-    // TODO - handle response errors
-    return response.data;
-  }
-
-  private async _post(url: string, params?: any): Promise<any> {
-    console.debug(`POST received input url=${url}, params=${params}`);
-    const response = axios
-      .post(url, {
-        body: JSON.stringify(params),
-        headers: {
-          "x-dune-api-key": this.apiKey,
-        },
-      })
+    })
       .then((response) => {
-        console.log(`POST response: ${response.data}`);
-        return response.data;
+        if (response.status > 400) {
+          throw new Error(`Bad response from server ${response.json()}`);
+        }
+        console.log(`GET response: ${response.json()}`);
+        return response.json();
       })
       .catch((error) => {
-        console.error(`POST error ${JSON.stringify(error.response.data)}`);
-        return error.response.data;
+        console.error(`GET error ${error}`);
+        throw error;
       });
     return response;
   }
 
+  private async _post(url: string, params?: any): Promise<any> {
+    console.debug(`POST received input url=${url}, params=${JSON.stringify(params)}`);
+    const response = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(params),
+      headers: {
+        "x-dune-api-key": this.apiKey,
+      },
+    })
+      .then((response) => {
+        if (response.status > 400) {
+          return response.json();
+          // throw new Error(`Bad response from server ${response}`);
+        }
+        return response.json();
+      })
+      .catch((error) => {
+        console.error(`POST error ${JSON.stringify(error)}`);
+        throw error;
+      });
+    console.debug(`POST response: ${response}`);
+    return response;
+  }
+
   async execute(queryID: number): Promise<ExecutionResponse> {
-    const responseData: ExecutionResponse = await this._post(
-      `${BASE_URL}/query/${queryID}/execute`,
-      {},
-    );
+    const responseData = await this._post(`${BASE_URL}/query/${queryID}/execute`, {});
     return responseData;
   }
 
