@@ -15,6 +15,13 @@ describe("DuneClient: execute", () => {
   it("Sample Test 2", async () => {
     const client = new DuneClient("Bad Key");
     const x = await client.execute(1258228);
+    console.log(`TEST PRINT ${JSON.stringify(x)}`);
+    expect(2).to.be.oneOf([0, 1]);
+  });
+
+  it.only("Sample Test 3", async () => {
+    const client = new DuneClient(apiKey);
+    const x = await client.execute(7258228);
     console.log(JSON.stringify(x));
     expect(2).to.be.oneOf([0, 1]);
   });

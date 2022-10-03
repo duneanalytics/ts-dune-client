@@ -48,8 +48,8 @@ export class DuneClient {
     })
       .then((response) => {
         if (response.status > 400) {
+          console.error(`Error ${response.status} - ${response.statusText}`);
           return response.json();
-          // throw new Error(`Bad response from server ${response}`);
         }
         return response.json();
       })
@@ -57,7 +57,10 @@ export class DuneClient {
         console.error(`POST error ${JSON.stringify(error)}`);
         throw error;
       });
-    console.debug(`POST response: ${response}`);
+    if (response.error) {
+      console.debug(`POST error: ${response.error}`);
+    }
+
     return response;
   }
 
