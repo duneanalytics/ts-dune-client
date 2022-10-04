@@ -3,11 +3,18 @@ import {
   GetStatusResponse,
   ResultsResponse,
   DuneError,
+  ExecutionState,
 } from "./responseTypes";
 import fetch from "cross-fetch";
 import { QueryParameter } from "./queryParameter";
-const BASE_URL = "https://api.dune.com/api/v1";
+import { sleep } from "./utils";
 
+const BASE_URL = "https://api.dune.com/api/v1";
+const TERMINAL_STATES = [
+  ExecutionState.CANCELLED,
+  ExecutionState.COMPLETED,
+  ExecutionState.FAILED,
+];
 export class DuneClient {
   apiKey: string;
 
@@ -117,5 +124,32 @@ export class DuneClient {
       `${BASE_URL}/execution/${jobID}/cancel`,
     );
     return success;
+  }
+
+  async refresh(
+    queryID: number,
+    parameters?: QueryParameter[],
+    pingFrequency: number = 5,
+  ): Promise<ResultsResponse> {
+    console.log(
+      `refreshing query https://dune.com/queries/${queryID} with parameters ${parameters}`,
+    );
+    const { execution_id: jobID } = await this.execute(queryID, parameters);
+    let { state } = await this.get_status(jobID);
+    while (!TERMINAL_STATES.includes(state)) {
+      console.log(
+        `waiting for query execution ${jobID} to complete: current state ${state}`,
+      );
+      sleep(pingFrequency);
+      state = (await this.get_status(jobID)).state;
+    }
+    if (state === ExecutionState.COMPLETED) {
+      return this.get_result(jobID);
+    } else {
+      const message = `refresh (execution ${jobID}) yields incomplete terminal state ${state}`;
+      // TODO - log the error in constructor
+      console.error(message);
+      throw new DuneError(message);
+    }
   }
 }

@@ -50,7 +50,7 @@ export type GetStatusResponse = {
 };
 
 export type ExecutionResult = {
-  rows: Map<string, string>[];
+  rows: Record<string, string>[];
   metadata: ResultMetadata;
 };
 
