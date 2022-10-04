@@ -8,7 +8,7 @@ import {
 import fetch from "cross-fetch";
 import { QueryParameter } from "./queryParameter";
 import { sleep } from "./utils";
-import { assert } from "console";
+
 const BASE_URL = "https://api.dune.com/api/v1";
 const TERMINAL_STATES = [
   ExecutionState.CANCELLED,
