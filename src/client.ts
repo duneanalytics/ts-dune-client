@@ -6,7 +6,6 @@ import {
 } from "./responseTypes";
 import fetch from "cross-fetch";
 import { QueryParameter } from "./queryParameter";
-import { Console } from "console";
 const BASE_URL = "https://api.dune.com/api/v1";
 
 export class DuneClient {
