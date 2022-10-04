@@ -1,6 +1,5 @@
 import {
   ExecutionResponse,
-  ExecutionState,
   GetStatusResponse,
   ResultsResponse,
   DuneError,
@@ -16,7 +15,7 @@ export class DuneClient {
   }
 
   private async _handleResponse(responsePromise: Promise<Response>): Promise<any> {
-    const response = await responsePromise
+    const apiResponse = await responsePromise
       .then((response) => {
         if (response.status > 400) {
           console.error(`response error ${response.status} - ${response.statusText}`);
@@ -27,15 +26,15 @@ export class DuneClient {
         console.error(`caught unhandled response error ${JSON.stringify(error)}`);
         throw error;
       });
-    if (response.error) {
-      console.error(`caught unhandled response error ${JSON.stringify(response)}`);
-      if (response.error instanceof Object) {
-        throw new DuneError(response.error.type);
+    if (apiResponse.error) {
+      console.error(`caught unhandled response error ${JSON.stringify(apiResponse)}`);
+      if (apiResponse.error instanceof Object) {
+        throw new DuneError(apiResponse.error.type);
       } else {
-        throw new DuneError(response.error);
+        throw new DuneError(apiResponse.error);
       }
     }
-    return response;
+    return apiResponse;
   }
 
   private async _get(url: string): Promise<any> {
