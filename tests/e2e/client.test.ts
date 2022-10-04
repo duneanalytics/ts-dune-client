@@ -30,7 +30,7 @@ beforeEach(() => {
 describe("DuneClient: native routes", () => {
   // This doesn't work if run too many times at once:
   // https://discord.com/channels/757637422384283659/1019910980634939433/1026840715701010473
-  it("returns expected results on sequence execute-cancel-get_status", async () => {
+  it.skip("returns expected results on sequence execute-cancel-get_status", async () => {
     const client = new DuneClient(apiKey);
     // Long running query ID.
     const queryID = 1229120;
