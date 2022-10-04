@@ -131,6 +131,7 @@ export class DuneClient {
     parameters?: QueryParameter[],
     pingFrequency: number = 5,
   ): Promise<ResultsResponse> {
+    console.log(`refreshing query https://dune.com/queries/${queryID}`);
     const { execution_id: jobID } = await this.execute(queryID, parameters);
     let { state } = await this.get_status(jobID);
     while (!TERMINAL_STATES.includes(state)) {

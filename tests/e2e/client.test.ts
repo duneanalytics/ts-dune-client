@@ -90,6 +90,7 @@ describe("DuneClient: native routes", () => {
 describe("DuneClient: refresh", () => {
   it("returns expected records on refresh", async () => {
     const client = new DuneClient(apiKey);
+    // https://dune.com/queries/1215383
     const results = await client.refresh(1215383);
     expect(results.result?.rows).to.be.deep.equal([
       {
