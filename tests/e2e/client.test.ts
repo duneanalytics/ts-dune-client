@@ -1,5 +1,5 @@
 import { expect } from "chai";
-
+import { QueryParameter } from "../../src/queryParameter";
 import { DuneClient } from "../../src/client";
 import {
   DuneError,
@@ -58,6 +58,21 @@ describe("DuneClient: execute", () => {
       query_id: queryID,
     };
     expect(expectedStatus).to.be.deep.equal(status);
+  });
+
+  it.only("returns expected results on sequence execute-cancel-get_status", async () => {
+    const client = new DuneClient(apiKey);
+    // Long running query ID.
+    const queryID = 1215383;
+    const parameters = [
+      QueryParameter.text("TextField", "Plain Text"),
+      QueryParameter.number("NumberField", 3.1415926535),
+      QueryParameter.date("DateField", "2022-05-04 00:00:00"),
+      QueryParameter.enum("ListField", "Option 1"),
+    ];
+    // Execute and check state
+    const execution = await client.execute(queryID, parameters);
+    console.log(execution);
   });
 
   it("returns expected results on sequence execute-cancel-get_status", async () => {

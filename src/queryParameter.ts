@@ -16,27 +16,19 @@ export class QueryParameter {
     this.name = name;
   }
 
-  text(name: string, value: string): QueryParameter {
+  static text(name: string, value: string): QueryParameter {
     return new QueryParameter(ParameterType.TEXT, name, value);
   }
 
-  number(name: string, value: string | number): QueryParameter {
+  static number(name: string, value: string | number): QueryParameter {
     return new QueryParameter(ParameterType.NUMBER, name, value.toString());
   }
 
-  date(name: string, value: string | Date): QueryParameter {
+  static date(name: string, value: string | Date): QueryParameter {
     return new QueryParameter(ParameterType.DATE, name, value.toString());
   }
 
-  enum(name: string, value: string): QueryParameter {
+  static enum(name: string, value: string): QueryParameter {
     return new QueryParameter(ParameterType.ENUM, name, value.toString());
-  }
-
-  as_json(): any {
-    return {
-      key: this.name,
-      type: this.type.valueOf(),
-      value: this.value,
-    };
   }
 }
