@@ -1,13 +1,20 @@
+export class DuneError extends Error {
+  constructor(msg: string) {
+      super(msg);
+      Object.setPrototypeOf(this, DuneError.prototype);
+  }
+}
+
 export enum ExecutionState {
-  COMPLETED,
-  EXECUTING,
-  PENDING,
-  CANCELLED,
-  FAILED,
+  COMPLETED = "QUERY_STATE_COMPLETED",
+  EXECUTING = "QUERY_STATE_EXECUTING",
+  PENDING = "QUERY_STATE_PENDING",
+  CANCELLED = "QUERY_STATE_CANCELLED",
+  FAILED = "QUERY_STATE_FAILED",
 }
 
 export type ExecutionResponse = {
-  executionID: string;
+  execution_id: string;
   state: ExecutionState;
 };
 
@@ -19,10 +26,10 @@ export type TimeData = {
   // only exists when we have result data
   expires_at?: Date;
   // only exists for cancelled executions
-  cancelled_at: Date;
+  cancelled_at?: Date;
 };
 
-export type ResultMetaData = {
+export type ResultMetadata = {
   column_names: string[];
   result_set_bytes: number;
   total_row_count: number;
@@ -32,24 +39,24 @@ export type ResultMetaData = {
 };
 
 export type GetStatusResponse = {
-  executionID: string;
-  queryID: number;
+  execution_id: string;
+  query_id: number;
   state: ExecutionState;
   // TODO - add these after
   // times: TimeData;
-  // queuePosition?: number;
+  // queue_position?: number;
   // Exists when state COMPLETED
-  // resultMetaData?: ResultMetaData;
+  // result_metadata?: ResultMetadata;
 };
 
 export type ExecutionResult = {
   rows: Map<string, string>[];
-  metadata: ResultMetaData;
+  metadata: ResultMetadata;
 };
 
 export type ResultsResponse = {
-  executionID: string;
-  queryID: number;
+  execution_id: string;
+  query_id: number;
   state: ExecutionState;
   // times: TimeData
   // only present when state is COMPLETE
