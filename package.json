@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "ts-mocha 'tests/**/*.ts'",
+    "test": "ts-mocha 'tests/**/*.ts' -r dotenv/config",
     "fmt": "prettier --write \"./**/*.ts\"",
     "lint": "tslint -p tsconfig.json"
   },
