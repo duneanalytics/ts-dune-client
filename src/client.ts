@@ -1,11 +1,11 @@
 import {
   ExecutionResponse,
-  ExecutionState,
   GetStatusResponse,
   ResultsResponse,
   DuneError,
 } from "./responseTypes";
 import fetch from "cross-fetch";
+import { QueryParameter } from "./queryParameter";
 const BASE_URL = "https://api.dune.com/api/v1";
 
 export class DuneClient {
@@ -15,8 +15,8 @@ export class DuneClient {
     this.apiKey = apiKey;
   }
 
-  private async _handleResponse(responsePromise: Promise<Response>): Promise<any> {
-    const response = await responsePromise
+  private async _handleResponse<T>(responsePromise: Promise<Response>): Promise<T> {
+    const apiResponse = await responsePromise
       .then((response) => {
         if (response.status > 400) {
           console.error(`response error ${response.status} - ${response.statusText}`);
@@ -27,18 +27,18 @@ export class DuneClient {
         console.error(`caught unhandled response error ${JSON.stringify(error)}`);
         throw error;
       });
-    if (response.error) {
-      console.error(`caught unhandled response error ${JSON.stringify(response)}`);
-      if (response.error instanceof Object) {
-        throw new DuneError(response.error.type);
+    if (apiResponse.error) {
+      console.error(`error contained in response ${JSON.stringify(apiResponse)}`);
+      if (apiResponse.error instanceof Object) {
+        throw new DuneError(apiResponse.error.type);
       } else {
-        throw new DuneError(response.error);
+        throw new DuneError(apiResponse.error);
       }
     }
-    return response;
+    return apiResponse;
   }
 
-  private async _get(url: string): Promise<any> {
+  private async _get<T>(url: string): Promise<T> {
     console.debug(`GET received input url=${url}`);
     const response = fetch(url, {
       method: "GET",
@@ -46,24 +46,34 @@ export class DuneClient {
         "x-dune-api-key": this.apiKey,
       },
     });
-    return this._handleResponse(response);
+    return this._handleResponse<T>(response);
   }
 
-  private async _post(url: string, params?: any): Promise<any> {
+  private async _post<T>(url: string, params?: QueryParameter[]): Promise<T> {
     console.debug(`POST received input url=${url}, params=${JSON.stringify(params)}`);
+    // Transform Query Parameter list into "dict"
+    const reducedParams = params?.reduce<Record<string, string>>(
+      (acc, { name, value }) => ({ ...acc, [name]: value }),
+      {},
+    );
     const response = fetch(url, {
       method: "POST",
-      body: JSON.stringify(params),
+      body: JSON.stringify({ query_parameters: reducedParams || {} }),
       headers: {
         "x-dune-api-key": this.apiKey,
       },
     });
-    return this._handleResponse(response);
+    return this._handleResponse<T>(response);
   }
 
-  async execute(queryID: number): Promise<ExecutionResponse> {
-    // TODO - Add Query Parameters to Execution
-    const response = await this._post(`${BASE_URL}/query/${queryID}/execute`, {});
+  async execute(
+    queryID: number,
+    parameters?: QueryParameter[],
+  ): Promise<ExecutionResponse> {
+    const response = await this._post<ExecutionResponse>(
+      `${BASE_URL}/query/${queryID}/execute`,
+      parameters,
+    );
     console.debug(`execute response ${JSON.stringify(response)}`);
     return {
       execution_id: response.execution_id,
@@ -76,10 +86,11 @@ export class DuneClient {
       `${BASE_URL}/execution/${jobID}/status`,
     );
     console.debug(`get_status response ${JSON.stringify(response)}`);
+    const { execution_id, query_id, state } = response;
     return {
-      execution_id: response.execution_id,
-      query_id: response.query_id,
-      state: response.state,
+      execution_id,
+      query_id,
+      state,
       // times: parseTimesFrom(data)
     };
   }
@@ -102,8 +113,9 @@ export class DuneClient {
   }
 
   async cancel_execution(jobID: string): Promise<boolean> {
-    const data = await this._post(`${BASE_URL}/execution/${jobID}/cancel`);
-    const success: boolean = data.success;
+    const { success }: { success: boolean } = await this._post(
+      `${BASE_URL}/execution/${jobID}/cancel`,
+    );
     return success;
   }
 }
