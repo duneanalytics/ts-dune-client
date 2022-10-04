@@ -3,6 +3,7 @@ import {
   ExecutionState,
   GetStatusResponse,
   ResultsResponse,
+  DuneError,
 } from "./responseTypes";
 import axios from "axios";
 import fetch from "cross-fetch";
@@ -15,6 +16,24 @@ export class DuneClient {
     this.apiKey = apiKey;
   }
 
+  private async _handleResponse(responsePromise: Promise<Response>): Promise<any> {
+    const response = await responsePromise
+      .then((response) => {
+        if (response.status > 400) {
+          console.error(`response error ${response.status} - ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .catch((error) => {
+        console.error(`caught unhandled response error ${JSON.stringify(error)}`);
+        throw error;
+      });
+    if (response.error) {
+      throw new DuneError(response.error);
+    }
+    return response;
+  }
+
   private async _get(url: string): Promise<any> {
     console.debug(`GET received input url=${url}`);
     const response = fetch(url, {
@@ -22,74 +41,60 @@ export class DuneClient {
       headers: {
         "x-dune-api-key": this.apiKey,
       },
-    })
-      .then((response) => {
-        if (response.status > 400) {
-          throw new Error(`Bad response from server ${response.json()}`);
-        }
-        console.log(`GET response: ${response.json()}`);
-        return response.json();
-      })
-      .catch((error) => {
-        console.error(`GET error ${error}`);
-        throw error;
-      });
-    return response;
+    });
+    return this._handleResponse(response);
   }
 
   private async _post(url: string, params?: any): Promise<any> {
     console.debug(`POST received input url=${url}, params=${JSON.stringify(params)}`);
-    const response = await fetch(url, {
+    const response = fetch(url, {
       method: "POST",
       body: JSON.stringify(params),
       headers: {
         "x-dune-api-key": this.apiKey,
       },
-    })
-      .then((response) => {
-        if (response.status > 400) {
-          console.error(`Error ${response.status} - ${response.statusText}`);
-          return response.json();
-        }
-        return response.json();
-      })
-      .catch((error) => {
-        console.error(`POST error ${JSON.stringify(error)}`);
-        throw error;
-      });
-    if (response.error) {
-      console.debug(`POST error: ${response.error}`);
-    }
-
-    return response;
+    });
+    return this._handleResponse(response);
   }
 
   async execute(queryID: number): Promise<ExecutionResponse> {
-    const responseData = await this._post(`${BASE_URL}/query/${queryID}/execute`, {});
-    return responseData;
+    // TODO - Add Query Parameters to Execution
+    const response = await this._post(`${BASE_URL}/query/${queryID}/execute`, {});
+    console.debug(`execute response ${JSON.stringify(response)}`);
+    return {
+      execution_id: response.execution_id,
+      state: response.state,
+    };
   }
 
   async get_status(jobID: string): Promise<GetStatusResponse> {
-    const data = await this._get(`${BASE_URL}/execution/${jobID}/status`);
+    const response: GetStatusResponse = await this._get(
+      `${BASE_URL}/execution/${jobID}/status`,
+    );
+    console.debug(`get_status response ${JSON.stringify(response)}`);
     return {
-      executionID: data.execution_id,
-      queryID: data.query_id,
-      state: data.state,
+      execution_id: response.execution_id,
+      query_id: response.query_id,
+      state: response.state,
       // times: parseTimesFrom(data)
     };
   }
 
   async get_result(jobID: string): Promise<ResultsResponse> {
-    const data = await this._get(`${BASE_URL}/execution/${jobID}/results`);
-    return {
-      executionID: data.execution_id,
-      queryID: data.query_id,
-      state: data.state,
-      // times: parseTimesFrom(data)
-      result: data.result
-        ? { rows: data.result.rows, metadata: data.result.metadata }
-        : undefined,
-    };
+    const response: ResultsResponse = await this._get(
+      `${BASE_URL}/execution/${jobID}/results`,
+    );
+    console.debug(`get_result response ${JSON.stringify(response)}`);
+    return response as ResultsResponse;
+    // return {
+    //   execution_id: data.execution_id,
+    //   query_id: data.query_id,
+    //   state: data.state,
+    //   // times: parseTimesFrom(data)
+    //   result: data.result
+    //     ? { rows: data.result.rows, metadata: data.result.metadata }
+    //     : undefined,
+    // };
   }
 
   async cancel_execution(jobID: string): Promise<boolean> {
