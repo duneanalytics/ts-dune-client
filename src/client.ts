@@ -5,7 +5,6 @@ import {
   ResultsResponse,
   DuneError,
 } from "./responseTypes";
-import axios from "axios";
 import fetch from "cross-fetch";
 const BASE_URL = "https://api.dune.com/api/v1";
 
