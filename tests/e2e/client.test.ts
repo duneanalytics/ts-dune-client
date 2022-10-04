@@ -11,7 +11,7 @@ import {
 const { DUNE_API_KEY } = process.env;
 const apiKey: string = DUNE_API_KEY ? DUNE_API_KEY : "No API Key";
 
-const expectAsyncThrow = async (promise: Promise<any>, message?: string) => {
+const expectAsyncThrow = async (promise: Promise<any>, message?: string | object) => {
   try {
     await promise;
     // Make sure to fail if promise does resolve!
@@ -26,6 +26,12 @@ const expectAsyncThrow = async (promise: Promise<any>, message?: string) => {
   }
 };
 
+beforeEach(() => {
+  console.log = function () {};
+  console.debug = function () {};
+  console.error = function () {};
+});
+
 describe("DuneClient: execute", () => {
   it("returns expected results on sequence execute-cancel-get_status", async () => {
     const client = new DuneClient(apiKey);
@@ -37,7 +43,7 @@ describe("DuneClient: execute", () => {
       ExecutionState.PENDING,
       ExecutionState.EXECUTING,
     ]);
-    console.log(execution.execution_id);
+
     // Cancel execution and verify it was canceled.
     const canceled = await client.cancel_execution(execution.execution_id);
     expect(true).to.be.equal(canceled);
@@ -99,6 +105,20 @@ describe("DuneClient: Errors", () => {
     await expectAsyncThrow(
       client.execute(1348384),
       "User is not allowed to execute the query",
+    );
+  });
+  it("fails with unhandled FAILED_TYPE_UNSPECIFIED when query won't compile", async () => {
+    const client = new DuneClient(apiKey);
+    // Execute and check state
+    // V1 query: 1348966
+    await expectAsyncThrow(
+      client.get_result("01GEHG4AY1Z9JBR3BYB20E7RGH"),
+      "FAILED_TYPE_UNSPECIFIED",
+    );
+    // V2 -query: :1349019
+    await expectAsyncThrow(
+      client.get_result("01GEHGXHQ25XWMVFJ4G2HZ5MGS"),
+      "FAILED_TYPE_UNSPECIFIED",
     );
   });
 });

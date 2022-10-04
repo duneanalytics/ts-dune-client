@@ -6,6 +6,7 @@ import {
   DuneError,
 } from "./responseTypes";
 import fetch from "cross-fetch";
+import { stringify } from "querystring";
 const BASE_URL = "https://api.dune.com/api/v1";
 
 export class DuneClient {
@@ -28,7 +29,12 @@ export class DuneClient {
         throw error;
       });
     if (response.error) {
-      throw new DuneError(response.error);
+      console.error(`caught unhandled response error ${JSON.stringify(response)}`);
+      if (response.error instanceof Object) {
+        throw new DuneError(response.error.type);
+      } else {
+        throw new DuneError(response.error);
+      }
     }
     return response;
   }
