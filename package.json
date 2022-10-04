@@ -10,8 +10,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "ts-mocha 'tests/**/*.ts'",
-    "fmt": "prettier --write \"src/**/*.ts\"",
+    "test": "ts-mocha 'tests/**/*.ts' -r dotenv/config",
+    "fmt": "prettier --write \"./**/*.ts\"",
     "lint": "tslint -p tsconfig.json"
   },
   "devDependencies": {
@@ -20,6 +20,7 @@
     "@types/node": "^18.7.23",
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
+    "dotenv": "^16.0.3",
     "mocha": "^10.0.0",
     "prettier": "^2.7.1",
     "ts-mocha": "^10.0.0",
