@@ -28,7 +28,7 @@ export class DuneClient {
         throw error;
       });
     if (apiResponse.error) {
-      console.error(`caught unhandled response error ${JSON.stringify(apiResponse)}`);
+      console.error(`error contained in response ${JSON.stringify(apiResponse)}`);
       if (apiResponse.error instanceof Object) {
         throw new DuneError(apiResponse.error.type);
       } else {
@@ -51,6 +51,7 @@ export class DuneClient {
 
   private async _post<T>(url: string, params?: QueryParameter[]): Promise<T> {
     console.debug(`POST received input url=${url}, params=${JSON.stringify(params)}`);
+    // Transform Query Parameter list into "dict"
     const reducedParams = params?.reduce<Record<string, string>>(
       (acc, { name, value }) => ({ ...acc, [name]: value }),
       {},

@@ -1,12 +1,7 @@
 import { expect } from "chai";
 import { QueryParameter } from "../../src/queryParameter";
 import { DuneClient } from "../../src/client";
-import {
-  DuneError,
-  ExecutionResponse,
-  ExecutionState,
-  GetStatusResponse,
-} from "../../src/responseTypes";
+import { DuneError, ExecutionState, GetStatusResponse } from "../../src/responseTypes";
 
 const { DUNE_API_KEY } = process.env;
 const apiKey: string = DUNE_API_KEY ? DUNE_API_KEY : "No API Key";
@@ -26,16 +21,16 @@ const expectAsyncThrow = async (promise: Promise<any>, message?: string | object
   }
 };
 
-// beforeEach(() => {
-//   console.log = function () {};
-//   console.debug = function () {};
-//   console.error = function () {};
-// });
+beforeEach(() => {
+  // console.log = function () {};
+  console.debug = function () {};
+  console.error = function () {};
+});
 
 describe("DuneClient: execute", () => {
   // This doesn't work if run too many times at once:
   // https://discord.com/channels/757637422384283659/1019910980634939433/1026840715701010473
-  it.skip("returns expected results on sequence execute-cancel-get_status", async () => {
+  it("returns expected results on sequence execute-cancel-get_status", async () => {
     const client = new DuneClient(apiKey);
     // Long running query ID.
     const queryID = 1229120;
@@ -60,9 +55,8 @@ describe("DuneClient: execute", () => {
     expect(expectedStatus).to.be.deep.equal(status);
   });
 
-  it.only("returns expected results on sequence execute-cancel-get_status", async () => {
+  it("successfully executes with query parameters", async () => {
     const client = new DuneClient(apiKey);
-    // Long running query ID.
     const queryID = 1215383;
     const parameters = [
       QueryParameter.text("TextField", "Plain Text"),
@@ -72,7 +66,7 @@ describe("DuneClient: execute", () => {
     ];
     // Execute and check state
     const execution = await client.execute(queryID, parameters);
-    console.log(execution);
+    expect(execution.execution_id).is.not.null;
   });
 
   it("returns expected results on sequence execute-cancel-get_status", async () => {
@@ -94,6 +88,10 @@ describe("DuneClient: execute", () => {
 });
 
 describe("DuneClient: Errors", () => {
+  // TODO these errors can't be reached because post method is private
+  // {"error":"unknown parameters (undefined)"}
+  // {"error":"Invalid request body payload"}
+
   it("returns invalid API key", async () => {
     const client = new DuneClient("Bad Key");
     await expectAsyncThrow(client.execute(1), "invalid API Key");
@@ -116,6 +114,16 @@ describe("DuneClient: Errors", () => {
     await expectAsyncThrow(client.get_status(invalidJobID), expectedErrorMessage);
     await expectAsyncThrow(client.get_result(invalidJobID), expectedErrorMessage);
     await expectAsyncThrow(client.cancel_execution(invalidJobID), expectedErrorMessage);
+  });
+  it.only("fails execute with unknown query parameter", async () => {
+    const client = new DuneClient(apiKey);
+    const queryID = 1215383;
+    const invalidParameterName = "Invalid Parameter Name";
+    const parameters = [QueryParameter.text(invalidParameterName, "")];
+    await expectAsyncThrow(
+      client.execute(queryID, parameters),
+      `unknown parameters (${invalidParameterName})`,
+    );
   });
   it("does not allow to execute private queries for other accounts.", async () => {
     const client = new DuneClient(apiKey);

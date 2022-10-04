@@ -21,6 +21,7 @@ export class QueryParameter {
   }
 
   static number(name: string, value: string | number): QueryParameter {
+    // TODO - investigate large numbers here...
     return new QueryParameter(ParameterType.NUMBER, name, value.toString());
   }
 
