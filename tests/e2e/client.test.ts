@@ -27,7 +27,7 @@ beforeEach(() => {
   console.error = function () {};
 });
 
-describe("DuneClient: execute", () => {
+describe("DuneClient: native routes", () => {
   // This doesn't work if run too many times at once:
   // https://discord.com/channels/757637422384283659/1019910980634939433/1026840715701010473
   it("returns expected results on sequence execute-cancel-get_status", async () => {
@@ -87,6 +87,21 @@ describe("DuneClient: execute", () => {
   });
 });
 
+describe("DuneClient: refresh", () => {
+  it("returns expected records on refresh", async () => {
+    const client = new DuneClient(apiKey);
+    const results = await client.refresh(1215383);
+    expect(results.result?.rows).to.be.deep.equal([
+      {
+        date_field: "2022-05-04 00:00:00",
+        list_field: "Option 1",
+        number_field: "3.1415926535",
+        text_field: "Plain Text",
+      },
+    ]);
+  });
+});
+
 describe("DuneClient: Errors", () => {
   // TODO these errors can't be reached because post method is private
   // {"error":"unknown parameters (undefined)"}
@@ -115,7 +130,7 @@ describe("DuneClient: Errors", () => {
     await expectAsyncThrow(client.get_result(invalidJobID), expectedErrorMessage);
     await expectAsyncThrow(client.cancel_execution(invalidJobID), expectedErrorMessage);
   });
-  it.only("fails execute with unknown query parameter", async () => {
+  it("fails execute with unknown query parameter", async () => {
     const client = new DuneClient(apiKey);
     const queryID = 1215383;
     const invalidParameterName = "Invalid Parameter Name";
