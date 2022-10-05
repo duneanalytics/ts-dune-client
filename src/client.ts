@@ -75,7 +75,7 @@ export class DuneClient {
     return this._handleResponse<T>(response);
   }
 
-  // Accoring to the
+  
   async execute(
     queryID: number,
     parameters?: QueryParameter[],
