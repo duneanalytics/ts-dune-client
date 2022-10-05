@@ -42,11 +42,11 @@ describe("DuneClient: native routes", () => {
     ]);
 
     // Cancel execution and verify it was canceled.
-    const canceled = await client.cancel_execution(execution.execution_id);
+    const canceled = await client.cancelExecution(execution.execution_id);
     expect(true).to.be.equal(canceled);
 
     // Get execution status
-    const status = await client.get_status(execution.execution_id);
+    const status = await client.getStatus(execution.execution_id);
     const expectedStatus: GetStatusResponse = {
       state: ExecutionState.CANCELLED,
       execution_id: execution.execution_id,
@@ -73,7 +73,7 @@ describe("DuneClient: native routes", () => {
     const client = new DuneClient(apiKey);
     // Execute and check state
     const cancelledExecutionId = "01GEHEC1W8P1V5ENF66R2WY54V";
-    const result = await client.get_result(cancelledExecutionId);
+    const result = await client.getResult(cancelledExecutionId);
     expect(result).to.deep.equal({
       execution_id: cancelledExecutionId,
       query_id: 1229120,
@@ -127,9 +127,9 @@ describe("DuneClient: Errors", () => {
 
     const invalidJobID = "Wonky Job ID";
     const expectedErrorMessage = `The requested execution ID (ID: ${invalidJobID}) is invalid.`;
-    await expectAsyncThrow(client.get_status(invalidJobID), expectedErrorMessage);
-    await expectAsyncThrow(client.get_result(invalidJobID), expectedErrorMessage);
-    await expectAsyncThrow(client.cancel_execution(invalidJobID), expectedErrorMessage);
+    await expectAsyncThrow(client.getStatus(invalidJobID), expectedErrorMessage);
+    await expectAsyncThrow(client.getResult(invalidJobID), expectedErrorMessage);
+    await expectAsyncThrow(client.cancelExecution(invalidJobID), expectedErrorMessage);
   });
   it("fails execute with unknown query parameter", async () => {
     const client = new DuneClient(apiKey);
@@ -153,12 +153,12 @@ describe("DuneClient: Errors", () => {
     // Execute and check state
     // V1 query: 1348966
     await expectAsyncThrow(
-      client.get_result("01GEHG4AY1Z9JBR3BYB20E7RGH"),
+      client.getResult("01GEHG4AY1Z9JBR3BYB20E7RGH"),
       "FAILED_TYPE_UNSPECIFIED",
     );
     // V2 -query: :1349019
     await expectAsyncThrow(
-      client.get_result("01GEHGXHQ25XWMVFJ4G2HZ5MGS"),
+      client.getResult("01GEHGXHQ25XWMVFJ4G2HZ5MGS"),
       "FAILED_TYPE_UNSPECIFIED",
     );
   });

@@ -15,6 +15,8 @@ const TERMINAL_STATES = [
   ExecutionState.COMPLETED,
   ExecutionState.FAILED,
 ];
+
+// This class implements all the routes defined in the Dune API Docs: https://dune.com/docs/api/
 export class DuneClient {
   apiKey: string;
 
@@ -73,6 +75,7 @@ export class DuneClient {
     return this._handleResponse<T>(response);
   }
 
+  // Accoring to the
   async execute(
     queryID: number,
     parameters?: QueryParameter[],
@@ -88,7 +91,7 @@ export class DuneClient {
     };
   }
 
-  async get_status(jobID: string): Promise<GetStatusResponse> {
+  async getStatus(jobID: string): Promise<GetStatusResponse> {
     const response: GetStatusResponse = await this._get(
       `${BASE_URL}/execution/${jobID}/status`,
     );
@@ -102,7 +105,7 @@ export class DuneClient {
     };
   }
 
-  async get_result(jobID: string): Promise<ResultsResponse> {
+  async getResult(jobID: string): Promise<ResultsResponse> {
     const response: ResultsResponse = await this._get(
       `${BASE_URL}/execution/${jobID}/results`,
     );
@@ -119,7 +122,7 @@ export class DuneClient {
     // };
   }
 
-  async cancel_execution(jobID: string): Promise<boolean> {
+  async cancelExecution(jobID: string): Promise<boolean> {
     const { success }: { success: boolean } = await this._post(
       `${BASE_URL}/execution/${jobID}/cancel`,
     );
@@ -135,16 +138,16 @@ export class DuneClient {
       `refreshing query https://dune.com/queries/${queryID} with parameters ${parameters}`,
     );
     const { execution_id: jobID } = await this.execute(queryID, parameters);
-    let { state } = await this.get_status(jobID);
+    let { state } = await this.getStatus(jobID);
     while (!TERMINAL_STATES.includes(state)) {
       console.log(
         `waiting for query execution ${jobID} to complete: current state ${state}`,
       );
       sleep(pingFrequency);
-      state = (await this.get_status(jobID)).state;
+      state = (await this.getStatus(jobID)).state;
     }
     if (state === ExecutionState.COMPLETED) {
-      return this.get_result(jobID);
+      return this.getResult(jobID);
     } else {
       const message = `refresh (execution ${jobID}) yields incomplete terminal state ${state}`;
       // TODO - log the error in constructor
