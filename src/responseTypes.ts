@@ -13,13 +13,12 @@ export enum ExecutionState {
   FAILED = "QUERY_STATE_FAILED",
 }
 
-export type ExecutionResponse = {
+export interface ExecutionResponse {
   execution_id: string;
   state: ExecutionState;
-};
+}
 
-// TODO - Use camelCase!
-export type TimeData = {
+export interface TimeData {
   submitted_at: Date;
   execution_started_at?: Date;
   execution_ended_at?: Date;
@@ -27,38 +26,43 @@ export type TimeData = {
   expires_at?: Date;
   // only exists for cancelled executions
   cancelled_at?: Date;
-};
+}
 
-export type ResultMetadata = {
+export interface ResultMetadata {
   column_names: string[];
   result_set_bytes: number;
   total_row_count: number;
   datapoint_count: number;
   pending_time_millis: number;
   execution_time_millis: number;
-};
+}
 
-export type GetStatusResponse = {
+interface BaseStatusResponse extends TimeData {
   execution_id: string;
   query_id: number;
-  state: ExecutionState;
-  // TODO - add these after
-  // times: TimeData;
-  // queue_position?: number;
-  // Exists when state COMPLETED
-  // result_metadata?: ResultMetadata;
-};
+}
+interface IncompleteStatusResponse extends BaseStatusResponse {
+  state: Exclude<ExecutionState, ExecutionState.COMPLETED>;
+  // TODO - lift Queue Position into base.
+  queue_position?: number;
+}
+interface CompleteStatusResponse extends BaseStatusResponse {
+  state: ExecutionState.COMPLETED;
+  queue_position?: number;
+  result_metadata: ResultMetadata;
+}
 
-export type ExecutionResult = {
+export type GetStatusResponse = IncompleteStatusResponse | CompleteStatusResponse;
+
+export interface ExecutionResult {
   rows: Record<string, string>[];
   metadata: ResultMetadata;
-};
+}
 
-export type ResultsResponse = {
+export interface ResultsResponse extends TimeData {
   execution_id: string;
   query_id: number;
   state: ExecutionState;
-  // times: TimeData
   // only present when state is COMPLETE
   result?: ExecutionResult;
-};
+}

@@ -27,7 +27,7 @@ export class DuneClient {
   private async _handleResponse<T>(responsePromise: Promise<Response>): Promise<T> {
     const apiResponse = await responsePromise
       .then((response) => {
-        if (response.status > 400) {
+        if (!response.ok) {
           console.error(`response error ${response.status} - ${response.statusText}`);
         }
         return response.json();
@@ -75,7 +75,6 @@ export class DuneClient {
     return this._handleResponse<T>(response);
   }
 
-  
   async execute(
     queryID: number,
     parameters?: QueryParameter[],
@@ -85,10 +84,7 @@ export class DuneClient {
       parameters,
     );
     console.debug(`execute response ${JSON.stringify(response)}`);
-    return {
-      execution_id: response.execution_id,
-      state: response.state,
-    };
+    return response as ExecutionResponse;
   }
 
   async getStatus(jobID: string): Promise<GetStatusResponse> {
@@ -96,13 +92,7 @@ export class DuneClient {
       `${BASE_URL}/execution/${jobID}/status`,
     );
     console.debug(`get_status response ${JSON.stringify(response)}`);
-    const { execution_id, query_id, state } = response;
-    return {
-      execution_id,
-      query_id,
-      state,
-      // times: parseTimesFrom(data)
-    };
+    return response as GetStatusResponse;
   }
 
   async getResult(jobID: string): Promise<ResultsResponse> {
@@ -111,15 +101,6 @@ export class DuneClient {
     );
     console.debug(`get_result response ${JSON.stringify(response)}`);
     return response as ResultsResponse;
-    // return {
-    //   execution_id: data.execution_id,
-    //   query_id: data.query_id,
-    //   state: data.state,
-    //   // times: parseTimesFrom(data)
-    //   result: data.result
-    //     ? { rows: data.result.rows, metadata: data.result.metadata }
-    //     : undefined,
-    // };
   }
 
   async cancelExecution(jobID: string): Promise<boolean> {
@@ -135,7 +116,9 @@ export class DuneClient {
     pingFrequency: number = 5,
   ): Promise<ResultsResponse> {
     console.log(
-      `refreshing query https://dune.com/queries/${queryID} with parameters ${parameters}`,
+      `refreshing query https://dune.com/queries/${queryID} with parameters ${JSON.stringify(
+        parameters,
+      )}`,
     );
     const { execution_id: jobID } = await this.execute(queryID, parameters);
     let { state } = await this.getStatus(jobID);
