@@ -15,6 +15,8 @@ const TERMINAL_STATES = [
   ExecutionState.COMPLETED,
   ExecutionState.FAILED,
 ];
+
+// This class implements all the routes defined in the Dune API Docs: https://dune.com/docs/api/
 export class DuneClient {
   apiKey: string;
 
@@ -73,6 +75,7 @@ export class DuneClient {
     return this._handleResponse<T>(response);
   }
 
+  // Accoring to the
   async execute(
     queryID: number,
     parameters?: QueryParameter[],

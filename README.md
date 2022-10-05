@@ -1,5 +1,9 @@
 # Dune Client TS
 
+This package implements all the basic routes defined in the Dune API Docs: https://dune.com/docs/api/
+
+and also introduces a `refresh` method that combines `execute`, `get_status` and `get_results` in a way that makes it easy to fetch query execution results.
+
 Install the package
 
 ```sh
@@ -20,7 +24,7 @@ const parameters = [
 
 const execution_result = await client.refresh(queryID, parameters);
 
-console.log(execution_result.result?.rows)
+console.log(execution_result.result?.rows);
 
 // should look like
 // [
@@ -33,4 +37,4 @@ console.log(execution_result.result?.rows)
 // ]
 ```
 
-Note also that the client has methods `execute`, `getStatus`, `getResult` and `cancelExecution` 
+Note also that the client has methods `execute`, `getStatus`, `getResult` and `cancelExecution`
