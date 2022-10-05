@@ -1,8 +1,9 @@
 {
-  "name": "ts-dune-client",
+  "name": "@cowprotocol/ts-dune-client",
   "version": "0.0.0",
   "author": "Ben Smith <bh2smith@gmail.com>",
-  "license": "MIT",
+  "description": "Node Client for Dune Analytics' officially supported API.",
+  "repository": "git@github.com:cowprotocol/ts-dune-client.git",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
