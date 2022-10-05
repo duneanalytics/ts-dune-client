@@ -1,8 +1,6 @@
 # Dune Client TS
 
-This package implements all the basic routes defined in the Dune API Docs: https://dune.com/docs/api/
-
-and also introduces a `refresh` method that combines `execute`, `get_status` and `get_results` in a way that makes it easy to fetch query execution results.
+This package implements all the basic routes defined in the [Dune API Docs](https://dune.com/docs/api/). It also introduces a convenience method `refresh` which combines `execute`, `getStatus` and `getResults` in a way that makes it nearly trivial to fetch query execution results.
 
 Install the package
 
