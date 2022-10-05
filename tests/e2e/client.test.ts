@@ -2,9 +2,12 @@ import { expect } from "chai";
 import { QueryParameter } from "../../src/queryParameter";
 import { DuneClient } from "../../src/client";
 import { DuneError, ExecutionState, GetStatusResponse } from "../../src/responseTypes";
+import log from "loglevel";
 
 const { DUNE_API_KEY } = process.env;
 const apiKey: string = DUNE_API_KEY ? DUNE_API_KEY : "No API Key";
+
+log.setLevel("silent", true);
 
 const expectAsyncThrow = async (promise: Promise<any>, message?: string | object) => {
   try {
