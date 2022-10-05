@@ -10,8 +10,9 @@ yarn add @cowprotocol/ts-dune-client
 
 ```ts
 import { QueryParameter, DuneClient } from "@cowprotocol/ts-dune-client";
+const { DUNE_API_KEY } = process.env;
 
-const client = new DuneClient(apiKey);
+const client = new DuneClient(DUNE_API_KEY ?? "");
 const queryID = 1215383;
 const parameters = [
   QueryParameter.text("TextField", "Plain Text"),
@@ -20,9 +21,9 @@ const parameters = [
   QueryParameter.enum("ListField", "Option 1"),
 ];
 
-const execution_result = await client.refresh(queryID, parameters);
-
-console.log(execution_result.result?.rows);
+client
+  .refresh(queryID, parameters)
+  .then((executionResult) => console.log(executionResult.result?.rows));
 
 // should look like
 // [

@@ -8,6 +8,8 @@ import {
 import fetch from "cross-fetch";
 import { QueryParameter } from "./queryParameter";
 import { sleep } from "./utils";
+import log from "loglevel";
+import { logPrefix } from "./utils";
 
 const BASE_URL = "https://api.dune.com/api/v1";
 const TERMINAL_STATES = [
@@ -28,16 +30,19 @@ export class DuneClient {
     const apiResponse = await responsePromise
       .then((response) => {
         if (!response.ok) {
-          console.error(`response error ${response.status} - ${response.statusText}`);
+          log.error(
+            logPrefix,
+            `response error ${response.status} - ${response.statusText}`,
+          );
         }
         return response.json();
       })
       .catch((error) => {
-        console.error(`caught unhandled response error ${JSON.stringify(error)}`);
+        log.error(logPrefix, `caught unhandled response error ${JSON.stringify(error)}`);
         throw error;
       });
     if (apiResponse.error) {
-      console.error(`error contained in response ${JSON.stringify(apiResponse)}`);
+      log.error(logPrefix, `error contained in response ${JSON.stringify(apiResponse)}`);
       if (apiResponse.error instanceof Object) {
         throw new DuneError(apiResponse.error.type);
       } else {
@@ -48,7 +53,7 @@ export class DuneClient {
   }
 
   private async _get<T>(url: string): Promise<T> {
-    console.debug(`GET received input url=${url}`);
+    log.debug(logPrefix, `GET received input url=${url}`);
     const response = fetch(url, {
       method: "GET",
       headers: {
@@ -59,7 +64,10 @@ export class DuneClient {
   }
 
   private async _post<T>(url: string, params?: QueryParameter[]): Promise<T> {
-    console.debug(`POST received input url=${url}, params=${JSON.stringify(params)}`);
+    log.debug(
+      logPrefix,
+      `POST received input url=${url}, params=${JSON.stringify(params)}`,
+    );
     // Transform Query Parameter list into "dict"
     const reducedParams = params?.reduce<Record<string, string>>(
       (acc, { name, value }) => ({ ...acc, [name]: value }),
@@ -83,7 +91,7 @@ export class DuneClient {
       `${BASE_URL}/query/${queryID}/execute`,
       parameters,
     );
-    console.debug(`execute response ${JSON.stringify(response)}`);
+    log.debug(logPrefix, `execute response ${JSON.stringify(response)}`);
     return response as ExecutionResponse;
   }
 
@@ -91,7 +99,7 @@ export class DuneClient {
     const response: GetStatusResponse = await this._get(
       `${BASE_URL}/execution/${jobID}/status`,
     );
-    console.debug(`get_status response ${JSON.stringify(response)}`);
+    log.debug(logPrefix, `get_status response ${JSON.stringify(response)}`);
     return response as GetStatusResponse;
   }
 
@@ -99,7 +107,7 @@ export class DuneClient {
     const response: ResultsResponse = await this._get(
       `${BASE_URL}/execution/${jobID}/results`,
     );
-    console.debug(`get_result response ${JSON.stringify(response)}`);
+    log.debug(logPrefix, `get_result response ${JSON.stringify(response)}`);
     return response as ResultsResponse;
   }
 
@@ -115,7 +123,8 @@ export class DuneClient {
     parameters?: QueryParameter[],
     pingFrequency: number = 5,
   ): Promise<ResultsResponse> {
-    console.log(
+    log.info(
+      logPrefix,
       `refreshing query https://dune.com/queries/${queryID} with parameters ${JSON.stringify(
         parameters,
       )}`,
@@ -123,7 +132,8 @@ export class DuneClient {
     const { execution_id: jobID } = await this.execute(queryID, parameters);
     let { state } = await this.getStatus(jobID);
     while (!TERMINAL_STATES.includes(state)) {
-      console.log(
+      log.info(
+        logPrefix,
         `waiting for query execution ${jobID} to complete: current state ${state}`,
       );
       sleep(pingFrequency);
@@ -134,7 +144,7 @@ export class DuneClient {
     } else {
       const message = `refresh (execution ${jobID}) yields incomplete terminal state ${state}`;
       // TODO - log the error in constructor
-      console.error(message);
+      log.error(logPrefix, message);
       throw new DuneError(message);
     }
   }

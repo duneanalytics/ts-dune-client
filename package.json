@@ -1,6 +1,6 @@
 {
   "name": "@cowprotocol/ts-dune-client",
-  "version": "0.0.0-beta.1",
+  "version": "0.0.0-beta.2",
   "author": "Ben Smith <bh2smith@gmail.com>",
   "description": "Node Client for Dune Analytics' officially supported API.",
   "repository": "git@github.com:cowprotocol/ts-dune-client.git",
@@ -31,6 +31,7 @@
     "typescript": "^4.8.4"
   },
   "dependencies": {
-    "cross-fetch": "^3.1.5"
+    "cross-fetch": "^3.1.5",
+    "loglevel": "^1.8.0"
   }
 }
