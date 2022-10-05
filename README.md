@@ -1,3 +1,6 @@
+[![Styled With Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io/)
+[![Build](https://github.com/cowprotocol/ts-dune-client/actions/workflows/pull-request.yaml/badge.svg)](https://github.com/cowprotocol/ts-dune-client/actions/workflows/pull-request.yaml/badge.svg)
+
 # Dune Client TS
 
 This package implements all the basic routes defined in the [Dune API Docs](https://dune.com/docs/api/). It also introduces a convenience method `refresh` which combines `execute`, `getStatus` and `getResults` in a way that makes it nearly trivial to fetch query execution results.
@@ -37,3 +40,5 @@ client
 ```
 
 Note also that the client has methods `execute`, `getStatus`, `getResult` and `cancelExecution`
+
+Check out this [Demo Project](https://github.com/bh2smith/demo-ts-dune-client)!
