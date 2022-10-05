@@ -37,3 +37,5 @@ client
 ```
 
 Note also that the client has methods `execute`, `getStatus`, `getResult` and `cancelExecution`
+
+Check out this [Demo Project](https://github.com/bh2smith/demo-ts-dune-client)!
