@@ -136,7 +136,7 @@ export class DuneClient {
         logPrefix,
         `waiting for query execution ${jobID} to complete: current state ${state}`,
       );
-      sleep(pingFrequency);
+      await sleep(pingFrequency);
       state = (await this.getStatus(jobID)).state;
     }
     if (state === ExecutionState.COMPLETED) {
