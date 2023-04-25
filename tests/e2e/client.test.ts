@@ -93,9 +93,9 @@ describe("DuneClient: refresh", () => {
     ]);
     expect(results.result?.rows).to.be.deep.equal([
       {
-        date_field: "2022-05-04 00:00:00",
+        date_field: "2022-05-04T00:00:00",
         list_field: "Option 1",
-        number_field: "3.1415926535",
+        number_field: 3.1415926535,
         text_field: "Plain Text",
       },
     ]);
@@ -111,9 +111,9 @@ describe("DuneClient: Errors", () => {
     const client = new DuneClient("Bad Key");
     await expectAsyncThrow(client.execute(1), "invalid API Key");
   });
-  it("returns internal server error (queryId too large)", async () => {
+  it("returns Invalid request path (queryId too large)", async () => {
     const client = new DuneClient(apiKey);
-    await expectAsyncThrow(client.execute(999999999999999), "An internal error occured");
+    await expectAsyncThrow(client.execute(99999999999999999999999999), "Invalid request path");
   });
   it("returns query not found error", async () => {
     const client = new DuneClient(apiKey);
@@ -144,7 +144,7 @@ describe("DuneClient: Errors", () => {
     const client = new DuneClient(apiKey);
     await expectAsyncThrow(
       client.execute(1348384),
-      "User is not allowed to execute the query",
+      "You don't have permission to execute this query",
     );
   });
   it("fails with unhandled FAILED_TYPE_UNSPECIFIED when query won't compile", async () => {
@@ -153,12 +153,12 @@ describe("DuneClient: Errors", () => {
     // V1 query: 1348966
     await expectAsyncThrow(
       client.getResult("01GEHG4AY1Z9JBR3BYB20E7RGH"),
-      "FAILED_TYPE_UNSPECIFIED",
+      "FAILED_TYPE_EXECUTION_FAILED",
     );
     // V2 -query: :1349019
     await expectAsyncThrow(
       client.getResult("01GEHGXHQ25XWMVFJ4G2HZ5MGS"),
-      "FAILED_TYPE_UNSPECIFIED",
+      "FAILED_TYPE_EXECUTION_FAILED",
     );
   });
 });
