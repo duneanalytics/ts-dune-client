@@ -1,6 +1,6 @@
 {
   "name": "@cowprotocol/ts-dune-client",
-  "version": "0.0.0-beta.2",
+  "version": "0.0.1",
   "author": "Ben Smith <bh2smith@gmail.com>",
   "description": "Node Client for Dune Analytics' officially supported API.",
   "repository": "git@github.com:cowprotocol/ts-dune-client.git",
