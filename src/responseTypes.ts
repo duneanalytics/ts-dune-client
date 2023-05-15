@@ -55,7 +55,7 @@ interface CompleteStatusResponse extends BaseStatusResponse {
 export type GetStatusResponse = IncompleteStatusResponse | CompleteStatusResponse;
 
 export interface ExecutionResult {
-  rows: Record<string, any>[];
+  rows: Record<string, unknown>[];
   metadata: ResultMetadata;
 }
 
