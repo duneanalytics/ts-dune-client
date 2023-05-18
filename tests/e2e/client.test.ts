@@ -113,7 +113,10 @@ describe("DuneClient: Errors", () => {
   });
   it("returns Invalid request path (queryId too large)", async () => {
     const client = new DuneClient(apiKey);
-    await expectAsyncThrow(client.execute(99999999999999999999999999), "Invalid request path");
+    await expectAsyncThrow(
+      client.execute(99999999999999999999999999),
+      "Invalid request path",
+    );
   });
   it("returns query not found error", async () => {
     const client = new DuneClient(apiKey);
