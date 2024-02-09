@@ -1,5 +1,5 @@
 import { DuneError, ResultsResponse, ExecutionState, QueryParameter } from "../types";
-import { ageInHours, sleep } from "../utils";
+import { sleep } from "../utils";
 import log from "loglevel";
 import { logPrefix } from "../utils";
 import { ExecutionClient } from "./execution";
