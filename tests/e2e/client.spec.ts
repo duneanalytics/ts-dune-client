@@ -1,7 +1,5 @@
 import { expect } from "chai";
-import { QueryParameter } from "../../src/queryParameter";
-import { DuneClient } from "../../src/client";
-import { DuneError, ExecutionState, GetStatusResponse } from "../../src/responseTypes";
+import { DuneClient, QueryParameter, ExecutionState, DuneError } from "../../src/";
 import log from "loglevel";
 
 const { DUNE_API_KEY } = process.env;
@@ -32,7 +30,7 @@ describe("DuneClient: native routes", () => {
     // Long running query ID.
     const queryID = 1229120;
     // Execute and check state
-    const execution = await client.execute(queryID);
+    const execution = await client.executeQuery(queryID);
     expect(execution.state).to.be.oneOf([
       ExecutionState.PENDING,
       ExecutionState.EXECUTING,
@@ -40,10 +38,10 @@ describe("DuneClient: native routes", () => {
 
     // Cancel execution and verify it was canceled.
     const canceled = await client.cancelExecution(execution.execution_id);
-    expect(true).to.be.equal(canceled);
+    expect(canceled).to.be.true;
 
     // Get execution status
-    const status = await client.getStatus(execution.execution_id);
+    const status = await client.getExecutionStatus(execution.execution_id);
     const expectedStatus = {
       state: ExecutionState.CANCELLED,
       execution_id: execution.execution_id,
@@ -67,19 +65,21 @@ describe("DuneClient: native routes", () => {
       QueryParameter.enum("ListField", "Option 1"),
     ];
     // Execute and check state
-    const execution = await client.execute(queryID, parameters);
+    const execution = await client.executeQuery(queryID, parameters);
     expect(execution.execution_id).is.not.null;
   });
 
-  it("returns expected results on sequence execute-cancel-get_status", async () => {
+  it("returns expected results on cancelled query exection", async () => {
     const client = new DuneClient(apiKey);
     // Execute and check state
     const cancelledExecutionId = "01GEHEC1W8P1V5ENF66R2WY54V";
-    const result = await client.getResult(cancelledExecutionId);
+    const result = await client.getExecutionResults(cancelledExecutionId);
     expect(result).to.deep.equal({
       execution_id: cancelledExecutionId,
       query_id: 1229120,
       state: "QUERY_STATE_CANCELLED",
+      // TODO - this is a new field - not present in our type interfaces.
+      is_execution_finished: true,
       submitted_at: "2022-10-04T12:08:47.753527Z",
       expires_at: "2024-10-03T12:08:48.790332Z",
       execution_started_at: "2022-10-04T12:08:47.756608Z",
@@ -93,7 +93,7 @@ describe("DuneClient: refresh", () => {
   it("returns expected records on refresh", async () => {
     const client = new DuneClient(apiKey);
     // https://dune.com/queries/1215383
-    const results = await client.refresh(1215383, [
+    const results = await client.runQuery(1215383, [
       QueryParameter.text("TextField", "Plain Text"),
     ]);
     expect(results.result?.rows).to.be.deep.equal([
@@ -114,28 +114,28 @@ describe("DuneClient: Errors", () => {
 
   it("returns invalid API key", async () => {
     const client = new DuneClient("Bad Key");
-    await expectAsyncThrow(client.execute(1), "invalid API Key");
+    await expectAsyncThrow(client.executeQuery(1), "invalid API Key");
   });
   it("returns Invalid request path (queryId too large)", async () => {
     const client = new DuneClient(apiKey);
     await expectAsyncThrow(
-      client.execute(99999999999999999999999999),
+      client.executeQuery(99999999999999999999999999),
       "Invalid request path",
     );
   });
   it("returns query not found error", async () => {
     const client = new DuneClient(apiKey);
-    await expectAsyncThrow(client.execute(999999999), "Query not found");
-    await expectAsyncThrow(client.execute(0), "Query not found");
+    await expectAsyncThrow(client.executeQuery(999999999), "Query not found");
+    await expectAsyncThrow(client.executeQuery(0), "Query not found");
   });
   it("returns invalid job id", async () => {
     const client = new DuneClient(apiKey);
-    await expectAsyncThrow(client.execute(999999999), "Query not found");
+    await expectAsyncThrow(client.executeQuery(999999999), "Query not found");
 
     const invalidJobID = "Wonky Job ID";
     const expectedErrorMessage = `The requested execution ID (ID: ${invalidJobID}) is invalid.`;
-    await expectAsyncThrow(client.getStatus(invalidJobID), expectedErrorMessage);
-    await expectAsyncThrow(client.getResult(invalidJobID), expectedErrorMessage);
+    await expectAsyncThrow(client.getExecutionStatus(invalidJobID), expectedErrorMessage);
+    await expectAsyncThrow(client.getExecutionResults(invalidJobID), expectedErrorMessage);
     await expectAsyncThrow(client.cancelExecution(invalidJobID), expectedErrorMessage);
   });
   it("fails execute with unknown query parameter", async () => {
@@ -144,25 +144,25 @@ describe("DuneClient: Errors", () => {
     const invalidParameterName = "Invalid Parameter Name";
     const parameters = [QueryParameter.text(invalidParameterName, "")];
     await expectAsyncThrow(
-      client.execute(queryID, parameters),
+      client.executeQuery(queryID, parameters),
       `unknown parameters (${invalidParameterName})`,
     );
   });
   it("does not allow to execute private queries for other accounts.", async () => {
     const client = new DuneClient(apiKey);
-    await expectAsyncThrow(client.execute(1348384), "Query not found");
+    await expectAsyncThrow(client.executeQuery(1348384), "Query not found");
   });
   it("fails with unhandled FAILED_TYPE_UNSPECIFIED when query won't compile", async () => {
     const client = new DuneClient(apiKey);
     // Execute and check state
     // V1 query: 1348966
     await expectAsyncThrow(
-      client.getResult("01GEHG4AY1Z9JBR3BYB20E7RGH"),
+      client.getExecutionResults("01GEHG4AY1Z9JBR3BYB20E7RGH"),
       "FAILED_TYPE_EXECUTION_FAILED",
     );
     // V2 -query: :1349019
     await expectAsyncThrow(
-      client.getResult("01GEHGXHQ25XWMVFJ4G2HZ5MGS"),
+      client.getExecutionResults("01GEHGXHQ25XWMVFJ4G2HZ5MGS"),
       "FAILED_TYPE_EXECUTION_FAILED",
     );
   });
