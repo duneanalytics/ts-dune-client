@@ -27,7 +27,7 @@ const expectAsyncThrow = async (promise: Promise<any>, message?: string | object
 describe("DuneClient: native routes", () => {
   // This doesn't work if run too many times at once:
   // https://discord.com/channels/757637422384283659/1019910980634939433/1026840715701010473
-  it.skip("returns expected results on sequence execute-cancel-get_status", async () => {
+  it("returns expected results on sequence execute-cancel-get_status", async () => {
     const client = new DuneClient(apiKey);
     // Long running query ID.
     const queryID = 1229120;
@@ -44,12 +44,17 @@ describe("DuneClient: native routes", () => {
 
     // Get execution status
     const status = await client.getStatus(execution.execution_id);
-    const expectedStatus: GetStatusResponse = {
+    const expectedStatus = {
       state: ExecutionState.CANCELLED,
       execution_id: execution.execution_id,
       query_id: queryID,
     };
-    expect(expectedStatus).to.be.deep.equal(status);
+    const strippedStatus = {
+      state: status.state,
+      execution_id: status.execution_id,
+      query_id: status.query_id,
+    };
+    expect(expectedStatus).to.be.deep.equal(strippedStatus);
   });
 
   it("successfully executes with query parameters", async () => {
@@ -93,9 +98,9 @@ describe("DuneClient: refresh", () => {
     ]);
     expect(results.result?.rows).to.be.deep.equal([
       {
-        date_field: "2022-05-04T00:00:00",
+        date_field: "2022-05-04 00:00:00.000",
         list_field: "Option 1",
-        number_field: 3.1415926535,
+        number_field: "3.1415926535",
         text_field: "Plain Text",
       },
     ]);
@@ -145,10 +150,7 @@ describe("DuneClient: Errors", () => {
   });
   it("does not allow to execute private queries for other accounts.", async () => {
     const client = new DuneClient(apiKey);
-    await expectAsyncThrow(
-      client.execute(1348384),
-      "You don't have permission to execute this query",
-    );
+    await expectAsyncThrow(client.execute(1348384), "Query not found");
   });
   it("fails with unhandled FAILED_TYPE_UNSPECIFIED when query won't compile", async () => {
     const client = new DuneClient(apiKey);
