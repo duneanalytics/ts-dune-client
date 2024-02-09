@@ -18,6 +18,12 @@ const TERMINAL_STATES = [
   ExecutionState.FAILED,
 ];
 
+enum RequestMethod {
+  GET = "GET",
+  POST = "POST",
+  PATCH = "PATCH",
+}
+
 // This class implements all the routes defined in the Dune API Docs: https://dune.com/docs/api/
 export class DuneClient {
   apiKey: string;
@@ -52,21 +58,14 @@ export class DuneClient {
     return apiResponse;
   }
 
-  private async _get<T>(url: string): Promise<T> {
-    log.debug(logPrefix, `GET received input url=${url}`);
-    const response = fetch(url, {
-      method: "GET",
-      headers: {
-        "x-dune-api-key": this.apiKey,
-      },
-    });
-    return this._handleResponse<T>(response);
-  }
-
-  private async _post<T>(url: string, params?: QueryParameter[]): Promise<T> {
+  private async _request<T>(
+    method: RequestMethod,
+    url: string,
+    params?: QueryParameter[],
+  ): Promise<T> {
     log.debug(
       logPrefix,
-      `POST received input url=${url}, params=${JSON.stringify(params)}`,
+      `${method} received input url=${url}, params=${JSON.stringify(params)}`,
     );
     // Transform Query Parameter list into "dict"
     const reducedParams = params?.reduce<Record<string, string>>(
@@ -74,13 +73,28 @@ export class DuneClient {
       {},
     );
     const response = fetch(url, {
-      method: "POST",
-      body: JSON.stringify({ query_parameters: reducedParams || {} }),
+      method,
       headers: {
         "x-dune-api-key": this.apiKey,
       },
+      // conditionally add the body property
+      ...(method !== RequestMethod.GET && {
+        body: JSON.stringify({ query_parameters: reducedParams || {} }),
+      }),
     });
     return this._handleResponse<T>(response);
+  }
+
+  private async _get<T>(url: string): Promise<T> {
+    return this._request(RequestMethod.GET, url);
+  }
+
+  private async _post<T>(url: string, params?: QueryParameter[]): Promise<T> {
+    return this._request(RequestMethod.POST, url, params);
+  }
+
+  private async _patch<T>(url: string, params?: QueryParameter[]): Promise<T> {
+    return this._request(RequestMethod.PATCH, url, params);
   }
 
   async execute(
