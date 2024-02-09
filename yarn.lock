@@ -345,6 +345,11 @@ deep-eql@^4.1.3:
   dependencies:
     type-detect "^4.0.0"
 
+deprecated@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/deprecated/-/deprecated-0.0.2.tgz#bc9dcf9bce9174fcf9090cf1295131c439c682fd"
+  integrity sha512-vt7tvBJtDu1pmn8HTUc/Q3lSkrgah4Tl5IbbBzqu33jcPQlihAGAO9yD4ubfhFh/xyXD+HbUX1Dg6PwnARWxag==
+
 diff@5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/diff/-/diff-5.0.0.tgz#7ed6ad76d859d030787ec35855f5b1daf31d852b"

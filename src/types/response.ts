@@ -1,10 +1,3 @@
-export class DuneError extends Error {
-  constructor(msg: string) {
-    super(msg);
-    Object.setPrototypeOf(this, DuneError.prototype);
-  }
-}
-
 export enum ExecutionState {
   COMPLETED = "QUERY_STATE_COMPLETED",
   EXECUTING = "QUERY_STATE_EXECUTING",
