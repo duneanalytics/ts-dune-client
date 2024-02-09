@@ -3,7 +3,7 @@ import { sleep } from "../utils";
 import log from "loglevel";
 import { logPrefix } from "../utils";
 import { ExecutionClient } from "./execution";
-import { POLL_FREQUENCY_SECONDS, THREE_MONTHS_IN_HOURS } from "../constants";
+import { POLL_FREQUENCY_SECONDS } from "../constants";
 
 const TERMINAL_STATES = [
   ExecutionState.CANCELLED,
