@@ -18,6 +18,12 @@ const TERMINAL_STATES = [
   ExecutionState.FAILED,
 ];
 
+enum RequestMethod {
+  GET = "GET",
+  POST = "POST",
+  PATCH = "PATCH",
+}
+
 // This class implements all the routes defined in the Dune API Docs: https://dune.com/docs/api/
 export class DuneClient {
   apiKey: string;
@@ -53,8 +59,8 @@ export class DuneClient {
   }
 
   private async _request<T>(
+    method: RequestMethod,
     url: string,
-    method: string,
     params?: QueryParameter[],
   ): Promise<T> {
     log.debug(
@@ -68,24 +74,27 @@ export class DuneClient {
     );
     const response = fetch(url, {
       method,
-      body: JSON.stringify({ query_parameters: reducedParams || {} }),
       headers: {
         "x-dune-api-key": this.apiKey,
       },
+      // conditionally add the body property
+      ...(method !== RequestMethod.GET && {
+        body: JSON.stringify({ query_parameters: reducedParams || {} }),
+      }),
     });
     return this._handleResponse<T>(response);
   }
 
   private async _get<T>(url: string): Promise<T> {
-    return this._request("GET", url);
+    return this._request(RequestMethod.GET, url);
   }
 
   private async _post<T>(url: string, params?: QueryParameter[]): Promise<T> {
-    return this._request("POST", url, params);
+    return this._request(RequestMethod.POST, url, params);
   }
 
-  private _patch<T>(url: string, params?: QueryParameter[]): Promise<T> {
-    return this._request("PATCH", url, params);
+  private async _patch<T>(url: string, params?: QueryParameter[]): Promise<T> {
+    return this._request(RequestMethod.PATCH, url, params);
   }
 
   async execute(
