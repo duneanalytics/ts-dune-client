@@ -52,21 +52,14 @@ export class DuneClient {
     return apiResponse;
   }
 
-  private async _get<T>(url: string): Promise<T> {
-    log.debug(logPrefix, `GET received input url=${url}`);
-    const response = fetch(url, {
-      method: "GET",
-      headers: {
-        "x-dune-api-key": this.apiKey,
-      },
-    });
-    return this._handleResponse<T>(response);
-  }
-
-  private async _post<T>(url: string, params?: QueryParameter[]): Promise<T> {
+  private async _request<T>(
+    url: string,
+    method: string,
+    params?: QueryParameter[],
+  ): Promise<T> {
     log.debug(
       logPrefix,
-      `POST received input url=${url}, params=${JSON.stringify(params)}`,
+      `${method} received input url=${url}, params=${JSON.stringify(params)}`,
     );
     // Transform Query Parameter list into "dict"
     const reducedParams = params?.reduce<Record<string, string>>(
@@ -74,13 +67,25 @@ export class DuneClient {
       {},
     );
     const response = fetch(url, {
-      method: "POST",
+      method,
       body: JSON.stringify({ query_parameters: reducedParams || {} }),
       headers: {
         "x-dune-api-key": this.apiKey,
       },
     });
     return this._handleResponse<T>(response);
+  }
+
+  private async _get<T>(url: string): Promise<T> {
+    return this._request("GET", url);
+  }
+
+  private async _post<T>(url: string, params?: QueryParameter[]): Promise<T> {
+    return this._request("POST", url, params);
+  }
+
+  private _patch<T>(url: string, params?: QueryParameter[]): Promise<T> {
+    return this._request("PATCH", url, params);
   }
 
   async execute(
