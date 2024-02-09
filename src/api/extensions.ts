@@ -43,26 +43,6 @@ export class ExtendedClient extends ExecutionClient {
     }
   }
 
-  async getLatestResult(
-    queryId: number,
-    parameters?: QueryParameter[],
-    maxAgeHours: number = THREE_MONTHS_IN_HOURS,
-  ): Promise<ResultsResponse> {
-    let results = await this._get<ResultsResponse>(
-      `/query/${queryId}/results`,
-      parameters,
-    );
-    const lastRun = results.execution_ended_at;
-    if (lastRun !== undefined && ageInHours(lastRun) > maxAgeHours) {
-      log.info(
-        logPrefix,
-        `results (from ${lastRun}) older than ${maxAgeHours} hours, re-running query.`,
-      );
-      results = await this.runQuery(queryId, parameters);
-    }
-    return results;
-  }
-
   /**
    * @deprecated since version 0.0.2 Use runQuery
    */
