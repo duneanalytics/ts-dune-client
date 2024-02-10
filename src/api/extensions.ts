@@ -1,9 +1,9 @@
 import { DuneError, ResultsResponse, ExecutionState, QueryParameter } from "../types";
-import { sleep } from "../utils";
+import { ageInHours, sleep } from "../utils";
 import log from "loglevel";
 import { logPrefix } from "../utils";
 import { ExecutionClient } from "./execution";
-import { POLL_FREQUENCY_SECONDS } from "../constants";
+import { POLL_FREQUENCY_SECONDS, THREE_MONTHS_IN_HOURS } from "../constants";
 
 const TERMINAL_STATES = [
   ExecutionState.CANCELLED,
@@ -41,6 +41,26 @@ export class ExtendedClient extends ExecutionClient {
       log.error(logPrefix, message);
       throw new DuneError(message);
     }
+  }
+
+  async getLatestResult(
+    queryId: number,
+    parameters?: QueryParameter[],
+    maxAgeHours: number = THREE_MONTHS_IN_HOURS,
+  ): Promise<ResultsResponse> {
+    let results = await this._get<ResultsResponse>(
+      `/query/${queryId}/results`,
+      parameters,
+    );
+    const lastRun = results.execution_ended_at;
+    if (lastRun !== undefined && ageInHours(lastRun) > maxAgeHours) {
+      log.info(
+        logPrefix,
+        `results (from ${lastRun}) older than ${maxAgeHours} hours, re-running query.`,
+      );
+      results = await this.runQuery(queryId, parameters);
+    }
+    return results;
   }
 
   /**

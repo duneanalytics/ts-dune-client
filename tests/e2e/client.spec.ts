@@ -135,7 +135,10 @@ describe("DuneClient: Errors", () => {
     const invalidJobID = "Wonky Job ID";
     const expectedErrorMessage = `The requested execution ID (ID: ${invalidJobID}) is invalid.`;
     await expectAsyncThrow(client.getExecutionStatus(invalidJobID), expectedErrorMessage);
-    await expectAsyncThrow(client.getExecutionResults(invalidJobID), expectedErrorMessage);
+    await expectAsyncThrow(
+      client.getExecutionResults(invalidJobID),
+      expectedErrorMessage,
+    );
     await expectAsyncThrow(client.cancelExecution(invalidJobID), expectedErrorMessage);
   });
   it("fails execute with unknown query parameter", async () => {
