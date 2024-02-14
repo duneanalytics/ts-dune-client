@@ -21,7 +21,6 @@ export class QueryParameter {
   }
 
   static number(name: string, value: string | number): QueryParameter {
-    // TODO - investigate large numbers here...
     return new QueryParameter(ParameterType.NUMBER, name, value.toString());
   }
 
@@ -31,5 +30,14 @@ export class QueryParameter {
 
   static enum(name: string, value: string): QueryParameter {
     return new QueryParameter(ParameterType.ENUM, name, value.toString());
+  }
+
+  static unravel(params?: QueryParameter[]): Record<string, string> | undefined {
+    // Transform Query Parameter list into "dict"
+    let reducedParams = params?.reduce<Record<string, string>>(
+      (acc, { name, value }) => ({ ...acc, [name]: value }),
+      {},
+    );
+    return reducedParams || {};
   }
 }

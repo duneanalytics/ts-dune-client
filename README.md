@@ -3,7 +3,7 @@
 
 # Dune Client TS
 
-This [NPM package](https://www.npmjs.com/package/@cowprotocol/ts-dune-client) implements all the basic routes defined in the [Dune API Docs](https://dune.com/docs/api/). It also introduces a convenience method `refresh` which combines `execute`, `getStatus` and `getResults` in a way that makes it nearly trivial to fetch query execution results.
+This [NPM package](https://www.npmjs.com/package/@cowprotocol/ts-dune-client) implements all the basic routes defined in the [Dune API Docs](https://dune.com/docs/api/). It also introduces a convenience method `refresh` which combines `executeQuery`, `getExecutionStatus` and `gettExecutionResults` in a way that makes it nearly trivial to fetch query execution results.
 
 Install the package
 
@@ -25,20 +25,20 @@ const parameters = [
 ];
 
 client
-  .refresh(queryID, parameters)
+  .runQuery(queryID, parameters)
   .then((executionResult) => console.log(executionResult.result?.rows));
 
 // should look like
 // [
-//   {
-//     date_field: "2022-05-04 00:00:00",
-//     list_field: "Option 1",
-//     number_field: "3.1415926535",
-//     text_field: "Plain Text",
-//   },
-// ]
+//    {
+//      date_field: "2022-05-04 00:00:00.000",
+//      list_field: "Option 1",
+//      number_field: "3.1415926535",
+//      text_field: "Plain Text",
+//    },
+//  ]
 ```
 
-Note also that the client has methods `execute`, `getStatus`, `getResult` and `cancelExecution`
+Note also that the client has methods `executeQuery`, `getExecutionStatus`, `getExecutionResult` and `cancelExecution`
 
 Check out this [Demo Project](https://github.com/bh2smith/demo-ts-dune-client)!

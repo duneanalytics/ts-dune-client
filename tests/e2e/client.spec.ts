@@ -1,5 +1,11 @@
 import { expect } from "chai";
-import { DuneClient, QueryParameter, ExecutionState, DuneError } from "../../src/";
+import {
+  DuneClient,
+  QueryParameter,
+  ExecutionState,
+  DuneError,
+  QueryAPI,
+} from "../../src/";
 import log from "loglevel";
 
 const { DUNE_API_KEY } = process.env;
@@ -89,8 +95,8 @@ describe("DuneClient: native routes", () => {
   });
 });
 
-describe("DuneClient: refresh", () => {
-  it("returns expected records on refresh", async () => {
+describe("DuneClient Extensions: refresh", () => {
+  it("execute runQuery", async () => {
     const client = new DuneClient(apiKey);
     // https://dune.com/queries/1215383
     const results = await client.runQuery(1215383, [
@@ -104,6 +110,35 @@ describe("DuneClient: refresh", () => {
         text_field: "Plain Text",
       },
     ]);
+  });
+
+  it("getsLatestResults", async () => {
+    const client = new DuneClient(apiKey);
+    // https://dune.com/queries/1215383
+    const results = await client.getLatestResult(1215383, [
+      QueryParameter.text("TextField", "Plain Text"),
+    ]);
+    expect(results.result?.rows.length).to.be.greaterThan(0);
+  });
+});
+
+describe("Premium: CRUD Operations", () => {
+  it("create, get & update", async () => {
+    const client = new QueryAPI(apiKey);
+    let newQuery = await client.createQuery(
+      "Name",
+      "select 1",
+      [QueryParameter.text("What", "name")],
+      true,
+    );
+    let recoveredQuery = await client.getQuery(newQuery.query_id);
+    expect(newQuery.query_id).to.be.equal(recoveredQuery.query_id);
+    let updatedQueryId = await client.updateQuery(
+      newQuery.query_id,
+      "New Name",
+      "select 10;",
+    );
+    expect(updatedQueryId).to.be.equal(recoveredQuery.query_id);
   });
 });
 
@@ -135,7 +170,10 @@ describe("DuneClient: Errors", () => {
     const invalidJobID = "Wonky Job ID";
     const expectedErrorMessage = `The requested execution ID (ID: ${invalidJobID}) is invalid.`;
     await expectAsyncThrow(client.getExecutionStatus(invalidJobID), expectedErrorMessage);
-    await expectAsyncThrow(client.getExecutionResults(invalidJobID), expectedErrorMessage);
+    await expectAsyncThrow(
+      client.getExecutionResults(invalidJobID),
+      expectedErrorMessage,
+    );
     await expectAsyncThrow(client.cancelExecution(invalidJobID), expectedErrorMessage);
   });
   it("fails execute with unknown query parameter", async () => {
