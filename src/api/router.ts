@@ -1,11 +1,9 @@
-import { DuneError, QueryParameter } from "../types";
+import { DuneError } from "../types";
 import fetch from "cross-fetch";
 import log from "loglevel";
 import { logPrefix } from "../utils";
 import {
-  ExecuteQueryPayload,
   RequestPayload,
-  isExecuteQueryPayload,
   payloadJSON,
 } from "../types/requestPayload";
 

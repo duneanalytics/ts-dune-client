@@ -61,7 +61,7 @@ export class QueryAPI extends Router {
     if (description !== undefined) parameters.description = description;
     if (tags !== undefined) parameters.tags = tags;
     if (querySql !== undefined) parameters.query_sql = querySql;
-    if (params !== undefined) parameters.parameters = params;
+    if (params !== undefined) parameters.query_parameters = params;
 
     if (Object.keys(parameters).length === 0) {
       console.warn("Called updateQuery with no proposed changes.");
