@@ -2,9 +2,7 @@
 import { Router } from "./router";
 import {
   DuneQuery,
-  DuneError,
   QueryParameter,
-  ExecutionResponse,
   CreateQueryResponse,
 } from "../types";
 import { CreateQueryPayload, UpdateQueryPayload } from "../types/requestPayload";
