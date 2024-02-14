@@ -48,11 +48,10 @@ export class ExtendedClient extends ExecutionClient {
     parameters?: QueryParameter[],
     maxAgeHours: number = THREE_MONTHS_IN_HOURS,
   ): Promise<ResultsResponse> {
-    let results = await this._get<ResultsResponse>(
-      `/query/${queryId}/results`,
-      parameters,
-    );
-    const lastRun = results.execution_ended_at;
+    let results = await this._get<ResultsResponse>(`query/${queryId}/results`, {
+      query_parameters: parameters ? parameters : [],
+    });
+    const lastRun: Date = results.execution_ended_at!;
     if (lastRun !== undefined && ageInHours(lastRun) > maxAgeHours) {
       log.info(
         logPrefix,

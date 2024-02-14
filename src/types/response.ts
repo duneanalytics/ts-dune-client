@@ -11,6 +11,10 @@ export interface ExecutionResponse {
   state: ExecutionState;
 }
 
+export interface CreateQueryResponse {
+  query_id: number;
+}
+
 export interface TimeData {
   submitted_at: Date;
   execution_started_at?: Date;

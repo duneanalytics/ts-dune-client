@@ -14,10 +14,9 @@ export class ExecutionClient extends Router {
     queryID: number,
     parameters?: QueryParameter[],
   ): Promise<ExecutionResponse> {
-    const response = await this._post<ExecutionResponse>(
-      `query/${queryID}/execute`,
-      parameters,
-    );
+    const response = await this._post<ExecutionResponse>(`query/${queryID}/execute`, {
+      query_parameters: parameters ? parameters : [],
+    });
     log.debug(logPrefix, `execute response ${JSON.stringify(response)}`);
     return response as ExecutionResponse;
   }

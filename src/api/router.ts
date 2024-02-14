@@ -2,6 +2,12 @@ import { DuneError, QueryParameter } from "../types";
 import fetch from "cross-fetch";
 import log from "loglevel";
 import { logPrefix } from "../utils";
+import {
+  ExecuteQueryPayload,
+  RequestPayload,
+  isExecuteQueryPayload,
+  payloadJSON,
+} from "../types/requestPayload";
 
 const BASE_URL = "https://api.dune.com/api/v1";
 
@@ -48,18 +54,10 @@ export class Router {
   protected async _request<T>(
     method: RequestMethod,
     url: string,
-    params?: QueryParameter[],
+    payload?: RequestPayload,
   ): Promise<T> {
-    log.debug(
-      logPrefix,
-      `${method} received input url=${url}, params=${JSON.stringify(params)}`,
-    );
-    // Transform Query Parameter list into "dict"
-    const reducedParams = params?.reduce<Record<string, string>>(
-      (acc, { name, value }) => ({ ...acc, [name]: value }),
-      {},
-    );
-    const requestParameters = JSON.stringify({ query_parameters: reducedParams || {} });
+    const payloadData = payloadJSON(payload);
+    log.debug(logPrefix, `${method} received input url=${url}, payload=${payloadData}`);
     const response = fetch(url, {
       method,
       headers: {
@@ -67,24 +65,24 @@ export class Router {
       },
       // conditionally add the body property
       ...(method !== RequestMethod.GET && {
-        body: requestParameters,
+        body: payloadJSON(payload),
       }),
       ...(method === RequestMethod.GET && {
-        params: requestParameters,
+        params: payloadJSON(payload),
       }),
     });
     return this._handleResponse<T>(response);
   }
 
-  protected async _get<T>(route: string, params?: QueryParameter[]): Promise<T> {
+  protected async _get<T>(route: string, params?: RequestPayload): Promise<T> {
     return this._request(RequestMethod.GET, this.url(route), params);
   }
 
-  protected async _post<T>(route: string, params?: QueryParameter[]): Promise<T> {
+  protected async _post<T>(route: string, params?: RequestPayload): Promise<T> {
     return this._request(RequestMethod.POST, this.url(route), params);
   }
 
-  protected async _patch<T>(route: string, params?: QueryParameter[]): Promise<T> {
+  protected async _patch<T>(route: string, params?: RequestPayload): Promise<T> {
     return this._request(RequestMethod.PATCH, this.url(route), params);
   }
 
