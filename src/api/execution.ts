@@ -10,7 +10,7 @@ import { Router } from "./router";
 import { ExecutionParams, ExecutionPerformance } from "../types/requestPayload";
 
 // This class implements all the routes defined in the Dune API Docs: https://dune.com/docs/api/
-export class ExecutionClient extends Router {
+export class ExecutionAPI extends Router {
   async executeQuery(
     queryID: number,
     params?: ExecutionParams,
@@ -52,6 +52,14 @@ export class ExecutionClient extends Router {
     return response as ResultsResponse;
   }
 
+  async getLastExecutionResults(
+    queryId: number,
+    parameters?: QueryParameter[],
+  ): Promise<ResultsResponse> {
+    return await this._get<ResultsResponse>(`query/${queryId}/results`, {
+      query_parameters: parameters ? parameters : [],
+    });
+  }
   // TODO - add getExecutionResultsCSV
 
   /**
@@ -61,7 +69,7 @@ export class ExecutionClient extends Router {
     queryID: number,
     parameters?: QueryParameter[],
   ): Promise<ExecutionResponse> {
-    return this.executeQuery(queryID, {query_parameters: parameters});
+    return this.executeQuery(queryID, { query_parameters: parameters });
   }
 
   /**
