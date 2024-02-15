@@ -4,6 +4,7 @@ import log from "loglevel";
 import { logPrefix } from "../utils";
 import { ExecutionClient } from "./execution";
 import { POLL_FREQUENCY_SECONDS, THREE_MONTHS_IN_HOURS } from "../constants";
+import { ExecutionPerformance } from "../types/requestPayload";
 
 const TERMINAL_STATES = [
   ExecutionState.CANCELLED,
@@ -16,6 +17,7 @@ export class ExtendedClient extends ExecutionClient {
     queryID: number,
     parameters?: QueryParameter[],
     pingFrequency: number = POLL_FREQUENCY_SECONDS,
+    performance?: ExecutionPerformance,
   ): Promise<ResultsResponse> {
     log.info(
       logPrefix,
@@ -23,7 +25,11 @@ export class ExtendedClient extends ExecutionClient {
         parameters,
       )}`,
     );
-    const { execution_id: jobID } = await this.execute(queryID, parameters);
+    const { execution_id: jobID } = await this.executeQuery(
+      queryID,
+      parameters,
+      performance,
+    );
     let { state } = await this.getExecutionStatus(jobID);
     while (!TERMINAL_STATES.includes(state)) {
       log.info(

@@ -2,10 +2,7 @@ import { DuneError } from "../types";
 import fetch from "cross-fetch";
 import log from "loglevel";
 import { logPrefix } from "../utils";
-import {
-  RequestPayload,
-  payloadJSON,
-} from "../types/requestPayload";
+import { RequestPayload, payloadJSON } from "../types/requestPayload";
 
 const BASE_URL = "https://api.dune.com/api/v1";
 

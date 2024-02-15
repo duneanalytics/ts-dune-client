@@ -1,5 +1,10 @@
 import { QueryParameter } from "./queryParameter";
 
+export enum ExecutionPerformance {
+  Medium = "medium",
+  Large = "large",
+}
+
 export type RequestPayload =
   | ExecuteQueryPayload
   | UpdateQueryPayload
@@ -24,6 +29,7 @@ export function payloadJSON(payload?: RequestPayload): string {
 
 export interface ExecuteQueryPayload {
   query_parameters?: QueryParameter[];
+  performance: string;
 }
 
 export interface UpdateQueryPayload {

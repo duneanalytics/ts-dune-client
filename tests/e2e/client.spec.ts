@@ -7,6 +7,7 @@ import {
   QueryAPI,
 } from "../../src/";
 import log from "loglevel";
+import { ExecutionPerformance } from "../../src/types/requestPayload";
 
 const { DUNE_API_KEY } = process.env;
 const apiKey: string = DUNE_API_KEY ? DUNE_API_KEY : "No API Key";
@@ -72,6 +73,16 @@ describe("DuneClient: native routes", () => {
     ];
     // Execute and check state
     const execution = await client.executeQuery(queryID, parameters);
+    expect(execution.execution_id).is.not.null;
+  });
+
+  it("execute with Large tier performance", async () => {
+    const client = new DuneClient(apiKey);
+    const execution = await client.executeQuery(
+      1215383,
+      undefined,
+      ExecutionPerformance.Large,
+    );
     expect(execution.execution_id).is.not.null;
   });
 
