@@ -1,5 +1,10 @@
 import { QueryParameter } from "./queryParameter";
 
+export interface ExecutionParams {
+  query_parameters?: QueryParameter[];
+  performance?: ExecutionPerformance;
+}
+
 export enum ExecutionPerformance {
   Medium = "medium",
   Large = "large",

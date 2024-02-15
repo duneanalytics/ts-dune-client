@@ -7,18 +7,25 @@ import {
 import log from "loglevel";
 import { logPrefix } from "../utils";
 import { Router } from "./router";
-import { ExecutionPerformance } from "../types/requestPayload";
+import { ExecutionParams, ExecutionPerformance } from "../types/requestPayload";
 
 // This class implements all the routes defined in the Dune API Docs: https://dune.com/docs/api/
 export class ExecutionClient extends Router {
   async executeQuery(
     queryID: number,
-    parameters?: QueryParameter[],
-    performance?: ExecutionPerformance,
+    params?: ExecutionParams,
   ): Promise<ExecutionResponse> {
+    // Extract possible ExecutionParams
+    let query_parameters: QueryParameter[] = [];
+    let performance = ExecutionPerformance.Medium;
+    if (params !== undefined) {
+      query_parameters = params.query_parameters ? params.query_parameters : [];
+      performance = performance ? performance : ExecutionPerformance.Medium;
+    }
+
     const response = await this._post<ExecutionResponse>(`query/${queryID}/execute`, {
-      query_parameters: parameters ? parameters : [],
-      performance: performance ? performance : ExecutionPerformance.Medium,
+      query_parameters,
+      performance,
     });
     log.debug(logPrefix, `execute response ${JSON.stringify(response)}`);
     return response as ExecutionResponse;
