@@ -7,6 +7,7 @@ import {
   QueryAPI,
 } from "../../src/";
 import log from "loglevel";
+import { ExecutionPerformance } from "../../src/types/requestPayload";
 
 const { DUNE_API_KEY } = process.env;
 const apiKey: string = DUNE_API_KEY ? DUNE_API_KEY : "No API Key";
@@ -71,7 +72,17 @@ describe("DuneClient: native routes", () => {
       QueryParameter.enum("ListField", "Option 1"),
     ];
     // Execute and check state
-    const execution = await client.executeQuery(queryID, parameters);
+    const execution = await client.executeQuery(queryID, {
+      query_parameters: parameters,
+    });
+    expect(execution.execution_id).is.not.null;
+  });
+
+  it("execute with Large tier performance", async () => {
+    const client = new DuneClient(apiKey);
+    const execution = await client.executeQuery(1215383, {
+      performance: ExecutionPerformance.Large,
+    });
     expect(execution.execution_id).is.not.null;
   });
 
@@ -180,9 +191,10 @@ describe("DuneClient: Errors", () => {
     const client = new DuneClient(apiKey);
     const queryID = 1215383;
     const invalidParameterName = "Invalid Parameter Name";
-    const parameters = [QueryParameter.text(invalidParameterName, "")];
     await expectAsyncThrow(
-      client.executeQuery(queryID, parameters),
+      client.executeQuery(queryID, {
+        query_parameters: [QueryParameter.text(invalidParameterName, "")],
+      }),
       `unknown parameters (${invalidParameterName})`,
     );
   });

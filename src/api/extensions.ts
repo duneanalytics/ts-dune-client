@@ -4,6 +4,7 @@ import log from "loglevel";
 import { logPrefix } from "../utils";
 import { ExecutionClient } from "./execution";
 import { POLL_FREQUENCY_SECONDS, THREE_MONTHS_IN_HOURS } from "../constants";
+import { ExecutionParams, ExecutionPerformance } from "../types/requestPayload";
 
 const TERMINAL_STATES = [
   ExecutionState.CANCELLED,
@@ -14,16 +15,16 @@ const TERMINAL_STATES = [
 export class ExtendedClient extends ExecutionClient {
   async runQuery(
     queryID: number,
-    parameters?: QueryParameter[],
+    params?: ExecutionParams,
     pingFrequency: number = POLL_FREQUENCY_SECONDS,
   ): Promise<ResultsResponse> {
     log.info(
       logPrefix,
       `refreshing query https://dune.com/queries/${queryID} with parameters ${JSON.stringify(
-        parameters,
+        params,
       )}`,
     );
-    const { execution_id: jobID } = await this.execute(queryID, parameters);
+    const { execution_id: jobID } = await this.executeQuery(queryID, params);
     let { state } = await this.getExecutionStatus(jobID);
     while (!TERMINAL_STATES.includes(state)) {
       log.info(
@@ -57,7 +58,7 @@ export class ExtendedClient extends ExecutionClient {
         logPrefix,
         `results (from ${lastRun}) older than ${maxAgeHours} hours, re-running query.`,
       );
-      results = await this.runQuery(queryId, parameters);
+      results = await this.runQuery(queryId, {query_parameters: parameters});
     }
     return results;
   }
@@ -70,6 +71,6 @@ export class ExtendedClient extends ExecutionClient {
     parameters?: QueryParameter[],
     pingFrequency: number = 1,
   ): Promise<ResultsResponse> {
-    return this.runQuery(queryID, parameters, pingFrequency);
+    return this.runQuery(queryID, {query_parameters: parameters}, pingFrequency);
   }
 }

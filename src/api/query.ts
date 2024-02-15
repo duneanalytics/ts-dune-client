@@ -1,10 +1,6 @@
 // Assuming the existence of these imports based on your Python code
 import { Router } from "./router";
-import {
-  DuneQuery,
-  QueryParameter,
-  CreateQueryResponse,
-} from "../types";
+import { DuneQuery, QueryParameter, CreateQueryResponse } from "../types";
 import { CreateQueryPayload, UpdateQueryPayload } from "../types/requestPayload";
 
 export class QueryAPI extends Router {
