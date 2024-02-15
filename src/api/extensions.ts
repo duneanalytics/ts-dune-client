@@ -58,7 +58,7 @@ export class ExtendedClient extends ExecutionClient {
         logPrefix,
         `results (from ${lastRun}) older than ${maxAgeHours} hours, re-running query.`,
       );
-      results = await this.runQuery(queryId, parameters);
+      results = await this.runQuery(queryId, {query_parameters: parameters});
     }
     return results;
   }
@@ -71,6 +71,6 @@ export class ExtendedClient extends ExecutionClient {
     parameters?: QueryParameter[],
     pingFrequency: number = 1,
   ): Promise<ResultsResponse> {
-    return this.runQuery(queryID, parameters, pingFrequency);
+    return this.runQuery(queryID, {query_parameters: parameters}, pingFrequency);
   }
 }

@@ -61,7 +61,7 @@ export class ExecutionClient extends Router {
     queryID: number,
     parameters?: QueryParameter[],
   ): Promise<ExecutionResponse> {
-    return this.executeQuery(queryID, parameters);
+    return this.executeQuery(queryID, {query_parameters: parameters});
   }
 
   /**
