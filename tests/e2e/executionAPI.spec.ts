@@ -2,15 +2,20 @@ import { expect } from "chai";
 import { QueryParameter, ExecutionState, ExecutionAPI } from "../../src/";
 import log from "loglevel";
 import { ExecutionPerformance } from "../../src/types/requestPayload";
-import { apiKey, expectAsyncThrow } from "./util";
+import { BASIC_KEY, expectAsyncThrow } from "./util";
 
 log.setLevel("silent", true);
 
 describe("ExecutionAPI: native routes", () => {
+  let client: ExecutionAPI;
+
+  beforeEach(() => {
+    client = new ExecutionAPI(BASIC_KEY);
+  });
+
   // This doesn't work if run too many times at once:
   // https://discord.com/channels/757637422384283659/1019910980634939433/1026840715701010473
   it("returns expected results on sequence execute-cancel-get_status", async () => {
-    const client = new ExecutionAPI(apiKey);
     // Long running query ID.
     const queryID = 1229120;
     // Execute and check state
@@ -40,7 +45,6 @@ describe("ExecutionAPI: native routes", () => {
   });
 
   it("successfully executes with query parameters", async () => {
-    const client = new ExecutionAPI(apiKey);
     const queryID = 1215383;
     const parameters = [
       QueryParameter.text("TextField", "Plain Text"),
@@ -56,7 +60,6 @@ describe("ExecutionAPI: native routes", () => {
   });
 
   it("execute with Large tier performance", async () => {
-    const client = new ExecutionAPI(apiKey);
     const execution = await client.executeQuery(1215383, {
       performance: ExecutionPerformance.Large,
     });
@@ -64,7 +67,6 @@ describe("ExecutionAPI: native routes", () => {
   });
 
   it("returns expected results on cancelled query exection", async () => {
-    const client = new ExecutionAPI(apiKey);
     // Execute and check state
     const cancelledExecutionId = "01GEHEC1W8P1V5ENF66R2WY54V";
     const result = await client.getExecutionResults(cancelledExecutionId);
@@ -87,25 +89,31 @@ describe("ExecutionAPI: Errors", () => {
   // TODO these errors can't be reached because post method is private
   // {"error":"unknown parameters (undefined)"}
   // {"error":"Invalid request body payload"}
+  let client: ExecutionAPI;
+
+  beforeEach(() => {
+    client = new ExecutionAPI(BASIC_KEY);
+  });
+
+  beforeEach(function () {
+    const client = new ExecutionAPI(BASIC_KEY);
+  });
 
   it("returns invalid API key", async () => {
-    const client = new ExecutionAPI("Bad Key");
-    await expectAsyncThrow(client.executeQuery(1), "invalid API Key");
+    const bad_client = new ExecutionAPI("Bad Key");
+    await expectAsyncThrow(bad_client.executeQuery(1), "invalid API Key");
   });
   it("returns Invalid request path (queryId too large)", async () => {
-    const client = new ExecutionAPI(apiKey);
     await expectAsyncThrow(
       client.executeQuery(99999999999999999999999999),
       "Invalid request path",
     );
   });
   it("returns query not found error", async () => {
-    const client = new ExecutionAPI(apiKey);
     await expectAsyncThrow(client.executeQuery(999999999), "Query not found");
     await expectAsyncThrow(client.executeQuery(0), "Query not found");
   });
   it("returns invalid job id", async () => {
-    const client = new ExecutionAPI(apiKey);
     await expectAsyncThrow(client.executeQuery(999999999), "Query not found");
 
     const invalidJobID = "Wonky Job ID";
@@ -118,7 +126,6 @@ describe("ExecutionAPI: Errors", () => {
     await expectAsyncThrow(client.cancelExecution(invalidJobID), expectedErrorMessage);
   });
   it("fails execute with unknown query parameter", async () => {
-    const client = new ExecutionAPI(apiKey);
     const queryID = 1215383;
     const invalidParameterName = "Invalid Parameter Name";
     await expectAsyncThrow(
@@ -129,11 +136,9 @@ describe("ExecutionAPI: Errors", () => {
     );
   });
   it("does not allow to execute private queries for other accounts.", async () => {
-    const client = new ExecutionAPI(apiKey);
     await expectAsyncThrow(client.executeQuery(1348384), "Query not found");
   });
   it("fails with unhandled FAILED_TYPE_UNSPECIFIED when query won't compile", async () => {
-    const client = new ExecutionAPI(apiKey);
     // Execute and check state
     // V1 query: 1348966
     await expectAsyncThrow(

@@ -23,13 +23,8 @@ export class QueryAPI extends Router {
       is_private: isPrivate,
       query_parameters: params ? params : [],
     };
-    try {
-      const responseJson = await this._post<CreateQueryResponse>("query/", payload);
-      return this.getQuery(responseJson.query_id);
-    } catch (err: unknown) {
-      throw new Error(`Fokin Broken: ${err}`);
-      // throw new DuneError(responseJson, "CreateQueryResponse", err);
-    }
+    const responseJson = await this._post<CreateQueryResponse>("query/", payload);
+    return this.getQuery(responseJson.query_id);
   }
 
   /**
@@ -78,39 +73,22 @@ export class QueryAPI extends Router {
   }
 
   public async archiveQuery(queryId: number): Promise<boolean> {
-    const responseJson = await this._post<EditQueryResponse>(`/query/${queryId}/archive`);
-    try {
-      const query = await this.getQuery(responseJson.query_id);
-      return query.is_archived;
-    } catch (err: any) {
-      throw new DuneError("ArchiveQueryResponse");
-      // throw new DuneError(responseJson, "ArchiveQueryResponse", err);
-    }
+    const response = await this._post<EditQueryResponse>(`/query/${queryId}/archive`);
+    const query = await this.getQuery(response.query_id);
+    return query.is_archived;
   }
 
   public async unarchiveQuery(queryId: number): Promise<boolean> {
-    const responseJson = await this._post<EditQueryResponse>(
-      `/query/${queryId}/unarchive`,
-    );
-    try {
-      const query = await this.getQuery(responseJson.query_id);
-      return query.is_archived;
-    } catch (err: any) {
-      throw new DuneError("UnarchiveQueryResponse");
-      // throw new DuneError(responseJson, "UnarchiveQueryResponse", err);
-    }
+    const response = await this._post<EditQueryResponse>(`/query/${queryId}/unarchive`);
+    const query = await this.getQuery(response.query_id);
+    return query.is_archived;
   }
 
   public async makePrivate(queryId: number): Promise<void> {
-    const responseJson = await this._post<EditQueryResponse>(`/query/${queryId}/private`);
-    try {
-      const query = await this.getQuery(responseJson.query_id);
-      if (!query.is_private) {
-        throw new DuneError("Query was not made private!");
-      }
-    } catch (err: any) {
-      throw new DuneError("MakePrivateResponse");
-      // throw new DuneError(responseJson, "MakePrivateResponse", err);
+    const response = await this._post<EditQueryResponse>(`/query/${queryId}/private`);
+    const query = await this.getQuery(response.query_id);
+    if (!query.is_private) {
+      throw new DuneError("Query was not made private!");
     }
   }
 
@@ -118,14 +96,9 @@ export class QueryAPI extends Router {
     const responseJson = await this._post<EditQueryResponse>(
       `/query/${queryId}/unprivate`,
     );
-    try {
-      const query = await this.getQuery(responseJson.query_id);
-      if (query.is_private) {
-        throw new DuneError("Query is still private.");
-      }
-    } catch (err: any) {
-      throw new DuneError("MakePublicResponse");
-      // throw new DuneError(responseJson, "MakePublicResponse", err);
+    const query = await this.getQuery(responseJson.query_id);
+    if (query.is_private) {
+      throw new DuneError("Query is still private.");
     }
   }
 }

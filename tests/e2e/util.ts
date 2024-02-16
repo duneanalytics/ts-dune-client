@@ -1,8 +1,9 @@
 import { expect } from "chai";
 import { DuneError } from "../../src";
 
-const { DUNE_API_KEY } = process.env;
-export const apiKey: string = DUNE_API_KEY ? DUNE_API_KEY : "No API Key";
+const { BASIC_API_KEY, PLUS_API_KEY } = process.env;
+export const BASIC_KEY: string = BASIC_API_KEY ? BASIC_API_KEY : "No API Key";
+export const PLUS_KEY: string = PLUS_API_KEY ? PLUS_API_KEY : "No Plus key";
 
 export const expectAsyncThrow = async (
   promise: Promise<any>,
