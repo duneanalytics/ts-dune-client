@@ -4,6 +4,9 @@ import { DuneError } from "../../src";
 const { BASIC_API_KEY, PLUS_API_KEY } = process.env;
 export const BASIC_KEY: string = BASIC_API_KEY!;
 export const PLUS_KEY: string = PLUS_API_KEY!;
+if (BASIC_API_KEY === undefined) {
+  throw Error("BROKEN");
+}
 
 export const expectAsyncThrow = async (
   promise: Promise<any>,
