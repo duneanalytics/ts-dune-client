@@ -1,13 +1,18 @@
 import { expect } from "chai";
 import { DuneClient, QueryParameter } from "../../src/";
 import log from "loglevel";
-import { apiKey } from "./util";
+import { BASIC_KEY } from "./util";
 
 log.setLevel("silent", true);
 
 describe("DuneClient Extensions", () => {
+  let client: DuneClient;
+
+  beforeEach(() => {
+    client = new DuneClient(BASIC_KEY);
+  });
+
   it("execute runQuery", async () => {
-    const client = new DuneClient(apiKey);
     // https://dune.com/queries/1215383
     const results = await client.runQuery(1215383, {
       query_parameters: [QueryParameter.text("TextField", "Plain Text")],
@@ -23,7 +28,6 @@ describe("DuneClient Extensions", () => {
   });
 
   it("getsLatestResults", async () => {
-    const client = new DuneClient(apiKey);
     // https://dune.com/queries/1215383
     const results = await client.getLatestResult(1215383, [
       QueryParameter.text("TextField", "Plain Text"),

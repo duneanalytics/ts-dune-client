@@ -14,7 +14,7 @@ enum RequestMethod {
 
 // This class implements all the routes defined in the Dune API Docs: https://dune.com/docs/api/
 export class Router {
-  apiKey: string;
+  private apiKey: string;
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;

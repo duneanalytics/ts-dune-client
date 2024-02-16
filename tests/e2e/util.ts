@@ -1,8 +1,16 @@
 import { expect } from "chai";
 import { DuneError } from "../../src";
 
-const { DUNE_API_KEY } = process.env;
-export const apiKey: string = DUNE_API_KEY ? DUNE_API_KEY : "No API Key";
+const { BASIC_API_KEY, PLUS_API_KEY } = process.env;
+if (BASIC_API_KEY === undefined) {
+  throw Error("Missing ENV var: BASIC_API_KEY");
+}
+if (PLUS_API_KEY === undefined) {
+  throw Error("Missing ENV var: PLUS_API_KEY");
+}
+export const BASIC_KEY: string = BASIC_API_KEY!;
+export const PLUS_KEY: string = PLUS_API_KEY!;
+
 
 export const expectAsyncThrow = async (
   promise: Promise<any>,
