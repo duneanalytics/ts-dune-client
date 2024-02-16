@@ -28,7 +28,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}
+      BASIC_API_KEY: ${{ secrets.BASIC_API_KEY }}
+      PLUS_API_KEY: ${{ secrets.PLUS_API_KEY }}
     strategy:
       matrix:
         node-version: [20.x]
