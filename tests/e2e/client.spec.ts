@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { DuneClient, QueryParameter } from "../../src/";
 import log from "loglevel";
-import { BASIC_KEY, PLUS_KEY } from "./util";
+import { BASIC_KEY } from "./util";
 
 log.setLevel("silent", true);
 
