@@ -12,7 +12,8 @@ describe("QueryAPI: Premium - CRUD Operations", () => {
     plusClient = new QueryAPI(PLUS_KEY);
   });
 
-  it("create, get & update", async () => {
+  // This creates too many queries!
+  it.skip("create, get & update", async () => {
     let newQuery = await plusClient.createQuery(
       "Name",
       "select 1",
