@@ -2,6 +2,7 @@
 import { Router } from "./router";
 import { DuneQuery, QueryParameter, CreateQueryResponse, DuneError } from "../types";
 import { CreateQueryPayload, UpdateQueryPayload } from "../types/requestPayload";
+import log from "loglevel";
 
 interface EditQueryResponse {
   query_id: number;
@@ -56,7 +57,7 @@ export class QueryAPI extends Router {
     if (params !== undefined) parameters.query_parameters = params;
 
     if (Object.keys(parameters).length === 0) {
-      console.warn("Called updateQuery with no proposed changes.");
+      log.warn("updateQuery: called with no proposed changes.");
       return queryId;
     }
 
