@@ -3,14 +3,17 @@ import { QueryParameter, ExecutionState, ExecutionAPI } from "../../src/";
 import log from "loglevel";
 import { ExecutionPerformance } from "../../src/types/requestPayload";
 import { BASIC_KEY, expectAsyncThrow } from "./util";
+import { sleep } from "../../src/utils";
 
 log.setLevel("silent", true);
 
 describe("ExecutionAPI: native routes", () => {
   let client: ExecutionAPI;
+  let testQueryId: number;
 
   beforeEach(() => {
     client = new ExecutionAPI(BASIC_KEY);
+    testQueryId = 1215383;
   });
 
   // This doesn't work if run too many times at once:
@@ -45,7 +48,6 @@ describe("ExecutionAPI: native routes", () => {
   });
 
   it("successfully executes with query parameters", async () => {
-    const queryID = 1215383;
     const parameters = [
       QueryParameter.text("TextField", "Plain Text"),
       QueryParameter.number("NumberField", 3.1415926535),
@@ -53,14 +55,14 @@ describe("ExecutionAPI: native routes", () => {
       QueryParameter.enum("ListField", "Option 1"),
     ];
     // Execute and check state
-    const execution = await client.executeQuery(queryID, {
+    const execution = await client.executeQuery(testQueryId, {
       query_parameters: parameters,
     });
     expect(execution.execution_id).is.not.null;
   });
 
   it("execute with Large tier performance", async () => {
-    const execution = await client.executeQuery(1215383, {
+    const execution = await client.executeQuery(testQueryId, {
       performance: ExecutionPerformance.Large,
     });
     expect(execution.execution_id).is.not.null;
@@ -82,6 +84,48 @@ describe("ExecutionAPI: native routes", () => {
       execution_ended_at: "2022-10-04T12:08:48.790331Z",
       cancelled_at: "2022-10-04T12:08:48.790331Z",
     });
+  });
+
+  it("getResults", async () => {
+    const execution = await client.executeQuery(testQueryId);
+    await sleep(1);
+    // expect basic query has completed after 1s
+    let status = await client.getExecutionStatus(execution.execution_id);
+    expect(status.state).to.be.eq(ExecutionState.COMPLETED);
+
+    // let resultJSON = await client.getExecutionResults(execution.execution_id);
+    await expect(() => client.getExecutionResults(execution.execution_id)).to.not.throw();
+
+    let resultCSV = await client.getResultCSV(execution.execution_id);
+    const expectedRows = [
+      "text_field,number_field,date_field,list_field\n",
+      "Plain Text,3.1415926535,2022-05-04 00:00:00.000,Option 1\n",
+    ];
+    expect(resultCSV).to.be.eq(expectedRows.join(""));
+  });
+
+  it("getLastResult", async () => {
+    // https://dune.com/queries/1215383
+    const resultCSV = await client.getLastResultCSV(1215383, [
+      QueryParameter.text("TextField", "Plain Text"),
+    ]);
+    const expectedRows = [
+      "text_field,number_field,date_field,list_field\n",
+      "Plain Text,3.1415926535,2022-05-04 00:00:00.000,Option 1\n",
+    ];
+    expect(resultCSV).to.be.eq(expectedRows.join(""));
+  });
+
+  it("getLastResultCSV", async () => {
+    // https://dune.com/queries/1215383
+    const resultCSV = await client.getLastResultCSV(1215383, [
+      QueryParameter.text("TextField", "Plain Text"),
+    ]);
+    const expectedRows = [
+      "text_field,number_field,date_field,list_field\n",
+      "Plain Text,3.1415926535,2022-05-04 00:00:00.000,Option 1\n",
+    ];
+    expect(resultCSV).to.be.eq(expectedRows.join(""));
   });
 });
 

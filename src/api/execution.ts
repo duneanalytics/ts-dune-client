@@ -52,11 +52,26 @@ export class ExecutionAPI extends Router {
     return response as ResultsResponse;
   }
 
+  async getResultCSV(executionId: string): Promise<string> {
+    const response = await this._get<string>(`execution/${executionId}/results/csv`);
+    log.debug(logPrefix, `get_result response ${JSON.stringify(response)}`);
+    return response;
+  }
+
   async getLastExecutionResults(
     queryId: number,
     parameters?: QueryParameter[],
   ): Promise<ResultsResponse> {
-    return await this._get<ResultsResponse>(`query/${queryId}/results`, {
+    return this._get<ResultsResponse>(`query/${queryId}/results`, {
+      query_parameters: parameters ? parameters : [],
+    });
+  }
+
+  async getLastResultCSV(
+    queryId: number,
+    parameters?: QueryParameter[],
+  ): Promise<string> {
+    return this._get<string>(`query/${queryId}/results/csv`, {
       query_parameters: parameters ? parameters : [],
     });
   }
