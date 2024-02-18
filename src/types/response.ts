@@ -1,9 +1,11 @@
+/// Various possible states of a query exeuction.
 export enum ExecutionState {
   COMPLETED = "QUERY_STATE_COMPLETED",
   EXECUTING = "QUERY_STATE_EXECUTING",
   PENDING = "QUERY_STATE_PENDING",
   CANCELLED = "QUERY_STATE_CANCELLED",
   FAILED = "QUERY_STATE_FAILED",
+  EXPIRED = "QUERY_STATE_EXPIRED",
 }
 
 export interface ExecutionResponseCSV {
@@ -33,15 +35,18 @@ export function concatResultCSV(
   };
 }
 
+/// Response resturned from query execution request.
 export interface ExecutionResponse {
   execution_id: string;
   state: ExecutionState;
 }
 
+/// Response resturned from query creation request.
 export interface CreateQueryResponse {
   query_id: number;
 }
 
+/// Various query times related to an query status request.
 export interface TimeData {
   submitted_at: Date;
   /// Timestamp of when the query execution started.
@@ -54,14 +59,16 @@ export interface TimeData {
   cancelled_at?: Date;
 }
 
+/// Metadata contained within a quer `ExecutionResult`
 export interface ResultMetadata {
-  // Names of the columns in the result set.
+  /// Names of the columns contained in the query results.
   column_names: string[];
-  // The count of datapoints used for billing/pricing, based on the result set.
+  /// Total number of data points in result.
+  /// Used as part of the API credits computation.
   datapoint_count: number;
-  // Time in milliseconds that the query took to execute.
+  /// Time in milliseconds that the query took to execute.
   execution_time_millis: number;
-  // Time in milliseconds that the query was pending before execution.
+  /// How long they query was pending (in the queue) before execution began.
   pending_time_millis: number;
   // Number of bytes in the result set for the current page of results.
   result_set_bytes: number;
@@ -73,6 +80,7 @@ export interface ResultMetadata {
   total_row_count: number;
 }
 
+/// Status resonse fields contained in both Incomplete and Complete ExecutionStatus Responses.
 interface BaseStatusResponse extends TimeData {
   // Unique identifier for the execution of the query.
   execution_id: string;
@@ -80,10 +88,14 @@ interface BaseStatusResponse extends TimeData {
   query_id: number;
   queue_position?: number;
 }
+
+/// Format of a `GetStatusResponse` when the query execution is anything but complete.
 interface IncompleteStatusResponse extends BaseStatusResponse {
   // The state of the query execution.
   state: Exclude<ExecutionState, ExecutionState.COMPLETED>;
 }
+
+/// Format of `GetStatusResponse` when a query execution has completed.
 interface CompleteStatusResponse extends BaseStatusResponse {
   // The state of the query execution.
   state: ExecutionState.COMPLETED;
@@ -94,6 +106,7 @@ interface CompleteStatusResponse extends BaseStatusResponse {
 
 export type GetStatusResponse = IncompleteStatusResponse | CompleteStatusResponse;
 
+/// Result of a Query Execution.
 export interface ExecutionResult {
   // A list of rows. A row is dictionary of key-value pairs returned by the query,
   // each pair corresponding to a column
@@ -103,6 +116,7 @@ export interface ExecutionResult {
   metadata: ResultMetadata;
 }
 
+/// Response of reqeust for results of a query execution.
 export interface ResultsResponse extends TimeData {
   // Unique identifier for the execution of the query.
   execution_id: string;

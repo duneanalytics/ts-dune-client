@@ -1,3 +1,9 @@
+/**
+ * This is the common entry point for end users.
+ * A class with exhibits all Dune API properties and extensions.
+ * Specifically, this class is a composition of QueryAPI, ExecutionAPI
+ * and also contains implementations of runQuery[CSV], getLatestResults[CSV]
+ */
 import * as fs from "fs/promises";
 import {
   DuneError,
@@ -18,12 +24,12 @@ import {
 } from "../constants";
 import { ExecutionParams } from "../types/requestPayload";
 import { QueryAPI } from "./query";
-import { join } from "path";
 
 const TERMINAL_STATES = [
   ExecutionState.CANCELLED,
   ExecutionState.COMPLETED,
   ExecutionState.FAILED,
+  ExecutionState.EXPIRED,
 ];
 
 export class DuneClient {
