@@ -1,21 +1,25 @@
 import { QueryParameter } from "./queryParameter";
 
+/// Optional parameters for query exection.
 export interface ExecutionParams {
   query_parameters?: QueryParameter[];
   performance?: ExecutionPerformance;
 }
 
+/// Choice of execution engine when executing query via API [default = medium]
 export enum ExecutionPerformance {
   Medium = "medium",
   Large = "large",
 }
 
+/// Payload sent upon requests to Dune API.
 export type RequestPayload =
   | GetResultPayload
   | ExecuteQueryPayload
   | UpdateQueryPayload
   | CreateQueryPayload;
 
+/// Utility method used by router to parse request payloads.
 export function payloadJSON(payload?: RequestPayload): string {
   return JSON.stringify(payloadRecords(payload));
 }
@@ -69,6 +73,7 @@ export interface ExecuteQueryPayload extends BasePayload {
   performance: string;
 }
 
+/// Payload sent with query update requests.
 export interface UpdateQueryPayload extends BasePayload {
   name?: string;
   query_sql?: string;
@@ -76,6 +81,7 @@ export interface UpdateQueryPayload extends BasePayload {
   tags?: string[];
 }
 
+/// Payload sent with query creation requests.
 export interface CreateQueryPayload extends BasePayload {
   name?: string;
   query_sql?: string;
