@@ -1,5 +1,5 @@
 {
-  "name": "@dune.com/client-sdk",
+  "name": "@duneanalytics/client-sdk",
   "version": "0.0.3",
   "author": "Ben Smith <bh2smith@gmail.com>",
   "description": "Node Client for Dune Analytics' officially supported API.",
