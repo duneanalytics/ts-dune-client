@@ -80,6 +80,7 @@ export class DuneClient {
    * Here contains additional logic to refresh the results if they are too old.
    * @param queryId - query to get results of.
    * @param parameters - parameters for which they were called.
+   * @param limit - the number of rows to retrieve
    * @param maxAgeHours - oldest acceptable results (if expired results are refreshed)
    * @returns Latest execution results for the given parameters.
    */
@@ -106,6 +107,7 @@ export class DuneClient {
    * Get the lastest execution results in CSV format.
    * @param queryId - query to get results of.
    * @param parameters - parameters for which they were called.
+   * @param limit - the number of rows to retrieve
    * @param maxAgeHours - oldest acceptable results (if expired results are refreshed)
    * @returns Latest execution results for the given parameters.
    */

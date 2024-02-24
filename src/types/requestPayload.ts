@@ -20,7 +20,7 @@ export function payloadJSON(payload?: RequestPayload): string {
   return JSON.stringify(payloadRecords(payload));
 }
 
-export function payloadRecords(payload?: RequestPayload): Record<string, any> {
+function payloadRecords(payload?: RequestPayload): Record<string, any> {
   if (payload !== undefined) {
     if ("query_parameters" in payload) {
       // Destructure to separate parameters and the rest of the payload

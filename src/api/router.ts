@@ -5,7 +5,6 @@ import { logPrefix } from "../utils";
 import {
   RequestPayload,
   payloadJSON,
-  payloadRecords,
   payloadSearchParams,
 } from "../types/requestPayload";
 
@@ -96,21 +95,20 @@ export class Router {
     return this._handleResponse<T>(response);
   }
 
-  protected async _get<T>(route: string, params?: RequestPayload): Promise<T> {
-    return this._request<T>(RequestMethod.GET, this.url(route), params);
+  protected async _get<T>(
+    route: string,
+    params?: RequestPayload,
+    raw: boolean = false,
+  ): Promise<T> {
+    return this._request<T>(RequestMethod.GET, this.url(route), params, raw);
   }
 
-  protected async _getRaw(route: string, params?: RequestPayload): Promise<Response> {
-    let response = await this._request<Response>(
-      RequestMethod.GET,
-      this.url(route),
-      params,
-      true,
-    );
-    if (!response.ok) {
-      throw new DuneError(`_getRaw Status ${response.status}: ${response.statusText}`);
-    }
-    return response;
+  protected async _getByUrl<T>(
+    url: string,
+    params?: RequestPayload,
+    raw: boolean = false,
+  ): Promise<T> {
+    return this._request<T>(RequestMethod.GET, url, params, raw);
   }
 
   protected async _post<T>(route: string, params?: RequestPayload): Promise<T> {
