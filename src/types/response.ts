@@ -6,6 +6,11 @@ export enum ExecutionState {
   FAILED = "QUERY_STATE_FAILED",
 }
 
+export interface ExecutionResponseCSV {
+  data: string;
+  nextUri?: string;
+  nextOffset?: number;
+}
 export interface ExecutionResponse {
   execution_id: string;
   state: ExecutionState;

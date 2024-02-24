@@ -11,6 +11,7 @@ export enum ExecutionPerformance {
 }
 
 export type RequestPayload =
+  | GetResultPayload
   | ExecuteQueryPayload
   | UpdateQueryPayload
   | CreateQueryPayload;
@@ -32,22 +33,28 @@ export function payloadJSON(payload?: RequestPayload): string {
   return "";
 }
 
-export interface ExecuteQueryPayload {
+interface BasePayload {
   query_parameters?: QueryParameter[];
+}
+
+export interface GetResultPayload extends BasePayload {
+  limit?: number;
+  offset?: number;
+}
+
+export interface ExecuteQueryPayload extends BasePayload {
   performance: string;
 }
 
-export interface UpdateQueryPayload {
+export interface UpdateQueryPayload extends BasePayload {
   name?: string;
   query_sql?: string;
-  query_parameters?: QueryParameter[];
   description?: string;
   tags?: string[];
 }
 
-export interface CreateQueryPayload {
+export interface CreateQueryPayload extends BasePayload {
   name?: string;
   query_sql?: string;
-  query_parameters?: QueryParameter[];
   is_private?: boolean;
 }

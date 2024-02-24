@@ -4,12 +4,17 @@ import {
   ExecutionState,
   QueryParameter,
   GetStatusResponse,
+  ExecutionResponseCSV,
 } from "../types";
 import { ageInHours, sleep } from "../utils";
 import log from "loglevel";
 import { logPrefix } from "../utils";
 import { ExecutionAPI } from "./execution";
-import { POLL_FREQUENCY_SECONDS, THREE_MONTHS_IN_HOURS } from "../constants";
+import {
+  MAX_NUM_ROWS_PER_BATCH,
+  POLL_FREQUENCY_SECONDS,
+  THREE_MONTHS_IN_HOURS,
+} from "../constants";
 import { ExecutionParams } from "../types/requestPayload";
 import { QueryAPI } from "./query";
 
@@ -31,6 +36,7 @@ export class DuneClient {
   async runQuery(
     queryID: number,
     params?: ExecutionParams,
+    limit: number = MAX_NUM_ROWS_PER_BATCH,
     pingFrequency: number = POLL_FREQUENCY_SECONDS,
   ): Promise<ResultsResponse> {
     let { state, execution_id: jobID } = await this._runInner(
@@ -39,7 +45,7 @@ export class DuneClient {
       pingFrequency,
     );
     if (state === ExecutionState.COMPLETED) {
-      return this.exec.getExecutionResults(jobID);
+      return this.exec.getExecutionResults(jobID, { limit });
     } else {
       const message = `refresh (execution ${jobID}) yields incomplete terminal state ${state}`;
       // TODO - log the error in constructor
@@ -51,15 +57,16 @@ export class DuneClient {
   async runQueryCSV(
     queryID: number,
     params?: ExecutionParams,
+    limit: number = MAX_NUM_ROWS_PER_BATCH,
     pingFrequency: number = POLL_FREQUENCY_SECONDS,
-  ): Promise<string> {
+  ): Promise<ExecutionResponseCSV> {
     let { state, execution_id: jobID } = await this._runInner(
       queryID,
       params,
       pingFrequency,
     );
     if (state === ExecutionState.COMPLETED) {
-      return this.exec.getResultCSV(jobID);
+      return this.exec.getResultCSV(jobID, { limit });
     } else {
       const message = `refresh (execution ${jobID}) yields incomplete terminal state ${state}`;
       // TODO - log the error in constructor
@@ -79,16 +86,18 @@ export class DuneClient {
   async getLatestResult(
     queryId: number,
     parameters?: QueryParameter[],
+    limit: number = MAX_NUM_ROWS_PER_BATCH,
     maxAgeHours: number = THREE_MONTHS_IN_HOURS,
   ): Promise<ResultsResponse> {
-    let results = await this.exec.getLastExecutionResults(queryId, parameters);
+    const params = { query_parameters: parameters, limit };
+    let results = await this.exec.getLastExecutionResults(queryId, params);
     const lastRun: Date = results.execution_ended_at!;
     if (lastRun !== undefined && ageInHours(lastRun) > maxAgeHours) {
       log.info(
         logPrefix,
         `results (from ${lastRun}) older than ${maxAgeHours} hours, re-running query.`,
       );
-      results = await this.runQuery(queryId, { query_parameters: parameters });
+      results = await this.runQuery(queryId, { query_parameters: parameters }, limit);
     }
     return results;
   }
@@ -102,21 +111,23 @@ export class DuneClient {
    */
   async getLatestResultCSV(
     queryId: number,
-    parameters?: QueryParameter[],
+    parameters: QueryParameter[] = [],
+    limit: number = MAX_NUM_ROWS_PER_BATCH,
     maxAgeHours: number = THREE_MONTHS_IN_HOURS,
-  ): Promise<string> {
-    const lastResults = await this.exec.getLastExecutionResults(queryId, parameters);
+  ): Promise<ExecutionResponseCSV> {
+    const params = { query_parameters: parameters, limit };
+    const lastResults = await this.exec.getLastExecutionResults(queryId, params);
     const lastRun: Date = lastResults.execution_ended_at!;
-    let results: Promise<string>;
+    let results: Promise<ExecutionResponseCSV>;
     if (lastRun !== undefined && ageInHours(lastRun) > maxAgeHours) {
       log.info(
         logPrefix,
         `results (from ${lastRun}) older than ${maxAgeHours} hours, re-running query.`,
       );
-      results = this.runQueryCSV(queryId, { query_parameters: parameters });
+      results = this.runQueryCSV(queryId, { query_parameters: parameters }, limit);
     } else {
       // TODO (user cost savings): transform the lastResults into CSV instead of refetching
-      results = this.exec.getLastResultCSV(queryId, parameters);
+      results = this.exec.getLastResultCSV(queryId, params);
     }
     return results;
   }

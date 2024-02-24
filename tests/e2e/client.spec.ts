@@ -44,6 +44,6 @@ describe("DuneClient Extensions", () => {
       "text_field,number_field,date_field,list_field\n",
       "Plain Text,3.1415926535,2022-05-04 00:00:00.000,Option 1\n",
     ];
-    expect(resultCSV).to.be.eq(expectedRows.join(""));
+    expect(resultCSV.data).to.be.eq(expectedRows.join(""));
   });
 });
