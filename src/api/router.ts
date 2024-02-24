@@ -2,7 +2,12 @@ import { DuneError } from "../types";
 import fetch from "cross-fetch";
 import log from "loglevel";
 import { logPrefix } from "../utils";
-import { RequestPayload, payloadJSON } from "../types/requestPayload";
+import {
+  RequestPayload,
+  payloadJSON,
+  payloadRecords,
+  payloadSearchParams,
+} from "../types/requestPayload";
 
 const BASE_URL = "https://api.dune.com/api";
 
@@ -66,7 +71,7 @@ export class Router {
   ): Promise<T> {
     const payloadData = payloadJSON(payload);
     log.debug(logPrefix, `${method} received input url=${url}, payload=${payloadData}`);
-    const response = fetch(url, {
+    let requestData: RequestInit = {
       method,
       headers: {
         "x-dune-api-key": this.apiKey,
@@ -74,12 +79,17 @@ export class Router {
       },
       // conditionally add the body property
       ...(method !== RequestMethod.GET && {
-        body: payloadJSON(payload),
+        body: payloadData,
       }),
-      ...(method === RequestMethod.GET && {
-        params: payloadJSON(payload),
-      }),
-    });
+    };
+    let queryParams = "";
+    /// Build Url Search Parameters on GET
+    if (method === "GET" && payload) {
+      const searchParams = new URLSearchParams(payloadSearchParams(payload)).toString();
+      queryParams = `?${searchParams}`;
+    }
+
+    let response = fetch(url + queryParams, requestData);
     if (raw) {
       return response as T;
     }

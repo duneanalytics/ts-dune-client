@@ -15,7 +15,7 @@ describe("ExecutionAPI: native routes", () => {
   beforeEach(() => {
     client = new ExecutionAPI(BASIC_KEY);
     testQueryId = 1215383;
-    multiRowQueryId = 3435763;
+    multiRowQueryId = 3463180;
   });
 
   // This doesn't work if run too many times at once:
@@ -82,9 +82,9 @@ describe("ExecutionAPI: native routes", () => {
       is_execution_finished: true,
       submitted_at: "2022-10-04T12:08:47.753527Z",
       expires_at: "2024-10-03T12:08:48.790332Z",
-      execution_started_at: "2022-10-04T12:08:47.756608Z",
-      execution_ended_at: "2022-10-04T12:08:48.790331Z",
-      cancelled_at: "2022-10-04T12:08:48.790331Z",
+      execution_started_at: "2022-10-04T12:08:47.756608607Z",
+      cancelled_at: "2022-10-04T12:08:48.790331383Z",
+      execution_ended_at: "2022-10-04T12:08:48.790331383Z",
     });
   });
 
@@ -101,14 +101,14 @@ describe("ExecutionAPI: native routes", () => {
     let resultCSV = await client.getResultCSV(execution.execution_id);
     const expectedRows = [
       "text_field,number_field,date_field,list_field\n",
-      "Plain Text,3.1415926535,2022-05-04 00:00:00.000,Option 1\n",
+      "Plain Text,3.1415926535,2022-05-04T00:00:00Z,Option 1\n",
     ];
     expect(resultCSV.data).to.be.eq(expectedRows.join(""));
   });
 
   it("getLastResult", async () => {
     // https://dune.com/queries/1215383
-    const result = await client.getLastExecutionResults(1215383, {
+    const result = await client.getLastExecutionResults(testQueryId, {
       query_parameters: [QueryParameter.text("TextField", "Plain Text")],
     });
     expect(result.result?.rows).to.be.deep.equal([
@@ -123,13 +123,37 @@ describe("ExecutionAPI: native routes", () => {
 
   it("getLastResultCSV", async () => {
     // https://dune.com/queries/1215383
-    const resultCSV = await client.getLastResultCSV(1215383, {
+    const resultCSV = await client.getLastResultCSV(testQueryId, {
       query_parameters: [QueryParameter.text("TextField", "Plain Text")],
     });
     const expectedRows = [
       "text_field,number_field,date_field,list_field\n",
       "Plain Text,3.1415926535,2022-05-04 00:00:00.000,Option 1\n",
     ];
+    expect(resultCSV.data).to.be.eq(expectedRows.join(""));
+  });
+
+  /// Pagination
+  it("uses pagination parameters", async () => {
+    const result = await client.getLastExecutionResults(multiRowQueryId, {
+      // TODO - this endpoint does not appear to work with Query Parameters.
+      query_parameters: [QueryParameter.number("StartFrom", 1)],
+      limit: 2,
+    });
+    expect(result.result?.rows).to.be.deep.equal([
+      {
+        number: 1,
+      },
+      {
+        number: 2,
+      },
+    ]);
+
+    const resultCSV = await client.getLastResultCSV(multiRowQueryId, {
+      limit: 3,
+      query_parameters: [QueryParameter.number("StartFrom", 5)],
+    });
+    const expectedRows = ["number\n", "5\n", "6\n", "7\n"];
     expect(resultCSV.data).to.be.eq(expectedRows.join(""));
   });
 });
