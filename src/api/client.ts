@@ -85,7 +85,7 @@ export class DuneClient {
    */
   async getLatestResult(
     queryId: number,
-    parameters?: QueryParameter[],
+    parameters: QueryParameter[] = [],
     limit: number = MAX_NUM_ROWS_PER_BATCH,
     maxAgeHours: number = THREE_MONTHS_IN_HOURS,
   ): Promise<ResultsResponse> {
@@ -161,7 +161,7 @@ export class DuneClient {
    */
   async refresh(
     queryID: number,
-    parameters?: QueryParameter[],
+    parameters: QueryParameter[] = [],
     pingFrequency: number = 1,
   ): Promise<ResultsResponse> {
     return this.runQuery(queryID, { query_parameters: parameters }, pingFrequency);
