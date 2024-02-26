@@ -101,7 +101,6 @@ export class ExecutionAPI extends Router {
       params,
       true,
     );
-
     return this._fetchEntireResultCSV(await this.buildCSVResponse(response));
   }
 
@@ -131,7 +130,9 @@ export class ExecutionAPI extends Router {
     let next_uri = results.next_uri;
     let batch: ExecutionResponseCSV;
     while (next_uri !== null) {
-      batch = await this._getByUrl<ExecutionResponseCSV>(next_uri!, undefined, true);
+      batch = await this.buildCSVResponse(
+        await this._getByUrl<Response>(next_uri!, undefined, true),
+      );
       results = concatResultCSV(results, batch);
       next_uri = batch.next_uri;
     }

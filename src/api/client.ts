@@ -17,6 +17,7 @@ import {
 } from "../constants";
 import { ExecutionParams } from "../types/requestPayload";
 import { QueryAPI } from "./query";
+import { join } from "path";
 
 const TERMINAL_STATES = [
   ExecutionState.CANCELLED,
@@ -36,7 +37,7 @@ export class DuneClient {
   async runQuery(
     queryID: number,
     params?: ExecutionParams,
-    limit: number = MAX_NUM_ROWS_PER_BATCH,
+    batchSize: number = MAX_NUM_ROWS_PER_BATCH,
     pingFrequency: number = POLL_FREQUENCY_SECONDS,
   ): Promise<ResultsResponse> {
     let { state, execution_id: jobID } = await this._runInner(
@@ -45,7 +46,17 @@ export class DuneClient {
       pingFrequency,
     );
     if (state === ExecutionState.COMPLETED) {
-      return this.exec.getExecutionResults(jobID, { limit });
+      let result = await this.getLatestResult(
+        queryID,
+        params?.query_parameters,
+        batchSize,
+      );
+      if (result.execution_id !== jobID) {
+        throw new DuneError(
+          `invalid execution ID: expected ${jobID}, got ${result.execution_id}`,
+        );
+      }
+      return result;
     } else {
       const message = `refresh (execution ${jobID}) yields incomplete terminal state ${state}`;
       // TODO - log the error in constructor
@@ -57,7 +68,7 @@ export class DuneClient {
   async runQueryCSV(
     queryID: number,
     params?: ExecutionParams,
-    limit: number = MAX_NUM_ROWS_PER_BATCH,
+    batchSize: number = MAX_NUM_ROWS_PER_BATCH,
     pingFrequency: number = POLL_FREQUENCY_SECONDS,
   ): Promise<ExecutionResponseCSV> {
     let { state, execution_id: jobID } = await this._runInner(
@@ -66,7 +77,13 @@ export class DuneClient {
       pingFrequency,
     );
     if (state === ExecutionState.COMPLETED) {
-      return this.exec.getResultCSV(jobID, { limit });
+      // we can't assert that the execution ids agree here, so we use max age hours as a "safe guard"
+      return this.getLatestResultCSV(
+        queryID,
+        params?.query_parameters,
+        batchSize,
+        0.0005,
+      );
     } else {
       const message = `refresh (execution ${jobID}) yields incomplete terminal state ${state}`;
       // TODO - log the error in constructor
@@ -87,18 +104,20 @@ export class DuneClient {
   async getLatestResult(
     queryId: number,
     parameters: QueryParameter[] = [],
-    limit: number = MAX_NUM_ROWS_PER_BATCH,
+    batchSize: number = MAX_NUM_ROWS_PER_BATCH,
     maxAgeHours: number = THREE_MONTHS_IN_HOURS,
   ): Promise<ResultsResponse> {
-    const params = { query_parameters: parameters, limit };
-    let results = await this.exec.getLastExecutionResults(queryId, params);
+    let results = await this.exec.getLastExecutionResults(queryId, {
+      query_parameters: parameters,
+      limit: batchSize,
+    });
     const lastRun: Date = results.execution_ended_at!;
     if (lastRun !== undefined && ageInHours(lastRun) > maxAgeHours) {
       log.info(
         logPrefix,
         `results (from ${lastRun}) older than ${maxAgeHours} hours, re-running query.`,
       );
-      results = await this.runQuery(queryId, { query_parameters: parameters }, limit);
+      results = await this.runQuery(queryId, { query_parameters: parameters }, batchSize);
     }
     return results;
   }
@@ -114,10 +133,10 @@ export class DuneClient {
   async getLatestResultCSV(
     queryId: number,
     parameters: QueryParameter[] = [],
-    limit: number = MAX_NUM_ROWS_PER_BATCH,
+    batchSize: number = MAX_NUM_ROWS_PER_BATCH,
     maxAgeHours: number = THREE_MONTHS_IN_HOURS,
   ): Promise<ExecutionResponseCSV> {
-    const params = { query_parameters: parameters, limit };
+    const params = { query_parameters: parameters, limit: batchSize };
     const lastResults = await this.exec.getLastExecutionResults(queryId, params);
     const lastRun: Date = lastResults.execution_ended_at!;
     let results: Promise<ExecutionResponseCSV>;
@@ -126,7 +145,7 @@ export class DuneClient {
         logPrefix,
         `results (from ${lastRun}) older than ${maxAgeHours} hours, re-running query.`,
       );
-      results = this.runQueryCSV(queryId, { query_parameters: parameters }, limit);
+      results = this.runQueryCSV(queryId, { query_parameters: parameters }, batchSize);
     } else {
       // TODO (user cost savings): transform the lastResults into CSV instead of refetching
       results = this.exec.getLastResultCSV(queryId, params);

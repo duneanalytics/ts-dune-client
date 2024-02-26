@@ -62,6 +62,7 @@ interface BasePayload {
 export interface GetResultPayload extends BasePayload {
   limit?: number;
   offset?: number;
+  expectedId?: string;
 }
 
 export interface ExecuteQueryPayload extends BasePayload {

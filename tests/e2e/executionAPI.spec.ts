@@ -14,8 +14,8 @@ describe("ExecutionAPI: native routes", () => {
 
   beforeEach(() => {
     client = new ExecutionAPI(BASIC_KEY);
+    // https://dune.com/queries/1215383
     testQueryId = 1215383;
-    multiRowQueryId = 3463180;
   });
 
   // This doesn't work if run too many times at once:
@@ -107,7 +107,6 @@ describe("ExecutionAPI: native routes", () => {
   });
 
   it("getLastResult", async () => {
-    // https://dune.com/queries/1215383
     const result = await client.getLastExecutionResults(testQueryId, {
       query_parameters: [QueryParameter.text("TextField", "Plain Text")],
     });
@@ -135,25 +134,25 @@ describe("ExecutionAPI: native routes", () => {
 
   /// Pagination
   it("uses pagination parameters", async () => {
-    const result = await client.getLastExecutionResults(multiRowQueryId, {
-      // TODO - this endpoint does not appear to work with Query Parameters.
-      query_parameters: [QueryParameter.number("StartFrom", 1)],
+    // This execution was run with StartFrom = 1.
+    const result = await client.getExecutionResults("01HQJ996M17AB1D7EWDMPZ79ZS", {
       limit: 2,
+      offset: 1,
     });
     expect(result.result?.rows).to.be.deep.equal([
       {
-        number: 1,
+        number: 2,
       },
       {
-        number: 2,
+        number: 3,
       },
     ]);
 
-    const resultCSV = await client.getLastResultCSV(multiRowQueryId, {
-      limit: 3,
-      query_parameters: [QueryParameter.number("StartFrom", 5)],
+    const resultCSV = await client.getResultCSV("01HQJ996M17AB1D7EWDMPZ79ZS", {
+      limit: 1,
+      offset: 2,
     });
-    const expectedRows = ["number\n", "5\n", "6\n", "7\n"];
+    const expectedRows = ["number\n", "3\n"];
     expect(resultCSV.data).to.be.eq(expectedRows.join(""));
   });
 });
