@@ -78,12 +78,7 @@ export class DuneClient {
     );
     if (state === ExecutionState.COMPLETED) {
       // we can't assert that the execution ids agree here, so we use max age hours as a "safe guard"
-      return this.getLatestResultCSV(
-        queryID,
-        params?.query_parameters,
-        batchSize,
-        0.0005,
-      );
+      return this.downloadCSV(queryID, params?.query_parameters, batchSize, 0.0005);
     } else {
       const message = `refresh (execution ${jobID}) yields incomplete terminal state ${state}`;
       // TODO - log the error in constructor
@@ -126,11 +121,11 @@ export class DuneClient {
    * Get the lastest execution results in CSV format.
    * @param queryId - query to get results of.
    * @param parameters - parameters for which they were called.
-   * @param limit - the number of rows to retrieve
+   * @param batchSize - the page size when retriving results.
    * @param maxAgeHours - oldest acceptable results (if expired results are refreshed)
    * @returns Latest execution results for the given parameters.
    */
-  async getLatestResultCSV(
+  async downloadCSV(
     queryId: number,
     parameters: QueryParameter[] = [],
     batchSize: number = MAX_NUM_ROWS_PER_BATCH,

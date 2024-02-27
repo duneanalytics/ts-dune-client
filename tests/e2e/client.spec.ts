@@ -80,7 +80,7 @@ describe("DuneClient Extensions", () => {
 
   it("getsLatestResultsCSV", async () => {
     // https://dune.com/queries/1215383
-    const resultCSV = await client.getLatestResultCSV(1215383, [
+    const resultCSV = await client.downloadCSV(1215383, [
       QueryParameter.text("TextField", "Plain Text"),
     ]);
     const expectedRows = [
@@ -89,7 +89,7 @@ describe("DuneClient Extensions", () => {
     ];
     expect(resultCSV.data).to.be.eq(expectedRows.join(""));
 
-    const multiRowResults = await client.getLatestResultCSV(
+    const multiRowResults = await client.downloadCSV(
       multiRowQuery,
       [QueryParameter.number("StartFrom", 3)],
       4,
