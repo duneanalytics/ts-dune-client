@@ -1,3 +1,4 @@
+import * as fs from "fs/promises";
 import {
   DuneError,
   ResultsResponse,
@@ -78,7 +79,9 @@ export class DuneClient {
     );
     if (state === ExecutionState.COMPLETED) {
       // we can't assert that the execution ids agree here, so we use max age hours as a "safe guard"
-      return this.downloadCSV(queryID, params?.query_parameters, batchSize, 0.0005);
+      return this.exec.getResultCSV(jobID, {
+        query_parameters: params?.query_parameters,
+      });
     } else {
       const message = `refresh (execution ${jobID}) yields incomplete terminal state ${state}`;
       // TODO - log the error in constructor
@@ -118,8 +121,9 @@ export class DuneClient {
   }
 
   /**
-   * Get the lastest execution results in CSV format.
+   * Get the lastest execution results in CSV format and saves to disk.
    * @param queryId - query to get results of.
+   * @param outFile - location to save CSV.
    * @param parameters - parameters for which they were called.
    * @param batchSize - the page size when retriving results.
    * @param maxAgeHours - oldest acceptable results (if expired results are refreshed)
@@ -127,10 +131,11 @@ export class DuneClient {
    */
   async downloadCSV(
     queryId: number,
+    outFile: string,
     parameters: QueryParameter[] = [],
     batchSize: number = MAX_NUM_ROWS_PER_BATCH,
     maxAgeHours: number = THREE_MONTHS_IN_HOURS,
-  ): Promise<ExecutionResponseCSV> {
+  ): Promise<void> {
     const params = { query_parameters: parameters, limit: batchSize };
     const lastResults = await this.exec.getLastExecutionResults(queryId, params);
     const lastRun: Date = lastResults.execution_ended_at!;
@@ -145,7 +150,10 @@ export class DuneClient {
       // TODO (user cost savings): transform the lastResults into CSV instead of refetching
       results = this.exec.getLastResultCSV(queryId, params);
     }
-    return results;
+    // Wait for the results promise to resolve and then write the CSV data to the specified outFile
+    const csvData = (await results).data;
+    await fs.writeFile(outFile, csvData, "utf8");
+    log.info(`CSV data has been saved to ${outFile}`);
   }
 
   private async _runInner(

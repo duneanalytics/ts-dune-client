@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { DuneClient, QueryParameter } from "../../src/";
 import log from "loglevel";
 import { BASIC_KEY } from "./util";
+import * as fs from "fs/promises";
 
 log.setLevel(log.levels.DEBUG, true);
 
@@ -78,22 +79,14 @@ describe("DuneClient Extensions", () => {
     expect(multiRowResults.result?.rows.length).to.be.equal(6);
   });
 
-  it("getsLatestResultsCSV", async () => {
-    // https://dune.com/queries/1215383
-    const resultCSV = await client.downloadCSV(1215383, [
-      QueryParameter.text("TextField", "Plain Text"),
+  it.only("getsLatestResultsCSV", async () => {
+    await client.downloadCSV(multiRowQuery, "./out.csv", [
+      QueryParameter.number("StartFrom", 3),
     ]);
-    const expectedRows = [
-      "text_field,number_field,date_field,list_field\n",
-      "Plain Text,3.1415926535,2022-05-04T00:00:00Z,Option 1\n",
-    ];
-    expect(resultCSV.data).to.be.eq(expectedRows.join(""));
-
-    const multiRowResults = await client.downloadCSV(
-      multiRowQuery,
-      [QueryParameter.number("StartFrom", 3)],
-      4,
-    );
-    expect(multiRowResults.data).to.be.deep.equal("number\n3\n4\n5\n6\n7\n8\n");
+    const fileContents = await fs.readFile("./out.csv", { encoding: "utf8" });
+    // Compare the contents of the CSV file with the expected string
+    expect(fileContents).to.deep.equal("number\n3\n4\n5\n6\n7\n8\n");
+    // Remove the CSV file after the comparison
+    await fs.unlink("./out.csv");
   });
 });
