@@ -79,7 +79,7 @@ describe("DuneClient Extensions", () => {
     expect(multiRowResults.result?.rows.length).to.be.equal(6);
   });
 
-  it.only("getsLatestResultsCSV", async () => {
+  it("downloadCSV", async () => {
     await client.downloadCSV(multiRowQuery, "./out.csv", [
       QueryParameter.number("StartFrom", 3),
     ]);

@@ -69,7 +69,6 @@ export class DuneClient {
   async runQueryCSV(
     queryID: number,
     params?: ExecutionParams,
-    batchSize: number = MAX_NUM_ROWS_PER_BATCH,
     pingFrequency: number = POLL_FREQUENCY_SECONDS,
   ): Promise<ExecutionResponseCSV> {
     let { state, execution_id: jobID } = await this._runInner(
