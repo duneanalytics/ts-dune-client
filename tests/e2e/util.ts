@@ -12,9 +12,9 @@ export const BASIC_KEY: string = BASIC_API_KEY!;
 export const PLUS_KEY: string = PLUS_API_KEY!;
 
 export const expectAsyncThrow = async (
-  promise: Promise<any>,
+  promise: Promise<unknown>,
   message?: string | object,
-) => {
+): Promise<void> => {
   try {
     await promise;
     // Make sure to fail if promise does resolve!

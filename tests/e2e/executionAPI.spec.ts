@@ -10,7 +10,6 @@ log.setLevel("silent", true);
 describe("ExecutionAPI: native routes", () => {
   let client: ExecutionAPI;
   let testQueryId: number;
-  let multiRowQueryId: number;
 
   beforeEach(() => {
     client = new ExecutionAPI(BASIC_KEY);
@@ -32,7 +31,7 @@ describe("ExecutionAPI: native routes", () => {
 
     // Cancel execution and verify it was canceled.
     const canceled = await client.cancelExecution(execution.execution_id);
-    expect(canceled).to.be.true;
+    expect(canceled).to.be.eq(true);
 
     // Get execution status
     const status = await client.getExecutionStatus(execution.execution_id);
@@ -60,14 +59,14 @@ describe("ExecutionAPI: native routes", () => {
     const execution = await client.executeQuery(testQueryId, {
       query_parameters: parameters,
     });
-    expect(execution.execution_id).is.not.null;
+    expect(execution.execution_id).is.not.eq(null);
   });
 
   it("execute with Large tier performance", async () => {
     const execution = await client.executeQuery(testQueryId, {
       performance: ExecutionPerformance.Large,
     });
-    expect(execution.execution_id).is.not.null;
+    expect(execution.execution_id).is.not.eq(null);
   });
 
   it("returns expected results on cancelled query exection", async () => {
@@ -92,13 +91,13 @@ describe("ExecutionAPI: native routes", () => {
     const execution = await client.executeQuery(testQueryId);
     await sleep(1);
     // expect basic query has completed after 1s
-    let status = await client.getExecutionStatus(execution.execution_id);
+    const status = await client.getExecutionStatus(execution.execution_id);
     expect(status.state).to.be.eq(ExecutionState.COMPLETED);
 
     // let resultJSON = await client.getExecutionResults(execution.execution_id);
     await expect(() => client.getExecutionResults(execution.execution_id)).to.not.throw();
 
-    let resultCSV = await client.getResultCSV(execution.execution_id);
+    const resultCSV = await client.getResultCSV(execution.execution_id);
     const expectedRows = [
       "text_field,number_field,date_field,list_field\n",
       "Plain Text,3.1415926535,2022-05-04T00:00:00Z,Option 1\n",
@@ -167,17 +166,13 @@ describe("ExecutionAPI: Errors", () => {
     client = new ExecutionAPI(BASIC_KEY);
   });
 
-  beforeEach(function () {
-    const client = new ExecutionAPI(BASIC_KEY);
-  });
-
   it("returns invalid API key", async () => {
     const bad_client = new ExecutionAPI("Bad Key");
     await expectAsyncThrow(bad_client.executeQuery(1), "invalid API Key");
   });
   it("returns Invalid request path (queryId too large)", async () => {
     await expectAsyncThrow(
-      client.executeQuery(99999999999999999999999999),
+      client.executeQuery(999999999999999),
       "Invalid request path",
     );
   });

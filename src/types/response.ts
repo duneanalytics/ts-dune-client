@@ -138,11 +138,6 @@ export function concatResultResponse(
   left: ResultsResponse,
   right: ResultsResponse,
 ): ResultsResponse {
-  const combineConditions = [
-    left.execution_id === right.execution_id,
-    left.result !== undefined,
-    right.result !== undefined,
-  ];
   if (left.execution_id !== right.execution_id) {
     throw new Error(
       `Can't combine results: ExecutionIds (${left.execution_id} != ${right.execution_id})`,
@@ -153,7 +148,7 @@ export function concatResultResponse(
     throw new Error(`Can't combine results: Right Entry has no results`);
   }
 
-  let { next_offset, next_uri, result: _, ...remainingValues } = right;
+  const { next_offset, next_uri, result: _, ...remainingValues } = right;
   return {
     next_uri,
     next_offset,
@@ -176,7 +171,7 @@ function concatResultMetadata(
   if (right === undefined) {
     throw new Error("Can not concatenate with empty metadata");
   }
-  let { row_count, result_set_bytes, datapoint_count, ...remainingValues } = right;
+  const { row_count, result_set_bytes, datapoint_count, ...remainingValues } = right;
   return {
     row_count: left.row_count + row_count,
     result_set_bytes: left.result_set_bytes + result_set_bytes,

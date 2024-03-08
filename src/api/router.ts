@@ -73,7 +73,7 @@ export class Router {
   ): Promise<T> {
     const payloadData = payloadJSON(payload);
     log.debug(logPrefix, `${method} received input url=${url}, payload=${payloadData}`);
-    let requestData: RequestInit = {
+    const requestData: RequestInit = {
       method,
       headers: {
         "x-dune-api-key": this.apiKey,
@@ -91,7 +91,7 @@ export class Router {
       queryParams = `?${searchParams}`;
     }
 
-    let response = fetch(url + queryParams, requestData);
+    const response = fetch(url + queryParams, requestData);
     if (raw) {
       return response as T;
     }

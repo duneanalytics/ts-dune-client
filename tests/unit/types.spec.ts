@@ -10,18 +10,18 @@ import {
 
 describe("Type Concatenation", () => {
   it("concatResultCSV", async () => {
-    let left = {
+    const left = {
       data: "col_1\n1\n2\n",
       next_offset: 1,
       next_uri: "left",
     };
-    let right: ExecutionResponseCSV = {
+    const right: ExecutionResponseCSV = {
       data: "col_1\n3\n4\n",
       next_offset: 2,
       next_uri: "right",
     };
 
-    let result = concatResultCSV(left, right);
+    const result = concatResultCSV(left, right);
     expect(result).to.be.deep.equal({
       data: "col_1\n1\n2\n3\n4\n",
       next_offset: 2,
@@ -69,7 +69,7 @@ describe("Type Concatenation", () => {
       },
     };
 
-    let left: ResultsResponse = {
+    const left: ResultsResponse = {
       execution_id: "XYZ",
       next_offset: 0,
       next_uri: "left",
@@ -77,14 +77,14 @@ describe("Type Concatenation", () => {
       ...irrelevantFieldsForTest,
     };
 
-    let right: ResultsResponse = {
+    const right: ResultsResponse = {
       execution_id: "XYZ",
       next_offset: 1,
       next_uri: "right",
       result: rightResult,
       ...irrelevantFieldsForTest,
     };
-    let result = concatResultResponse(left, right);
+    const result = concatResultResponse(left, right);
 
     expect(result).to.be.deep.equal({
       execution_id: "XYZ",

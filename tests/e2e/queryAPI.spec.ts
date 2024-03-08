@@ -14,15 +14,15 @@ describe("QueryAPI: Premium - CRUD Operations", () => {
 
   // This creates too many queries!
   it.skip("create, get & update", async () => {
-    let newQueryId = await plusClient.createQuery({
+    const newQueryId = await plusClient.createQuery({
       name: "Query Name",
       query_sql: "select 1",
       query_parameters: [QueryParameter.text("What", "name")],
       is_private: true,
     });
-    let recoveredQuery = await plusClient.readQuery(newQueryId);
+    const recoveredQuery = await plusClient.readQuery(newQueryId);
     expect(newQueryId).to.be.equal(newQueryId);
-    let updatedQueryId = await plusClient.updateQuery(newQueryId, {
+    const updatedQueryId = await plusClient.updateQuery(newQueryId, {
       name: "New Name",
       query_sql: "select 10",
     });
