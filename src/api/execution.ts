@@ -21,8 +21,18 @@ import {
   DUNE_CSV_NEXT_URI_HEADER,
 } from "../constants";
 
-// This class implements all the routes defined in the Dune API Docs: https://dune.com/docs/api/
+/**
+ * This class implements all the routes defined in the Dune API Docs:
+ * https://docs.dune.com/api-reference/executions/execution-object
+ */
 export class ExecutionAPI extends Router {
+  /**
+   * Executes query by ID according to:
+   * https://docs.dune.com/api-reference/executions/endpoint/execute-query
+   * @param {number} queryID id of query to be executed.
+   * @param {ExecutionParams} params including query parameters and execution performance.
+   * @returns {ExecutionResponse} response containing execution ID and state.
+   */
   async executeQuery(
     queryID: number,
     params?: ExecutionParams,
@@ -43,6 +53,12 @@ export class ExecutionAPI extends Router {
     return response as ExecutionResponse;
   }
 
+  /**
+   * Cancels an execution according to:
+   * https://docs.dune.com/api-reference/executions/endpoint/cancel-execution
+   * @param {string} executionId string representig ID of query execution.
+   * @returns {boolean} indicating if success of cancellation request.
+   */
   async cancelExecution(executionId: string): Promise<boolean> {
     const { success }: { success: boolean } = await this._post(
       `execution/${executionId}/cancel`,
@@ -50,6 +66,12 @@ export class ExecutionAPI extends Router {
     return success;
   }
 
+  /**
+   * Retrieve the status of a query execution by executionID:
+   * https://docs.dune.com/api-reference/executions/endpoint/get-execution-status
+   * @param {string} executionId string representig ID of query execution.
+   * @returns {GetStatusResponse} status of query execution.
+   */
   async getExecutionStatus(executionId: string): Promise<GetStatusResponse> {
     const response: GetStatusResponse = await this._get(
       `execution/${executionId}/status`,
@@ -58,6 +80,13 @@ export class ExecutionAPI extends Router {
     return response as GetStatusResponse;
   }
 
+  /**
+   * Retrieve results of a query execution by executionID:
+   * https://docs.dune.com/api-reference/executions/endpoint/get-execution-result
+   * @param {string} executionId string representig ID of query execution
+   * @param {GetResultPayload} params including limit, offset and expectedID.
+   * @returns {ResultsResponse} response containing execution results.
+   */
   async getExecutionResults(
     executionId: string,
     params: GetResultPayload = DEFAULT_GET_PARAMS,
@@ -70,6 +99,13 @@ export class ExecutionAPI extends Router {
     return response as ResultsResponse;
   }
 
+  /**
+   * Retrieve results of a query execution (in CSV format) by executionID:
+   * https://docs.dune.com/api-reference/executions/endpoint/get-execution-result-csv
+   * @param {string} executionId string representig ID of query execution.
+   * @param {GetResultPayload} params including limit, offset and expectedID.
+   * @returns {ExecutionResponseCSV} execution results as CSV.
+   */
   async getResultCSV(
     executionId: string,
     params: GetResultPayload = DEFAULT_GET_PARAMS,
@@ -83,6 +119,12 @@ export class ExecutionAPI extends Router {
     return this.buildCSVResponse(response);
   }
 
+  /**
+   * Retrieves results from query's last execution
+   * @param {number} queryID id of query to get results for.
+   * @param {GetResultPayload} params parameters for retrieval.
+   * @returns {ResultsResponse} response containing execution results.
+   */
   async getLastExecutionResults(
     queryId: number,
     params: GetResultPayload = DEFAULT_GET_PARAMS,
@@ -92,6 +134,12 @@ export class ExecutionAPI extends Router {
     return this._fetchEntireResult(results);
   }
 
+  /**
+   * Retrieves results from query's last execution (in CSV format)
+   * @param {number} queryID id of query to get results for.
+   * @param {GetResultPayload} params parameters for retrieval.
+   * @returns {ExecutionResponseCSV} execution results as CSV.
+   */
   async getLastResultCSV(
     queryId: number,
     params: GetResultPayload = DEFAULT_GET_PARAMS,
@@ -104,6 +152,9 @@ export class ExecutionAPI extends Router {
     return this._fetchEntireResultCSV(await this.buildCSVResponse(response));
   }
 
+  /**
+   * Private method used for building CSV responses.
+   */
   private async buildCSVResponse(response: Response): Promise<ExecutionResponseCSV> {
     const nextOffset = response.headers.get(DUNE_CSV_NEXT_OFFSET_HEADER);
     return {
@@ -113,6 +164,9 @@ export class ExecutionAPI extends Router {
     };
   }
 
+  /**
+   * Private method used for retrieving entire result via pagination.
+   */
   private async _fetchEntireResult(results: ResultsResponse): Promise<ResultsResponse> {
     let next_uri = results.next_uri;
     let batch: ResultsResponse;
@@ -124,6 +178,9 @@ export class ExecutionAPI extends Router {
     return results;
   }
 
+  /**
+   * Private method used for retrieving entire result CSV via pagination.
+   */
   private async _fetchEntireResultCSV(
     results: ExecutionResponseCSV,
   ): Promise<ExecutionResponseCSV> {

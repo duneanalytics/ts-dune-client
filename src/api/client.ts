@@ -33,9 +33,8 @@ const TERMINAL_STATES = [
   ExecutionState.EXPIRED,
 ];
 
-
 /**
- * The primary interface for devs to utilize 
+ * The primary interface for devs to utilize
  * full functionality of the Dune API.
  */
 export class DuneClient {
