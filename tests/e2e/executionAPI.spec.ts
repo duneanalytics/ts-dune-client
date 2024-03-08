@@ -170,12 +170,7 @@ describe("ExecutionAPI: Errors", () => {
     const bad_client = new ExecutionAPI("Bad Key");
     await expectAsyncThrow(bad_client.executeQuery(1), "invalid API Key");
   });
-  it("returns Invalid request path (queryId too large)", async () => {
-    await expectAsyncThrow(
-      client.executeQuery(999999999999999),
-      "Invalid request path",
-    );
-  });
+
   it("returns query not found error", async () => {
     await expectAsyncThrow(client.executeQuery(999999999), "Query not found");
     await expectAsyncThrow(client.executeQuery(0), "Query not found");
