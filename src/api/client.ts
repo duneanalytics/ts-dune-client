@@ -1,3 +1,9 @@
+/**
+ * This is the common entry point for end users.
+ * A class with exhibits all Dune API properties and extensions.
+ * Specifically, this class is a composition of QueryAPI, ExecutionAPI
+ * and also contains implementations of runQuery[CSV], getLatestResults[CSV]
+ */
 import * as fs from "fs/promises";
 import {
   DuneError,
@@ -18,16 +24,23 @@ import {
 } from "../constants";
 import { ExecutionParams } from "../types/requestPayload";
 import { QueryAPI } from "./query";
-import { join } from "path";
 
+/// Various states of query execution that are "terminal".
 const TERMINAL_STATES = [
   ExecutionState.CANCELLED,
   ExecutionState.COMPLETED,
   ExecutionState.FAILED,
+  ExecutionState.EXPIRED,
 ];
 
+/**
+ * The primary interface for devs to utilize
+ * full functionality of the Dune API.
+ */
 export class DuneClient {
+  /// Execution Interface.
   exec: ExecutionAPI;
+  /// Query Management Interface.
   query: QueryAPI;
 
   constructor(apiKey: string) {
@@ -35,6 +48,14 @@ export class DuneClient {
     this.query = new QueryAPI(apiKey);
   }
 
+  /**
+   * Runs an existing query by ID via execute, await, return results.
+   * @param queryID id of the query to be executed
+   * @param params execution parameters (includes query parameters and execution performance)
+   * @param batchSize puts a limit on the number of results
+   * @param pingFrequency how frequently should we check execution status (default: 1s)
+   * @returns Execution Results
+   */
   async runQuery(
     queryID: number,
     params?: ExecutionParams,
@@ -66,6 +87,13 @@ export class DuneClient {
     }
   }
 
+  /**
+   * Runs an existing query by ID via execute, await, return Result CSV.
+   * @param queryID id of the query to be executed
+   * @param params execution parameters (includes query parameters and execution performance)
+   * @param pingFrequency how frequently should we check execution status (default: 1s)
+   * @returns Execution Results as CSV
+   */
   async runQueryCSV(
     queryID: number,
     params?: ExecutionParams,

@@ -1,21 +1,25 @@
 import { QueryParameter } from "./queryParameter";
 
+/// Optional parameters for query exection.
 export interface ExecutionParams {
   query_parameters?: QueryParameter[];
   performance?: ExecutionPerformance;
 }
 
+/// Choice of execution engine when executing query via API [default = medium]
 export enum ExecutionPerformance {
   Medium = "medium",
   Large = "large",
 }
 
+/// Payload sent upon requests to Dune API.
 export type RequestPayload =
-  | GetResultPayload
-  | ExecuteQueryPayload
-  | UpdateQueryPayload
-  | CreateQueryPayload;
+  | GetResultParams
+  | ExecuteQueryParams
+  | UpdateQueryParams
+  | CreateQueryParams;
 
+/// Utility method used by router to parse request payloads.
 export function payloadJSON(payload?: RequestPayload): string {
   return JSON.stringify(payloadRecords(payload));
 }
@@ -55,29 +59,43 @@ export function payloadSearchParams(payload?: RequestPayload): Record<string, an
   return {};
 }
 
-interface BasePayload {
+interface BaseParams {
   query_parameters?: QueryParameter[];
 }
 
-export interface GetResultPayload extends BasePayload {
+export interface GetResultParams extends BaseParams {
+  /// Max number of returned results.
   limit?: number;
+  /// Which row to start returning results from
   offset?: number;
   expectedId?: string;
 }
 
-export interface ExecuteQueryPayload extends BasePayload {
-  performance: string;
+export interface ExecuteQueryParams extends BaseParams {
+  /// Execution engine performance medium (default) or large.
+  performance: ExecutionPerformance;
 }
 
-export interface UpdateQueryPayload extends BasePayload {
+/// Payload sent with query update requests.
+export interface UpdateQueryParams extends BaseParams {
+  /// Updated Name of the query.
   name?: string;
+  /// Updated SQL of the query.
   query_sql?: string;
+  /// Updated description of the query
   description?: string;
+  /// Tags to be added (overrides existing tags).
   tags?: string[];
 }
 
-export interface CreateQueryPayload extends BasePayload {
+/// Payload sent with query creation requests.
+export interface CreateQueryParams extends BaseParams {
+  /// Name of query being created
   name?: string;
-  query_sql?: string;
+  /// Description of query being created
+  description?: string;
+  /// Raw SQL of query being created
+  query_sql: string;
+  /// Whether the query should be created as private.
   is_private?: boolean;
 }

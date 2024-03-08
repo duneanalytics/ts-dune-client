@@ -14,19 +14,18 @@ describe("QueryAPI: Premium - CRUD Operations", () => {
 
   // This creates too many queries!
   it.skip("create, get & update", async () => {
-    let newQuery = await plusClient.createQuery(
-      "Name",
-      "select 1",
-      [QueryParameter.text("What", "name")],
-      true,
-    );
-    let recoveredQuery = await plusClient.getQuery(newQuery.query_id);
-    expect(newQuery.query_id).to.be.equal(recoveredQuery.query_id);
-    let updatedQueryId = await plusClient.updateQuery(
-      newQuery.query_id,
-      "New Name",
-      "select 10;",
-    );
+    let newQueryId = await plusClient.createQuery({
+      name: "Query Name",
+      query_sql: "select 1",
+      query_parameters: [QueryParameter.text("What", "name")],
+      is_private: true,
+    });
+    let recoveredQuery = await plusClient.readQuery(newQueryId);
+    expect(newQueryId).to.be.equal(newQueryId);
+    let updatedQueryId = await plusClient.updateQuery(newQueryId, {
+      name: "New Name",
+      query_sql: "select 10",
+    });
     expect(updatedQueryId).to.be.equal(recoveredQuery.query_id);
   });
 });
@@ -40,7 +39,10 @@ describe("QueryAPI: Errors", () => {
 
   it("Basic Plan Failure", async () => {
     await expectAsyncThrow(
-      basicClient.createQuery("Query Name", "select 1"),
+      basicClient.createQuery({
+        name: "Query Name",
+        query_sql: "select 1",
+      }),
       PREMIUM_PLAN_MESSAGE,
     );
   });

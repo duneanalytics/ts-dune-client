@@ -1,9 +1,19 @@
 export const logPrefix = "dune-client:";
 
+/**
+ * utility sleep method.
+ * @param seconds number of seconds to sleep for.
+ * @returns void
+ */
 export function sleep(seconds: number) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 }
 
+/**
+ * Computes the difference between a given timestamp and now (in hours)
+ * @param timestamp
+ * @returns time difference between input `timestamp` and now (in hours)
+ */
 export function ageInHours(timestamp: Date | string): number {
   // Get the current date and time
   const now: Date = new Date();
