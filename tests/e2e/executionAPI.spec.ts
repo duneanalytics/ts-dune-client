@@ -10,9 +10,11 @@ log.setLevel("silent", true);
 describe("ExecutionAPI: native routes", () => {
   let client: ExecutionAPI;
   let testQueryId: number;
+  let multiRowQueryId: number;
 
   beforeEach(() => {
     client = new ExecutionAPI(BASIC_KEY);
+    // https://dune.com/queries/1215383
     testQueryId = 1215383;
   });
 
@@ -80,9 +82,9 @@ describe("ExecutionAPI: native routes", () => {
       is_execution_finished: true,
       submitted_at: "2022-10-04T12:08:47.753527Z",
       expires_at: "2024-10-03T12:08:48.790332Z",
-      execution_started_at: "2022-10-04T12:08:47.756608Z",
-      execution_ended_at: "2022-10-04T12:08:48.790331Z",
-      cancelled_at: "2022-10-04T12:08:48.790331Z",
+      execution_started_at: "2022-10-04T12:08:47.756608607Z",
+      cancelled_at: "2022-10-04T12:08:48.790331383Z",
+      execution_ended_at: "2022-10-04T12:08:48.790331383Z",
     });
   });
 
@@ -99,33 +101,59 @@ describe("ExecutionAPI: native routes", () => {
     let resultCSV = await client.getResultCSV(execution.execution_id);
     const expectedRows = [
       "text_field,number_field,date_field,list_field\n",
-      "Plain Text,3.1415926535,2022-05-04 00:00:00.000,Option 1\n",
+      "Plain Text,3.1415926535,2022-05-04T00:00:00Z,Option 1\n",
     ];
-    expect(resultCSV).to.be.eq(expectedRows.join(""));
+    expect(resultCSV.data).to.be.eq(expectedRows.join(""));
   });
 
   it("getLastResult", async () => {
-    // https://dune.com/queries/1215383
-    const resultCSV = await client.getLastResultCSV(1215383, [
-      QueryParameter.text("TextField", "Plain Text"),
+    const result = await client.getLastExecutionResults(testQueryId, {
+      query_parameters: [QueryParameter.text("TextField", "Plain Text")],
+    });
+    expect(result.result?.rows).to.be.deep.equal([
+      {
+        date_field: "2022-05-04 00:00:00.000",
+        list_field: "Option 1",
+        number_field: "3.1415926535",
+        text_field: "Plain Text",
+      },
     ]);
-    const expectedRows = [
-      "text_field,number_field,date_field,list_field\n",
-      "Plain Text,3.1415926535,2022-05-04 00:00:00.000,Option 1\n",
-    ];
-    expect(resultCSV).to.be.eq(expectedRows.join(""));
   });
 
   it("getLastResultCSV", async () => {
     // https://dune.com/queries/1215383
-    const resultCSV = await client.getLastResultCSV(1215383, [
-      QueryParameter.text("TextField", "Plain Text"),
-    ]);
+    const resultCSV = await client.getLastResultCSV(testQueryId, {
+      query_parameters: [QueryParameter.text("TextField", "Plain Text")],
+    });
     const expectedRows = [
       "text_field,number_field,date_field,list_field\n",
       "Plain Text,3.1415926535,2022-05-04 00:00:00.000,Option 1\n",
     ];
-    expect(resultCSV).to.be.eq(expectedRows.join(""));
+    expect(resultCSV.data).to.be.eq(expectedRows.join(""));
+  });
+
+  /// Pagination
+  it("uses pagination parameters", async () => {
+    // This execution was run with StartFrom = 1.
+    const result = await client.getExecutionResults("01HQJ996M17AB1D7EWDMPZ79ZS", {
+      limit: 2,
+      offset: 1,
+    });
+    expect(result.result?.rows).to.be.deep.equal([
+      {
+        number: 2,
+      },
+      {
+        number: 3,
+      },
+    ]);
+
+    const resultCSV = await client.getResultCSV("01HQJ996M17AB1D7EWDMPZ79ZS", {
+      limit: 1,
+      offset: 2,
+    });
+    const expectedRows = ["number\n", "3\n"];
+    expect(resultCSV.data).to.be.eq(expectedRows.join(""));
   });
 });
 

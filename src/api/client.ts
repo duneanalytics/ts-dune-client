@@ -1,17 +1,24 @@
+import * as fs from "fs/promises";
 import {
   DuneError,
   ResultsResponse,
   ExecutionState,
   QueryParameter,
   GetStatusResponse,
+  ExecutionResponseCSV,
 } from "../types";
 import { ageInHours, sleep } from "../utils";
 import log from "loglevel";
 import { logPrefix } from "../utils";
 import { ExecutionAPI } from "./execution";
-import { POLL_FREQUENCY_SECONDS, THREE_MONTHS_IN_HOURS } from "../constants";
+import {
+  MAX_NUM_ROWS_PER_BATCH,
+  POLL_FREQUENCY_SECONDS,
+  THREE_MONTHS_IN_HOURS,
+} from "../constants";
 import { ExecutionParams } from "../types/requestPayload";
 import { QueryAPI } from "./query";
+import { join } from "path";
 
 const TERMINAL_STATES = [
   ExecutionState.CANCELLED,
@@ -31,6 +38,7 @@ export class DuneClient {
   async runQuery(
     queryID: number,
     params?: ExecutionParams,
+    batchSize: number = MAX_NUM_ROWS_PER_BATCH,
     pingFrequency: number = POLL_FREQUENCY_SECONDS,
   ): Promise<ResultsResponse> {
     let { state, execution_id: jobID } = await this._runInner(
@@ -39,7 +47,17 @@ export class DuneClient {
       pingFrequency,
     );
     if (state === ExecutionState.COMPLETED) {
-      return this.exec.getExecutionResults(jobID);
+      let result = await this.getLatestResult(
+        queryID,
+        params?.query_parameters,
+        batchSize,
+      );
+      if (result.execution_id !== jobID) {
+        throw new DuneError(
+          `invalid execution ID: expected ${jobID}, got ${result.execution_id}`,
+        );
+      }
+      return result;
     } else {
       const message = `refresh (execution ${jobID}) yields incomplete terminal state ${state}`;
       // TODO - log the error in constructor
@@ -52,14 +70,17 @@ export class DuneClient {
     queryID: number,
     params?: ExecutionParams,
     pingFrequency: number = POLL_FREQUENCY_SECONDS,
-  ): Promise<string> {
+  ): Promise<ExecutionResponseCSV> {
     let { state, execution_id: jobID } = await this._runInner(
       queryID,
       params,
       pingFrequency,
     );
     if (state === ExecutionState.COMPLETED) {
-      return this.exec.getResultCSV(jobID);
+      // we can't assert that the execution ids agree here, so we use max age hours as a "safe guard"
+      return this.exec.getResultCSV(jobID, {
+        query_parameters: params?.query_parameters,
+      });
     } else {
       const message = `refresh (execution ${jobID}) yields incomplete terminal state ${state}`;
       // TODO - log the error in constructor
@@ -73,52 +94,65 @@ export class DuneClient {
    * Here contains additional logic to refresh the results if they are too old.
    * @param queryId - query to get results of.
    * @param parameters - parameters for which they were called.
+   * @param limit - the number of rows to retrieve
    * @param maxAgeHours - oldest acceptable results (if expired results are refreshed)
    * @returns Latest execution results for the given parameters.
    */
   async getLatestResult(
     queryId: number,
-    parameters?: QueryParameter[],
+    parameters: QueryParameter[] = [],
+    batchSize: number = MAX_NUM_ROWS_PER_BATCH,
     maxAgeHours: number = THREE_MONTHS_IN_HOURS,
   ): Promise<ResultsResponse> {
-    let results = await this.exec.getLastExecutionResults(queryId, parameters);
+    let results = await this.exec.getLastExecutionResults(queryId, {
+      query_parameters: parameters,
+      limit: batchSize,
+    });
     const lastRun: Date = results.execution_ended_at!;
     if (lastRun !== undefined && ageInHours(lastRun) > maxAgeHours) {
       log.info(
         logPrefix,
         `results (from ${lastRun}) older than ${maxAgeHours} hours, re-running query.`,
       );
-      results = await this.runQuery(queryId, { query_parameters: parameters });
+      results = await this.runQuery(queryId, { query_parameters: parameters }, batchSize);
     }
     return results;
   }
 
   /**
-   * Get the lastest execution results in CSV format.
+   * Get the lastest execution results in CSV format and saves to disk.
    * @param queryId - query to get results of.
+   * @param outFile - location to save CSV.
    * @param parameters - parameters for which they were called.
+   * @param batchSize - the page size when retriving results.
    * @param maxAgeHours - oldest acceptable results (if expired results are refreshed)
    * @returns Latest execution results for the given parameters.
    */
-  async getLatestResultCSV(
+  async downloadCSV(
     queryId: number,
-    parameters?: QueryParameter[],
+    outFile: string,
+    parameters: QueryParameter[] = [],
+    batchSize: number = MAX_NUM_ROWS_PER_BATCH,
     maxAgeHours: number = THREE_MONTHS_IN_HOURS,
-  ): Promise<string> {
-    const lastResults = await this.exec.getLastExecutionResults(queryId, parameters);
+  ): Promise<void> {
+    const params = { query_parameters: parameters, limit: batchSize };
+    const lastResults = await this.exec.getLastExecutionResults(queryId, params);
     const lastRun: Date = lastResults.execution_ended_at!;
-    let results: Promise<string>;
+    let results: Promise<ExecutionResponseCSV>;
     if (lastRun !== undefined && ageInHours(lastRun) > maxAgeHours) {
       log.info(
         logPrefix,
         `results (from ${lastRun}) older than ${maxAgeHours} hours, re-running query.`,
       );
-      results = this.runQueryCSV(queryId, { query_parameters: parameters });
+      results = this.runQueryCSV(queryId, { query_parameters: parameters }, batchSize);
     } else {
       // TODO (user cost savings): transform the lastResults into CSV instead of refetching
-      results = this.exec.getLastResultCSV(queryId, parameters);
+      results = this.exec.getLastResultCSV(queryId, params);
     }
-    return results;
+    // Wait for the results promise to resolve and then write the CSV data to the specified outFile
+    const csvData = (await results).data;
+    await fs.writeFile(outFile, csvData, "utf8");
+    log.info(`CSV data has been saved to ${outFile}`);
   }
 
   private async _runInner(
@@ -150,7 +184,7 @@ export class DuneClient {
    */
   async refresh(
     queryID: number,
-    parameters?: QueryParameter[],
+    parameters: QueryParameter[] = [],
     pingFrequency: number = 1,
   ): Promise<ResultsResponse> {
     return this.runQuery(queryID, { query_parameters: parameters }, pingFrequency);
