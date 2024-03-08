@@ -16,7 +16,10 @@ enum RequestMethod {
   PATCH = "PATCH",
 }
 
-// This class implements all the routes defined in the Dune API Docs: https://dune.com/docs/api/
+/**
+ * This class implements all the routes defined in the Dune API Docs:
+ * https://docs.dune.com/api-reference/overview/introduction
+ */
 export class Router {
   private apiKey: string;
   private apiVersion: string;

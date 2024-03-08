@@ -3,7 +3,7 @@ import { QueryParameter } from "./queryParameter";
 /**
  * Enriched structure representing all data constituting a DuneQuery.
  * Modeling the CRUD operation response for `get_query`
- * https://dune.com/docs/api/api-reference/edit-queries/get-query/#example-return
+ * https://docs.dune.com/api-reference/queries/endpoint/read#example-return
  */
 export interface DuneQuery {
   /// ID of the created query.

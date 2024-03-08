@@ -13,7 +13,7 @@ import { Router } from "./router";
 import {
   ExecutionParams,
   ExecutionPerformance,
-  GetResultPayload,
+  GetResultParams,
 } from "../types/requestPayload";
 import {
   DEFAULT_GET_PARAMS,
@@ -84,12 +84,12 @@ export class ExecutionAPI extends Router {
    * Retrieve results of a query execution by executionID:
    * https://docs.dune.com/api-reference/executions/endpoint/get-execution-result
    * @param {string} executionId string representig ID of query execution
-   * @param {GetResultPayload} params including limit, offset and expectedID.
+   * @param {GetResultParams} params including limit, offset and expectedID.
    * @returns {ResultsResponse} response containing execution results.
    */
   async getExecutionResults(
     executionId: string,
-    params: GetResultPayload = DEFAULT_GET_PARAMS,
+    params: GetResultParams = DEFAULT_GET_PARAMS,
   ): Promise<ResultsResponse> {
     const response: ResultsResponse = await this._get(
       `execution/${executionId}/results`,
@@ -103,12 +103,12 @@ export class ExecutionAPI extends Router {
    * Retrieve results of a query execution (in CSV format) by executionID:
    * https://docs.dune.com/api-reference/executions/endpoint/get-execution-result-csv
    * @param {string} executionId string representig ID of query execution.
-   * @param {GetResultPayload} params including limit, offset and expectedID.
+   * @param {GetResultParams} params including limit, offset and expectedID.
    * @returns {ExecutionResponseCSV} execution results as CSV.
    */
   async getResultCSV(
     executionId: string,
-    params: GetResultPayload = DEFAULT_GET_PARAMS,
+    params: GetResultParams = DEFAULT_GET_PARAMS,
   ): Promise<ExecutionResponseCSV> {
     const response = await this._get<Response>(
       `execution/${executionId}/results/csv`,
@@ -122,12 +122,12 @@ export class ExecutionAPI extends Router {
   /**
    * Retrieves results from query's last execution
    * @param {number} queryID id of query to get results for.
-   * @param {GetResultPayload} params parameters for retrieval.
+   * @param {GetResultParams} params parameters for retrieval.
    * @returns {ResultsResponse} response containing execution results.
    */
   async getLastExecutionResults(
     queryId: number,
-    params: GetResultPayload = DEFAULT_GET_PARAMS,
+    params: GetResultParams = DEFAULT_GET_PARAMS,
   ): Promise<ResultsResponse> {
     // The first bit might only return a page.
     let results = await this._get<ResultsResponse>(`query/${queryId}/results`, params);
@@ -137,12 +137,12 @@ export class ExecutionAPI extends Router {
   /**
    * Retrieves results from query's last execution (in CSV format)
    * @param {number} queryID id of query to get results for.
-   * @param {GetResultPayload} params parameters for retrieval.
+   * @param {GetResultParams} params parameters for retrieval.
    * @returns {ExecutionResponseCSV} execution results as CSV.
    */
   async getLastResultCSV(
     queryId: number,
-    params: GetResultPayload = DEFAULT_GET_PARAMS,
+    params: GetResultParams = DEFAULT_GET_PARAMS,
   ): Promise<ExecutionResponseCSV> {
     let response = await this._get<Response>(
       `query/${queryId}/results/csv`,

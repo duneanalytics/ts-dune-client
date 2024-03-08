@@ -19,20 +19,42 @@ export class QueryParameter {
     this.name = name;
   }
 
-  /// Text type parameter constructor
+  /**
+   * Text type parameter constructor
+   * @param {string} name of parameter
+   * @param {string} value default value
+   * @returns {QueryParameter}
+   */
   static text(name: string, value: string): QueryParameter {
     return new QueryParameter(ParameterType.TEXT, name, value);
   }
 
-  /// Number type parameter constructor
+  /**
+   * Number type parameter constructor
+   * @param {string | number} name of parameter
+   * @param {string} value default value
+   * @returns {QueryParameter}
+   */
   static number(name: string, value: string | number): QueryParameter {
     return new QueryParameter(ParameterType.NUMBER, name, value.toString());
   }
-  /// Date type parameter constructor
+
+  /**
+   * Date type parameter constructor
+   * @param {string | Date} name of parameter
+   * @param {string} value default value
+   * @returns {QueryParameter}
+   */
   static date(name: string, value: string | Date): QueryParameter {
     return new QueryParameter(ParameterType.DATE, name, value.toString());
   }
-  /// Enum/List type parameter constructor
+
+  /**
+   * Enum/List type parameter constructor
+   * @param {string} name of parameter
+   * @param {string} value default value
+   * @returns {QueryParameter}
+   */
   static enum(name: string, value: string): QueryParameter {
     return new QueryParameter(ParameterType.ENUM, name, value.toString());
   }

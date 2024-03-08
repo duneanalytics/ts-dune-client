@@ -14,8 +14,8 @@ export enum ExecutionPerformance {
 
 /// Payload sent upon requests to Dune API.
 export type RequestPayload =
-  | GetResultPayload
-  | ExecuteQueryPayload
+  | GetResultParams
+  | ExecuteQueryParams
   | UpdateQueryParams
   | CreateQueryParams;
 
@@ -59,22 +59,25 @@ export function payloadSearchParams(payload?: RequestPayload): Record<string, an
   return {};
 }
 
-interface BasePayload {
+interface BaseParams {
   query_parameters?: QueryParameter[];
 }
 
-export interface GetResultPayload extends BasePayload {
+export interface GetResultParams extends BaseParams {
+  /// Max number of returned results.
   limit?: number;
+  /// Which row to start returning results from
   offset?: number;
   expectedId?: string;
 }
 
-export interface ExecuteQueryPayload extends BasePayload {
-  performance: string;
+export interface ExecuteQueryParams extends BaseParams {
+  /// Execution engine performance medium (default) or large.
+  performance: ExecutionPerformance;
 }
 
 /// Payload sent with query update requests.
-export interface UpdateQueryParams extends BasePayload {
+export interface UpdateQueryParams extends BaseParams {
   /// Updated Name of the query.
   name?: string;
   /// Updated SQL of the query.
@@ -86,7 +89,7 @@ export interface UpdateQueryParams extends BasePayload {
 }
 
 /// Payload sent with query creation requests.
-export interface CreateQueryParams extends BasePayload {
+export interface CreateQueryParams extends BaseParams {
   /// Name of query being created
   name?: string;
   /// Description of query being created
