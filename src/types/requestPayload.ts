@@ -16,8 +16,8 @@ export enum ExecutionPerformance {
 export type RequestPayload =
   | GetResultPayload
   | ExecuteQueryPayload
-  | UpdateQueryPayload
-  | CreateQueryPayload;
+  | UpdateQueryParams
+  | CreateQueryParams;
 
 /// Utility method used by router to parse request payloads.
 export function payloadJSON(payload?: RequestPayload): string {
@@ -74,16 +74,25 @@ export interface ExecuteQueryPayload extends BasePayload {
 }
 
 /// Payload sent with query update requests.
-export interface UpdateQueryPayload extends BasePayload {
+export interface UpdateQueryParams extends BasePayload {
+  /// Updated Name of the query.
   name?: string;
+  /// Updated SQL of the query.
   query_sql?: string;
+  /// Updated description of the query
   description?: string;
+  /// Tags to be added (overrides existing tags).
   tags?: string[];
 }
 
 /// Payload sent with query creation requests.
-export interface CreateQueryPayload extends BasePayload {
+export interface CreateQueryParams extends BasePayload {
+  /// Name of query being created
   name?: string;
-  query_sql?: string;
+  /// Description of query being created
+  description?: string;
+  /// Raw SQL of query being created
+  query_sql: string;
+  /// Whether the query should be created as private.
   is_private?: boolean;
 }

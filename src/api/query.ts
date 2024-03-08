@@ -1,105 +1,121 @@
 // Assuming the existence of these imports based on your Python code
 import { Router } from "./router";
-import { DuneQuery, QueryParameter, CreateQueryResponse, DuneError } from "../types";
-import { CreateQueryPayload, UpdateQueryPayload } from "../types/requestPayload";
+import { DuneQuery, CreateQueryResponse, DuneError } from "../types";
+import { CreateQueryParams, UpdateQueryParams } from "../types/requestPayload";
 import log from "loglevel";
 
 interface EditQueryResponse {
   query_id: number;
 }
+
+/**
+ * Query Management Interface (CRUD operations)
+ * https://docs.dune.com/api-reference/queries/endpoint/query-object
+ */
 export class QueryAPI extends Router {
   /**
-   * Creates a Dune Query by ID
-   * https://dune.com/docs/api/api-reference/edit-queries/create-query/
+   * Create a query. The owner of the query will be under the context of the API key.
+   * https://docs.dune.com/api-reference/queries/endpoint/create
+   * @param {CreateQueryParams} params of query creation.
+   * @returns {number} the ID of the created query.
    */
-  async createQuery(
-    name: string,
-    querySql: string,
-    params?: QueryParameter[],
-    isPrivate: boolean = false,
-  ): Promise<DuneQuery> {
-    const payload: CreateQueryPayload = {
-      name,
-      query_sql: querySql,
-      is_private: isPrivate,
-      query_parameters: params ? params : [],
-    };
-    const responseJson = await this._post<CreateQueryResponse>("query/", payload);
-    return this.getQuery(responseJson.query_id);
+  async createQuery(params: CreateQueryParams): Promise<number> {
+    if (params.is_private === undefined) {
+      params.is_private = false;
+    }
+    params.query_parameters = params.query_parameters ? params.query_parameters : [];
+    const responseJson = await this._post<CreateQueryResponse>("query/", params);
+    return responseJson.query_id;
   }
 
   /**
-   * Retrieves a Dune Query by ID
-   * https://dune.com/docs/api/api-reference/edit-queries/get-query/
+   * Read the sql text, parameters, name, tags, and state of a query.
+   * For private queries, only the API key generated under the context
+   * of the owner of that query will work:
+   * https://dune.com/docs/api/api-referenhttps://docs.dune.com/api-reference/queries/endpoint/read
+   * @param {number} queryId - the ID of the query to be read.
+   * @returns {DuneQuery} all known data regarding the query with given ID.
    */
-  async getQuery(queryId: number): Promise<DuneQuery> {
+  async readQuery(queryId: number): Promise<DuneQuery> {
     const responseJson = await this._get(`query/${queryId}`);
     return responseJson as DuneQuery;
   }
 
   /**
-   * Updates a Dune Query by ID
-   * https://dune.com/docs/api/api-reference/edit-queries/update-query/
+   * Update the sql text, parameters, name, tags, and state of a query.
+   * Only the API key generated under the context of the owner of that
+   * query will work.
+   * https://docs.dune.com/api-reference/queries/endpoint/update
+   * @param {number} queryId - the ID of the query to be updated.
+   * @param {UpdateQueryParams} - changes to be made to the query.
+   * @returns {number} updated query Id
    */
-  async updateQuery(
-    queryId: number,
-    name?: string,
-    querySql?: string,
-    params?: QueryParameter[],
-    description?: string,
-    tags?: string[],
-  ): Promise<number> {
-    const parameters: UpdateQueryPayload = {};
-    if (name !== undefined) parameters.name = name;
-    if (description !== undefined) parameters.description = description;
-    if (tags !== undefined) parameters.tags = tags;
-    if (querySql !== undefined) parameters.query_sql = querySql;
-    if (params !== undefined) parameters.query_parameters = params;
-
-    if (Object.keys(parameters).length === 0) {
+  async updateQuery(queryId: number, params: UpdateQueryParams): Promise<number> {
+    if (Object.keys(params).length === 0) {
       log.warn("updateQuery: called with no proposed changes.");
       return queryId;
     }
 
-    try {
-      const responseJson = await this._patch<CreateQueryResponse>(
-        `query/${queryId}`,
-        parameters,
-      );
-      return responseJson.query_id;
-    } catch (err: unknown) {
-      throw new Error(`Fokin Broken: ${err}`);
-      // throw new DuneError(responseJson, "UpdateQueryResponse", err);
-    }
+    const responseJson = await this._patch<CreateQueryResponse>(
+      `query/${queryId}`,
+      params,
+    );
+    return responseJson.query_id;
   }
-
+  /**
+   * Archive a query. Only the API key generated under the context of
+   * the owner of that query will work. This does not delete the query,
+   * but will make it uneditable/unexecutable:
+   * https://docs.dune.com/api-reference/queries/endpoint/archive
+   * @param {number} queryId ID of the query to be archived.
+   * @returns {boolean} indicating success of request.
+   */
   public async archiveQuery(queryId: number): Promise<boolean> {
     const response = await this._post<EditQueryResponse>(`/query/${queryId}/archive`);
-    const query = await this.getQuery(response.query_id);
+    const query = await this.readQuery(response.query_id);
     return query.is_archived;
   }
-
+  /**
+   * Unarchive a query. Only the API key generated under the context of
+   * the owner of that query will work.
+   * https://docs.dune.com/api-reference/queries/endpoint/unarchive
+   * @param {number} queryId ID of the query to be unarchived.
+   * @returns {boolean} indicating success of request.
+   */
   public async unarchiveQuery(queryId: number): Promise<boolean> {
     const response = await this._post<EditQueryResponse>(`/query/${queryId}/unarchive`);
-    const query = await this.getQuery(response.query_id);
+    const query = await this.readQuery(response.query_id);
     return query.is_archived;
   }
 
-  public async makePrivate(queryId: number): Promise<void> {
+  /**
+   * Make a query private. Only the API key generated under the context of
+   * the owner of that query will work.
+   * https://docs.dune.com/api-reference/queries/endpoint/private
+   * @param {number} queryId - ID of the query to be made private.
+   * @returns {number} ID of the query made private.
+   */
+  public async makePrivate(queryId: number): Promise<number> {
     const response = await this._post<EditQueryResponse>(`/query/${queryId}/private`);
-    const query = await this.getQuery(response.query_id);
+    const query = await this.readQuery(response.query_id);
     if (!query.is_private) {
       throw new DuneError("Query was not made private!");
     }
+    return response.query_id;
   }
 
-  public async makePublic(queryId: number): Promise<void> {
-    const responseJson = await this._post<EditQueryResponse>(
-      `/query/${queryId}/unprivate`,
-    );
-    const query = await this.getQuery(responseJson.query_id);
+  /**
+   * Make a private query public.
+   * https://docs.dune.com/api-reference/queries/endpoint/unprivate
+   * @param {number} queryId - ID of the query to be made public.
+   * @returns {number} ID of the query made public.
+   */
+  public async makePublic(queryId: number): Promise<number> {
+    const response = await this._post<EditQueryResponse>(`/query/${queryId}/unprivate`);
+    const query = await this.readQuery(response.query_id);
     if (query.is_private) {
       throw new DuneError("Query is still private.");
     }
+    return response.query_id;
   }
 }
