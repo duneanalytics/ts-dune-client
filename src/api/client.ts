@@ -62,13 +62,13 @@ export class DuneClient {
     batchSize: number = MAX_NUM_ROWS_PER_BATCH,
     pingFrequency: number = POLL_FREQUENCY_SECONDS,
   ): Promise<ResultsResponse> {
-    let { state, execution_id: jobID } = await this._runInner(
+    const { state, execution_id: jobID } = await this._runInner(
       queryID,
       params,
       pingFrequency,
     );
     if (state === ExecutionState.COMPLETED) {
-      let result = await this.getLatestResult(
+      const result = await this.getLatestResult(
         queryID,
         params?.query_parameters,
         batchSize,
@@ -99,7 +99,7 @@ export class DuneClient {
     params?: ExecutionParams,
     pingFrequency: number = POLL_FREQUENCY_SECONDS,
   ): Promise<ExecutionResponseCSV> {
-    let { state, execution_id: jobID } = await this._runInner(
+    const { state, execution_id: jobID } = await this._runInner(
       queryID,
       params,
       pingFrequency,

@@ -130,7 +130,7 @@ export class ExecutionAPI extends Router {
     params: GetResultParams = DEFAULT_GET_PARAMS,
   ): Promise<ResultsResponse> {
     // The first bit might only return a page.
-    let results = await this._get<ResultsResponse>(`query/${queryId}/results`, params);
+    const results = await this._get<ResultsResponse>(`query/${queryId}/results`, params);
     return this._fetchEntireResult(results);
   }
 
@@ -144,7 +144,7 @@ export class ExecutionAPI extends Router {
     queryId: number,
     params: GetResultParams = DEFAULT_GET_PARAMS,
   ): Promise<ExecutionResponseCSV> {
-    let response = await this._get<Response>(
+    const response = await this._get<Response>(
       `query/${queryId}/results/csv`,
       params,
       true,

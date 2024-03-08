@@ -24,6 +24,7 @@ export function payloadJSON(payload?: RequestPayload): string {
   return JSON.stringify(payloadRecords(payload));
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function payloadRecords(payload?: RequestPayload): Record<string, any> {
   if (payload !== undefined) {
     if ("query_parameters" in payload) {
@@ -41,12 +42,14 @@ function payloadRecords(payload?: RequestPayload): Record<string, any> {
   return {};
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function payloadSearchParams(payload?: RequestPayload): Record<string, any> {
   if (payload !== undefined) {
     if ("query_parameters" in payload) {
       // Destructure to separate parameters and the rest of the payload
       const { query_parameters, ...rest } = payload;
-      let result: Record<string, any> = { ...rest };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result: Record<string, any> = { ...rest };
       if (Array.isArray(payload.query_parameters)) {
         for (const qp of payload.query_parameters) {
           result[`params.${qp.name}`] = qp.value;

@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
-      - run: yarn --frozen-lockfile
+      - run: yarn
       - run: yarn build
       - run: yarn lint
 
@@ -41,5 +41,5 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
-      - run: yarn --frozen-lockfile
+      - run: yarn
       - run: yarn test

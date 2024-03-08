@@ -13,7 +13,7 @@ export class QueryParameter {
   value: string;
   name: string;
 
-  constructor(type: ParameterType, name: string, value: any) {
+  constructor(type: ParameterType, name: string, value: string) {
     this.type = type;
     this.value = value.toString();
     this.name = name;
@@ -66,7 +66,7 @@ export class QueryParameter {
    */
   static unravel(params?: QueryParameter[]): Record<string, string> | undefined {
     // Transform Query Parameter list into "dict"
-    let reducedParams = params?.reduce<Record<string, string>>(
+    const reducedParams = params?.reduce<Record<string, string>>(
       (acc, { name, value }) => ({ ...acc, [name]: value }),
       {},
     );
