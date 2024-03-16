@@ -12,12 +12,20 @@ export enum ExecutionPerformance {
   Large = "large",
 }
 
+export type UploadCSVParams = {
+  table_name: string;
+  data: string;
+  description?: string;
+  is_private?: boolean;
+};
+
 /// Payload sent upon requests to Dune API.
 export type RequestPayload =
   | GetResultParams
   | ExecuteQueryParams
   | UpdateQueryParams
-  | CreateQueryParams;
+  | CreateQueryParams
+  | UploadCSVParams;
 
 /// Utility method used by router to parse request payloads.
 export function payloadJSON(payload?: RequestPayload): string {

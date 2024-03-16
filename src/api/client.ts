@@ -12,6 +12,7 @@ import {
   QueryParameter,
   GetStatusResponse,
   ExecutionResponseCSV,
+  SuccessResponse,
 } from "../types";
 import { ageInHours, sleep } from "../utils";
 import log from "loglevel";
@@ -22,7 +23,11 @@ import {
   POLL_FREQUENCY_SECONDS,
   THREE_MONTHS_IN_HOURS,
 } from "../constants";
-import { ExecutionParams, ExecutionPerformance } from "../types/requestPayload";
+import {
+  ExecutionParams,
+  ExecutionPerformance,
+  UploadCSVParams,
+} from "../types/requestPayload";
 import { QueryAPI } from "./query";
 
 /// Various states of query execution that are "terminal".
@@ -230,6 +235,17 @@ export class DuneClient {
     }
 
     return results;
+  }
+
+  async uploadCsv(params: UploadCSVParams): Promise<boolean> {
+    params.description = params.description !== undefined ? params.description : "";
+    params.is_private = params.is_private !== undefined ? params.is_private : false;
+    const response = await this.exec.post<SuccessResponse>("table/upload/csv", params);
+    try {
+      return Boolean(response.success);
+    } catch (err) {
+      throw new DuneError(`UploadCsvResponse ${JSON.stringify(response)}`);
+    }
   }
 
   private async _runInner(

@@ -168,18 +168,20 @@ describe("ExecutionAPI: Errors", () => {
 
   it("returns invalid API key", async () => {
     const bad_client = new ExecutionAPI("Bad Key");
-    await expectAsyncThrow(bad_client.executeQuery(1), "invalid API Key");
+    await expectAsyncThrow(bad_client.executeQuery(1), "Response Error: invalid API Key");
   });
 
   it("returns query not found error", async () => {
-    await expectAsyncThrow(client.executeQuery(999999999), "Query not found");
-    await expectAsyncThrow(client.executeQuery(0), "Query not found");
+    await expectAsyncThrow(
+      client.executeQuery(999999999),
+      "Response Error: Query not found",
+    );
+    await expectAsyncThrow(client.executeQuery(0), "Response Error: Query not found");
   });
-  it("returns invalid job id", async () => {
-    await expectAsyncThrow(client.executeQuery(999999999), "Query not found");
 
+  it("returns invalid job id", async () => {
     const invalidJobID = "Wonky Job ID";
-    const expectedErrorMessage = `The requested execution ID (ID: ${invalidJobID}) is invalid.`;
+    const expectedErrorMessage = `Response Error: The requested execution ID (ID: ${invalidJobID}) is invalid.`;
     await expectAsyncThrow(client.getExecutionStatus(invalidJobID), expectedErrorMessage);
     await expectAsyncThrow(
       client.getExecutionResults(invalidJobID),
@@ -194,23 +196,26 @@ describe("ExecutionAPI: Errors", () => {
       client.executeQuery(queryID, {
         query_parameters: [QueryParameter.text(invalidParameterName, "")],
       }),
-      `unknown parameters (${invalidParameterName})`,
+      `Response Error: unknown parameters (${invalidParameterName})`,
     );
   });
   it("does not allow to execute private queries for other accounts.", async () => {
-    await expectAsyncThrow(client.executeQuery(1348384), "Query not found");
+    await expectAsyncThrow(
+      client.executeQuery(1348384),
+      "Response Error: Query not found",
+    );
   });
   it("fails with unhandled FAILED_TYPE_UNSPECIFIED when query won't compile", async () => {
     // Execute and check state
     // V1 query: 1348966
     await expectAsyncThrow(
       client.getExecutionResults("01GEHG4AY1Z9JBR3BYB20E7RGH"),
-      "FAILED_TYPE_EXECUTION_FAILED",
+      "Response Error: FAILED_TYPE_EXECUTION_FAILED",
     );
     // V2 -query: :1349019
     await expectAsyncThrow(
       client.getExecutionResults("01GEHGXHQ25XWMVFJ4G2HZ5MGS"),
-      "FAILED_TYPE_EXECUTION_FAILED",
+      "Response Error: FAILED_TYPE_EXECUTION_FAILED",
     );
   });
 });
