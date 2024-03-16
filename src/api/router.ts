@@ -60,7 +60,7 @@ export class Router {
       }
     } catch (error) {
       log.error(logPrefix, `caught unhandled response error ${JSON.stringify(error)}`);
-      throw error;
+      throw new DuneError(`Response ${error}`);
     }
     return result;
   }

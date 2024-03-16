@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { DuneClient, QueryParameter } from "../../src/";
 import log from "loglevel";
-import { BASIC_KEY } from "./util";
+import { BASIC_KEY, PLUS_KEY } from "./util";
 import * as fs from "fs/promises";
 
 log.setLevel(log.levels.DEBUG, true);
@@ -88,5 +88,14 @@ describe("DuneClient Extensions", () => {
     expect(fileContents).to.deep.equal("number\n3\n4\n5\n6\n7\n8\n");
     // Remove the CSV file after the comparison
     await fs.unlink("./out.csv");
+  });
+
+  it("runSQL", async () => {
+    const premiumClient = new DuneClient(PLUS_KEY);
+    const results = await premiumClient.runSql("select 1", [], true, true);
+    const queryID = results.query_id;
+    expect(results.result?.rows).to.be.deep.equal([{ _col0: 1 }]);
+    const query = await premiumClient.query.readQuery(queryID);
+    expect(query.is_archived).to.be.equal(true);
   });
 });
