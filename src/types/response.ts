@@ -46,6 +46,10 @@ export interface CreateQueryResponse {
   query_id: number;
 }
 
+export type SuccessResponse = {
+  success: boolean;
+};
+
 /// Various query times related to an query status request.
 export interface TimeData {
   submitted_at: Date;

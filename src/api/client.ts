@@ -12,6 +12,7 @@ import {
   QueryParameter,
   GetStatusResponse,
   ExecutionResponseCSV,
+  SuccessResponse,
 } from "../types";
 import { ageInHours, sleep } from "../utils";
 import log from "loglevel";
@@ -22,7 +23,11 @@ import {
   POLL_FREQUENCY_SECONDS,
   THREE_MONTHS_IN_HOURS,
 } from "../constants";
-import { ExecutionParams, ExecutionPerformance } from "../types/requestPayload";
+import {
+  ExecutionParams,
+  ExecutionPerformance,
+  UploadCSVParams,
+} from "../types/requestPayload";
 import { QueryAPI } from "./query";
 
 /// Various states of query execution that are "terminal".
@@ -230,6 +235,22 @@ export class DuneClient {
     }
 
     return results;
+  }
+
+  /**
+   * Allows for anyone to upload a CSV as a table in Dune. 
+   * The size limit per upload is currently 200MB. 
+   * Storage is limited by plan, 1MB on free, 15GB on plus, and 50GB on premium.
+   * @param params UploadCSVParams relevant fields related to dataset upload.
+   * @returns boolean representing if upload was successful.
+   */
+  async uploadCsv(params: UploadCSVParams): Promise<boolean> {
+    const response = await this.exec.post<SuccessResponse>("table/upload/csv", params);
+    try {
+      return Boolean(response.success);
+    } catch (err) {
+      throw new DuneError(`UploadCsvResponse ${JSON.stringify(response)}`);
+    }
   }
 
   private async _runInner(

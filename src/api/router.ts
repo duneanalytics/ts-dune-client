@@ -28,6 +28,17 @@ export class Router {
     this.apiKey = apiKey;
     this.apiVersion = apiVersion;
   }
+  /**
+   * Allows a post to any route supported by DuneAPI.
+   * Meant to be low level call only used by available functions,
+   * but accessible if new routes become available before the SDK catches up.
+   * @param route request path of the http post
+   * @param params payload sent with request (should be aligned with what the interface supports)
+   * @returns a flexible data type representing whatever is expected to be returned from the request.
+   */
+  async post<T>(route: string, params?: RequestPayload): Promise<T> {
+    return this._request<T>(RequestMethod.POST, this.url(route), params);
+  }
 
   protected async _handleResponse<T>(responsePromise: Promise<Response>): Promise<T> {
     let result;
@@ -112,10 +123,6 @@ export class Router {
     raw: boolean = false,
   ): Promise<T> {
     return this._request<T>(RequestMethod.GET, url, params, raw);
-  }
-
-  protected async _post<T>(route: string, params?: RequestPayload): Promise<T> {
-    return this._request<T>(RequestMethod.POST, this.url(route), params);
   }
 
   protected async _patch<T>(route: string, params?: RequestPayload): Promise<T> {

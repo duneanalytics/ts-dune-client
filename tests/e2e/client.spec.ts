@@ -98,4 +98,21 @@ describe("DuneClient Extensions", () => {
     const query = await premiumClient.query.readQuery(queryID);
     expect(query.is_archived).to.be.equal(true);
   });
+
+  it("uploadCSV", async () => {
+    const premiumClient = new DuneClient(PLUS_KEY);
+    const public_success = await premiumClient.uploadCsv({
+      table_name: "ts_client_test",
+      description: "testing csv upload from node",
+      data: "column1,column2\nvalue1,value2\nvalue3,value4",
+    });
+    expect(public_success).to.be.equal(true);
+
+    const private_success = await premiumClient.uploadCsv({
+      table_name: "ts_client_test_private",
+      data: "column1,column2\nvalue1,value2\nvalue3,value4",
+      is_private: true
+    });
+    expect(private_success).to.be.equal(true);
+  });
 });

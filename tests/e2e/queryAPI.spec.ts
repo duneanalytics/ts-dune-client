@@ -3,7 +3,7 @@ import { QueryParameter, QueryAPI } from "../../src/";
 import { PLUS_KEY, BASIC_KEY, expectAsyncThrow } from "./util";
 
 const PREMIUM_PLAN_MESSAGE =
-  "CRUD queries is an advanced feature included only in our premium subscription plans. Please upgrade your plan to use it.";
+  "Response Error: Query management endpoints are only available in our paid plans. Please upgrade to a paid plan to use it.";
 
 describe("QueryAPI: Premium - CRUD Operations", () => {
   let plusClient: QueryAPI;
@@ -29,7 +29,7 @@ describe("QueryAPI: Premium - CRUD Operations", () => {
     expect(updatedQueryId).to.be.equal(recoveredQuery.query_id);
   });
 
-  it.only("unarchive, make public, make private, rearchive", async () => {
+  it("unarchive, make public, make private, rearchive", async () => {
     const queryId = 3530410;
     let query = await plusClient.readQuery(queryId);
     expect(query.is_archived).to.be.equal(true);

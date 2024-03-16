@@ -6,6 +6,7 @@ import {
   ExecutionResponseCSV,
   concatResultResponse,
   concatResultCSV,
+  SuccessResponse,
 } from "../types";
 import log from "loglevel";
 import { logPrefix } from "../utils";
@@ -45,7 +46,7 @@ export class ExecutionAPI extends Router {
       performance = performance ? performance : ExecutionPerformance.Medium;
     }
 
-    const response = await this._post<ExecutionResponse>(`query/${queryID}/execute`, {
+    const response = await this.post<ExecutionResponse>(`query/${queryID}/execute`, {
       query_parameters,
       performance,
     });
@@ -60,7 +61,7 @@ export class ExecutionAPI extends Router {
    * @returns {boolean} indicating if success of cancellation request.
    */
   async cancelExecution(executionId: string): Promise<boolean> {
-    const { success }: { success: boolean } = await this._post(
+    const { success } = await this.post<SuccessResponse>(
       `execution/${executionId}/cancel`,
     );
     return success;
