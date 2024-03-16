@@ -71,7 +71,7 @@ export class QueryAPI extends Router {
    * @returns {boolean} indicating success of request.
    */
   public async archiveQuery(queryId: number): Promise<boolean> {
-    const response = await this._post<EditQueryResponse>(`/query/${queryId}/archive`);
+    const response = await this._post<EditQueryResponse>(`query/${queryId}/archive`);
     const query = await this.readQuery(response.query_id);
     return query.is_archived;
   }
@@ -83,7 +83,7 @@ export class QueryAPI extends Router {
    * @returns {boolean} indicating success of request.
    */
   public async unarchiveQuery(queryId: number): Promise<boolean> {
-    const response = await this._post<EditQueryResponse>(`/query/${queryId}/unarchive`);
+    const response = await this._post<EditQueryResponse>(`query/${queryId}/unarchive`);
     const query = await this.readQuery(response.query_id);
     return query.is_archived;
   }
@@ -96,7 +96,7 @@ export class QueryAPI extends Router {
    * @returns {number} ID of the query made private.
    */
   public async makePrivate(queryId: number): Promise<number> {
-    const response = await this._post<EditQueryResponse>(`/query/${queryId}/private`);
+    const response = await this._post<EditQueryResponse>(`query/${queryId}/private`);
     const query = await this.readQuery(response.query_id);
     if (!query.is_private) {
       throw new DuneError("Query was not made private!");
@@ -111,7 +111,7 @@ export class QueryAPI extends Router {
    * @returns {number} ID of the query made public.
    */
   public async makePublic(queryId: number): Promise<number> {
-    const response = await this._post<EditQueryResponse>(`/query/${queryId}/unprivate`);
+    const response = await this._post<EditQueryResponse>(`query/${queryId}/unprivate`);
     const query = await this.readQuery(response.query_id);
     if (query.is_private) {
       throw new DuneError("Query is still private.");

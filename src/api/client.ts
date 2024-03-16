@@ -22,7 +22,7 @@ import {
   POLL_FREQUENCY_SECONDS,
   THREE_MONTHS_IN_HOURS,
 } from "../constants";
-import { ExecutionParams } from "../types/requestPayload";
+import { ExecutionParams, ExecutionPerformance } from "../types/requestPayload";
 import { QueryAPI } from "./query";
 
 /// Various states of query execution that are "terminal".
@@ -181,6 +181,55 @@ export class DuneClient {
     const csvData = (await results).data;
     await fs.writeFile(outFile, csvData, "utf8");
     log.info(`CSV data has been saved to ${outFile}`);
+  }
+
+  /**
+   * Allows user to provide execute raw_sql via the CRUD interface
+   * - create, run, get results with optional archive/delete.
+   * - Query is by default made private and archived after execution.
+   * Requires Plus subscription!
+   * @param query_sql - raw sql of query to run
+   * @param params - query parameters
+   * @param isPrivate - whether the created query should be private
+   * @param archiveAfter - whether the created query should be archived immediately after execution
+   * @param performance - performance tier of execution engine
+   * @param batchSize - the page size when retriving results.
+   * @param pingFrequency - how frequently should we check execution status
+   * @param name - name of the query
+   * @returns
+   */
+  public async runSql(
+    query_sql: string,
+    params?: QueryParameter[],
+    isPrivate: boolean = true,
+    archiveAfter: boolean = true,
+    performance?: ExecutionPerformance,
+    batchSize: number = MAX_NUM_ROWS_PER_BATCH,
+    pingFrequency: number = POLL_FREQUENCY_SECONDS,
+    name: string = "API Query",
+  ): Promise<ResultsResponse> {
+    const queryID = await this.query.createQuery({
+      name,
+      query_sql,
+      query_parameters: params,
+      is_private: isPrivate,
+    });
+    let results: ResultsResponse;
+
+    try {
+      results = await this.runQuery(
+        queryID,
+        { query_parameters: params, performance },
+        batchSize,
+        pingFrequency,
+      );
+    } finally {
+      if (archiveAfter) {
+        this.query.archiveQuery(queryID);
+      }
+    }
+
+    return results;
   }
 
   private async _runInner(

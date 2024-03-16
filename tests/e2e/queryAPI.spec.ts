@@ -28,6 +28,25 @@ describe("QueryAPI: Premium - CRUD Operations", () => {
     });
     expect(updatedQueryId).to.be.equal(recoveredQuery.query_id);
   });
+
+  it.only("unarchive, make public, make private, rearchive", async () => {
+    const queryId = 3530410;
+    let query = await plusClient.readQuery(queryId);
+    expect(query.is_archived).to.be.equal(true);
+    expect(query.is_private).to.be.equal(true);
+
+    await plusClient.unarchiveQuery(queryId);
+    await plusClient.makePublic(queryId);
+    query = await plusClient.readQuery(queryId);
+    expect(query.is_archived).to.be.equal(false);
+    expect(query.is_private).to.be.equal(false);
+
+    await plusClient.archiveQuery(queryId);
+    await plusClient.makePrivate(queryId);
+    query = await plusClient.readQuery(queryId);
+    expect(query.is_archived).to.be.equal(true);
+    expect(query.is_private).to.be.equal(true);
+  });
 });
 
 describe("QueryAPI: Errors", () => {
