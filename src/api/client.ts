@@ -237,9 +237,14 @@ export class DuneClient {
     return results;
   }
 
+  /**
+   * Allows for anyone to upload a CSV as a table in Dune. 
+   * The size limit per upload is currently 200MB. 
+   * Storage is limited by plan, 1MB on free, 15GB on plus, and 50GB on premium.
+   * @param params UploadCSVParams relevant fields related to dataset upload.
+   * @returns boolean representing if upload was successful.
+   */
   async uploadCsv(params: UploadCSVParams): Promise<boolean> {
-    params.description = params.description !== undefined ? params.description : "";
-    params.is_private = params.is_private !== undefined ? params.is_private : false;
     const response = await this.exec.post<SuccessResponse>("table/upload/csv", params);
     try {
       return Boolean(response.success);
