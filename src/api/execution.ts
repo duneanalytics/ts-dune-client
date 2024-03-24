@@ -7,9 +7,10 @@ import {
   concatResultResponse,
   concatResultCSV,
   SuccessResponse,
+  LatestResultsResponse,
 } from "../types";
 import log from "loglevel";
-import { logPrefix } from "../utils";
+import { ageInHours, logPrefix } from "../utils";
 import { Router } from "./router";
 import {
   ExecutionParams,
@@ -20,6 +21,7 @@ import {
   DEFAULT_GET_PARAMS,
   DUNE_CSV_NEXT_OFFSET_HEADER,
   DUNE_CSV_NEXT_URI_HEADER,
+  THREE_MONTHS_IN_HOURS,
 } from "../constants";
 
 /**
@@ -124,15 +126,24 @@ export class ExecutionAPI extends Router {
    * Retrieves results from query's last execution
    * @param {number} queryID id of query to get results for.
    * @param {GetResultParams} params parameters for retrieval.
-   * @returns {ResultsResponse} response containing execution results.
+   * @param {number} expiryAgeHours  What is considered to be an expired result set.
+   * @returns {LatestResultsResponse} response containing execution results and boolean field
    */
   async getLastExecutionResults(
     queryId: number,
     params: GetResultParams = DEFAULT_GET_PARAMS,
-  ): Promise<ResultsResponse> {
+    /// What is considered to be an expired result set.
+    expiryAgeHours: number = THREE_MONTHS_IN_HOURS,
+  ): Promise<LatestResultsResponse> {
     // The first bit might only return a page.
+    console.log(queryId);
+    console.log(params);
     const results = await this._get<ResultsResponse>(`query/${queryId}/results`, params);
-    return this._fetchEntireResult(results);
+    const lastRun: Date = results.execution_ended_at!;
+    const maxAge = expiryAgeHours;
+    const isExpired = lastRun !== undefined && ageInHours(lastRun) > maxAge;
+    console.log("Is we here?");
+    return { results: await this._fetchEntireResult(results), isExpired };
   }
 
   /**

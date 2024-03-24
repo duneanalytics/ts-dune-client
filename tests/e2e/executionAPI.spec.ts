@@ -106,10 +106,10 @@ describe("ExecutionAPI: native routes", () => {
   });
 
   it("getLastResult", async () => {
-    const result = await client.getLastExecutionResults(testQueryId, {
+    const { results } = await client.getLastExecutionResults(testQueryId, {
       query_parameters: [QueryParameter.text("TextField", "Plain Text")],
     });
-    expect(result.result?.rows).to.be.deep.equal([
+    expect(results.result?.rows).to.be.deep.equal([
       {
         date_field: "2022-05-04 00:00:00.000",
         list_field: "Option 1",

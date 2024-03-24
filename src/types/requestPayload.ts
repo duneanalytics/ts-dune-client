@@ -12,7 +12,7 @@ export enum ExecutionPerformance {
   Large = "large",
 }
 
-export type UploadCSVParams = {
+export type UploadCSVArgs = {
   table_name: string;
   data: string;
   description?: string;
@@ -25,7 +25,7 @@ export type RequestPayload =
   | ExecuteQueryParams
   | UpdateQueryParams
   | CreateQueryParams
-  | UploadCSVParams;
+  | UploadCSVArgs;
 
 /// Utility method used by router to parse request payloads.
 export function payloadJSON(payload?: RequestPayload): string {
