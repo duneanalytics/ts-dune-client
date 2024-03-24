@@ -69,7 +69,7 @@ describe("DuneClient Extensions", () => {
     expect(multiRowResults.data).to.be.deep.equal("number\n3\n4\n5\n6\n7\n8\n");
   });
 
-  it.only("getsLatestResults", async () => {
+  it("getsLatestResults", async () => {
     // https://dune.com/queries/1215383
     const results = await client.getLatestResult({
       queryId: 1215383,

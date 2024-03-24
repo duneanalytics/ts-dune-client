@@ -21,6 +21,7 @@ import {
   DEFAULT_GET_PARAMS,
   DUNE_CSV_NEXT_OFFSET_HEADER,
   DUNE_CSV_NEXT_URI_HEADER,
+  MAX_NUM_ROWS_PER_BATCH,
   THREE_MONTHS_IN_HOURS,
 } from "../constants";
 
@@ -94,6 +95,8 @@ export class ExecutionAPI extends Router {
     executionId: string,
     params: GetResultParams = DEFAULT_GET_PARAMS,
   ): Promise<ResultsResponse> {
+    // This field must be set!
+    params.limit = params.limit || MAX_NUM_ROWS_PER_BATCH;
     const response: ResultsResponse = await this._get(
       `execution/${executionId}/results`,
       params,
@@ -135,14 +138,13 @@ export class ExecutionAPI extends Router {
     /// What is considered to be an expired result set.
     expiryAgeHours: number = THREE_MONTHS_IN_HOURS,
   ): Promise<LatestResultsResponse> {
+    // This field must be set!
+    params.limit = params.limit || MAX_NUM_ROWS_PER_BATCH;
     // The first bit might only return a page.
-    console.log(queryId);
-    console.log(params);
     const results = await this._get<ResultsResponse>(`query/${queryId}/results`, params);
     const lastRun: Date = results.execution_ended_at!;
     const maxAge = expiryAgeHours;
     const isExpired = lastRun !== undefined && ageInHours(lastRun) > maxAge;
-    console.log("Is we here?");
     return { results: await this._fetchEntireResult(results), isExpired };
   }
 

@@ -84,7 +84,6 @@ export class Router {
   ): Promise<T> {
     const payloadData = payloadJSON(payload);
     log.debug(logPrefix, `${method} received input url=${url}, payload=${payloadData}`);
-    console.log(logPrefix, `${method} received input url=${url}, payload=${payloadData}`);
     const requestData: RequestInit = {
       method,
       headers: {
