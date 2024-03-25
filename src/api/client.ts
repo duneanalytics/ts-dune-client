@@ -137,11 +137,14 @@ export class DuneClient {
    */
   async downloadCSV(args: RunQueryArgs, outFile: string): Promise<void> {
     const { queryId, params, opts } = args;
-    const { isExpired } = await this.exec.getLastExecutionResults(queryId, {
-      query_parameters: params?.query_parameters,
-      limit: opts?.batchSize,
-      expiryAgeHours: args.opts?.maxAgeHours,
-    });
+    const { isExpired } = await this.exec.getLastExecutionResults(
+      queryId,
+      {
+        query_parameters: params?.query_parameters,
+        limit: opts?.batchSize,
+      },
+      args.opts?.maxAgeHours,
+    );
     let results: Promise<ExecutionResponseCSV>;
     if (isExpired) {
       results = this.runQueryCSV(args);
