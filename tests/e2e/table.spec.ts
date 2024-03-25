@@ -56,7 +56,7 @@ describe("Table API", () => {
   it.skip("inserts JSON to Table", async () => {
     const data: Buffer = await fs.readFile("./tests/fixtures/sample_table_insert.json");
     const insertResult = await tableClient.insert({
-      namespace: "bh2smith",
+      namespace: "your_username",
       table_name: "dataset_e2e_test",
       data,
       content_type: ContentType.NDJson,
@@ -68,7 +68,7 @@ describe("Table API", () => {
   it.skip("inserts CSV to Table", async () => {
     const data = await fs.readFile("./tests/fixtures/sample_table_insert.csv");
     const insertResult = await tableClient.insert({
-      namespace: "bh2smith",
+      namespace: "your_username",
       table_name: "dataset_e2e_test",
       data,
       content_type: ContentType.Csv,
