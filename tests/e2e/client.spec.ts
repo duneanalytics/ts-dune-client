@@ -86,7 +86,7 @@ describe("DuneClient Extensions", () => {
     expect(multiRowResults.result?.rows.length).to.be.equal(6);
   });
 
-  it("downloadCSV", async () => {
+  it("downloads CSV", async () => {
     await client.downloadCSV(
       {
         queryId: multiRowQuery,

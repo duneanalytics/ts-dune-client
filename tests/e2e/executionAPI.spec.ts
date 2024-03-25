@@ -105,13 +105,13 @@ describe("ExecutionAPI: native routes", () => {
     expect(resultCSV.data).to.be.eq(expectedRows.join(""));
   });
 
-  it("getLastResult", async () => {
+  it("gets LastResult", async () => {
     const { results } = await client.getLastExecutionResults(testQueryId, {
       query_parameters: [QueryParameter.text("TextField", "Plain Text")],
     });
     expect(results.result?.rows).to.be.deep.equal([
       {
-        date_field: "2022-05-04 00:00:00.000",
+        date_field: "2022-05-04T00:00:00Z",
         list_field: "Option 1",
         number_field: "3.1415926535",
         text_field: "Plain Text",

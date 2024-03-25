@@ -79,7 +79,6 @@ export interface GetResultParams extends BaseParams {
   limit?: number;
   /// Which row to start returning results from
   offset?: number;
-  expectedId?: string;
 }
 
 export interface ExecuteQueryParams extends BaseParams {
