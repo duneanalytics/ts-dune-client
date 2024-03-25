@@ -1,13 +1,14 @@
-import { DuneError } from "../types";
-import fetch from "cross-fetch";
-import log from "loglevel";
-import { logPrefix } from "../utils";
 import {
+  ContentType,
+  DuneError,
   RequestPayload,
   payloadJSON,
   payloadSearchParams,
-} from "../types/requestPayload";
+} from "../types";
 import { version } from "../../package.json";
+import fetch from "cross-fetch";
+import log from "loglevel";
+import { logPrefix } from "../utils";
 
 const BASE_URL = "https://api.dune.com/api";
 
@@ -37,8 +38,18 @@ export class Router {
    * @param params payload sent with request (should be aligned with what the interface supports)
    * @returns a flexible data type representing whatever is expected to be returned from the request.
    */
-  async post<T>(route: string, params?: RequestPayload): Promise<T> {
-    return this._request<T>(RequestMethod.POST, this.url(route), params);
+  async post<T>(
+    route: string,
+    params?: RequestPayload,
+    content_type: ContentType = ContentType.Json,
+  ): Promise<T> {
+    return this._request<T>(
+      RequestMethod.POST,
+      this.url(route),
+      params,
+      false,
+      content_type,
+    );
   }
 
   protected async _handleResponse<T>(responsePromise: Promise<Response>): Promise<T> {
@@ -82,18 +93,25 @@ export class Router {
     url: string,
     payload?: RequestPayload,
     raw: boolean = false,
+    content_type: ContentType = ContentType.Json,
   ): Promise<T> {
-    const payloadData = payloadJSON(payload);
-    log.debug(logPrefix, `${method} received input url=${url}, payload=${payloadData}`);
+    let body;
+    if (Buffer.isBuffer(payload)) {
+      body = payload;
+    } else {
+      body = payloadJSON(payload);
+    }
+    log.debug(logPrefix, `${method} received input url=${url}, payload=${body}`);
     const requestData: RequestInit = {
       method,
       headers: {
         "x-dune-api-key": this.apiKey,
         "User-Agent": `client-sdk@${version} (https://www.npmjs.com/package/@duneanalytics/client-sdk)`,
+        "Content-Type": content_type,
       },
       // conditionally add the body property
       ...(method !== RequestMethod.GET && {
-        body: payloadData,
+        body,
       }),
     };
     let queryParams = "";

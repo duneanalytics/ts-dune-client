@@ -188,3 +188,14 @@ function concatResultMetadata(
     ...remainingValues,
   };
 }
+
+export interface CreateTableResult {
+  example_query: string;
+  full_name: string;
+  namespace: string;
+  table_name: string;
+}
+
+export interface InsertTableResult {
+  rows_written: number;
+}

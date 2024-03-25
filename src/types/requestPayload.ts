@@ -25,7 +25,10 @@ export type RequestPayload =
   | ExecuteQueryParams
   | UpdateQueryParams
   | CreateQueryParams
-  | UploadCSVArgs;
+  | UploadCSVArgs
+  | CreateTableArgs
+  | InsertTableArgs
+  | Buffer;
 
 /// Utility method used by router to parse request payloads.
 export function payloadJSON(payload?: RequestPayload): string {
@@ -108,4 +111,41 @@ export interface CreateQueryParams extends BaseParams {
   query_sql: string;
   /// Whether the query should be created as private.
   is_private?: boolean;
+}
+
+export enum ColumnType {
+  Varchar = "varchar",
+  Integer = "integer",
+  Double = "double",
+  Boolean = "boolean",
+  Timestamp = "timestamp",
+}
+
+export interface SchemaRecord {
+  name: string;
+  type: ColumnType;
+}
+
+export interface CreateTableArgs {
+  namespace: string;
+  table_name: string;
+  schema: SchemaRecord[];
+  description?: string;
+  is_private?: boolean;
+}
+
+/**
+ * All supported API content types
+ */
+export enum ContentType {
+  Json = "application/json",
+  Csv = "text/csv",
+  NDJson = "application/x-ndjson",
+}
+
+export interface InsertTableArgs {
+  namespace: string;
+  table_name: string;
+  data: Buffer;
+  content_type: ContentType;
 }

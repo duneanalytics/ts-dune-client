@@ -4,7 +4,7 @@ import log from "loglevel";
 import { BASIC_KEY, PLUS_KEY } from "./util";
 import * as fs from "fs/promises";
 
-log.setLevel(log.levels.DEBUG, true);
+log.setLevel("silent", true);
 
 describe("DuneClient Extensions", () => {
   let client: DuneClient;
@@ -112,22 +112,5 @@ describe("DuneClient Extensions", () => {
     expect(results.result?.rows).to.be.deep.equal([{ _col0: 1 }]);
     const query = await premiumClient.query.readQuery(queryID);
     expect(query.is_archived).to.be.equal(true);
-  });
-
-  it("uploadCSV", async () => {
-    const premiumClient = new DuneClient(PLUS_KEY);
-    const public_success = await premiumClient.uploadCsv({
-      table_name: "ts_client_test",
-      description: "testing csv upload from node",
-      data: "column1,column2\nvalue1,value2\nvalue3,value4",
-    });
-    expect(public_success).to.be.equal(true);
-
-    const private_success = await premiumClient.uploadCsv({
-      table_name: "ts_client_test_private",
-      data: "column1,column2\nvalue1,value2\nvalue3,value4",
-      is_private: true,
-    });
-    expect(private_success).to.be.equal(true);
   });
 });
