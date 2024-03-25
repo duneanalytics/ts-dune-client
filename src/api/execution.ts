@@ -8,15 +8,13 @@ import {
   concatResultCSV,
   SuccessResponse,
   LatestResultsResponse,
+  ExecutionParams,
+  ExecutionPerformance,
+  GetResultParams,
 } from "../types";
 import log from "loglevel";
 import { ageInHours, logPrefix, withDefaults } from "../utils";
 import { Router } from "./router";
-import {
-  ExecutionParams,
-  ExecutionPerformance,
-  GetResultParams,
-} from "../types/requestPayload";
 import {
   DEFAULT_GET_PARAMS,
   DUNE_CSV_NEXT_OFFSET_HEADER,

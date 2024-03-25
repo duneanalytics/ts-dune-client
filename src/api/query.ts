@@ -1,7 +1,11 @@
-// Assuming the existence of these imports based on your Python code
 import { Router } from "./router";
-import { DuneQuery, CreateQueryResponse, DuneError } from "../types";
-import { CreateQueryParams, UpdateQueryParams } from "../types/requestPayload";
+import {
+  DuneQuery,
+  CreateQueryResponse,
+  DuneError,
+  CreateQueryParams,
+  UpdateQueryParams,
+} from "../types";
 import log from "loglevel";
 
 interface EditQueryResponse {
