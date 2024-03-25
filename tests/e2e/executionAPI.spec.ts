@@ -119,14 +119,14 @@ describe("ExecutionAPI: native routes", () => {
     ]);
   });
 
-  it("getLastResultCSV", async () => {
+  it("gets LastResultCSV", async () => {
     // https://dune.com/queries/1215383
     const resultCSV = await client.getLastResultCSV(testQueryId, {
       query_parameters: [QueryParameter.text("TextField", "Plain Text")],
     });
     const expectedRows = [
       "text_field,number_field,date_field,list_field\n",
-      "Plain Text,3.1415926535,2022-05-04 00:00:00.000,Option 1\n",
+      "Plain Text,3.1415926535,2022-05-04T00:00:00Z,Option 1\n",
     ];
     expect(resultCSV.data).to.be.eq(expectedRows.join(""));
   });
