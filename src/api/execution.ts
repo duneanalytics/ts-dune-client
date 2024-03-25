@@ -7,9 +7,10 @@ import {
   concatResultResponse,
   concatResultCSV,
   SuccessResponse,
+  LatestResultsResponse,
 } from "../types";
 import log from "loglevel";
-import { logPrefix } from "../utils";
+import { ageInHours, logPrefix, withDefaults } from "../utils";
 import { Router } from "./router";
 import {
   ExecutionParams,
@@ -20,6 +21,8 @@ import {
   DEFAULT_GET_PARAMS,
   DUNE_CSV_NEXT_OFFSET_HEADER,
   DUNE_CSV_NEXT_URI_HEADER,
+  MAX_NUM_ROWS_PER_BATCH,
+  THREE_MONTHS_IN_HOURS,
 } from "../constants";
 
 /**
@@ -85,7 +88,7 @@ export class ExecutionAPI extends Router {
    * Retrieve results of a query execution by executionID:
    * https://docs.dune.com/api-reference/executions/endpoint/get-execution-result
    * @param {string} executionId string representig ID of query execution
-   * @param {GetResultParams} params including limit, offset and expectedID.
+   * @param {GetResultParams} params including limit, offset
    * @returns {ResultsResponse} response containing execution results.
    */
   async getExecutionResults(
@@ -94,7 +97,7 @@ export class ExecutionAPI extends Router {
   ): Promise<ResultsResponse> {
     const response: ResultsResponse = await this._get(
       `execution/${executionId}/results`,
-      params,
+      withDefaults(params, { limit: MAX_NUM_ROWS_PER_BATCH }),
     );
     log.debug(logPrefix, `get_result response ${JSON.stringify(response)}`);
     return response as ResultsResponse;
@@ -104,7 +107,7 @@ export class ExecutionAPI extends Router {
    * Retrieve results of a query execution (in CSV format) by executionID:
    * https://docs.dune.com/api-reference/executions/endpoint/get-execution-result-csv
    * @param {string} executionId string representig ID of query execution.
-   * @param {GetResultParams} params including limit, offset and expectedID.
+   * @param {GetResultParams} params including limit, offset
    * @returns {ExecutionResponseCSV} execution results as CSV.
    */
   async getResultCSV(
@@ -124,15 +127,24 @@ export class ExecutionAPI extends Router {
    * Retrieves results from query's last execution
    * @param {number} queryID id of query to get results for.
    * @param {GetResultParams} params parameters for retrieval.
-   * @returns {ResultsResponse} response containing execution results.
+   * @param {number} expiryAgeHours  What is considered to be an expired result set.
+   * @returns {LatestResultsResponse} response containing execution results and boolean field
    */
   async getLastExecutionResults(
     queryId: number,
     params: GetResultParams = DEFAULT_GET_PARAMS,
-  ): Promise<ResultsResponse> {
+    /// What is considered to be an expired result set.
+    expiryAgeHours: number = THREE_MONTHS_IN_HOURS,
+  ): Promise<LatestResultsResponse> {
     // The first bit might only return a page.
-    const results = await this._get<ResultsResponse>(`query/${queryId}/results`, params);
-    return this._fetchEntireResult(results);
+    const results = await this._get<ResultsResponse>(
+      `query/${queryId}/results`,
+      withDefaults(params, { limit: MAX_NUM_ROWS_PER_BATCH }),
+    );
+    const lastRun: Date = results.execution_ended_at!;
+    const maxAge = expiryAgeHours;
+    const isExpired = lastRun !== undefined && ageInHours(lastRun) > maxAge;
+    return { results: await this._fetchEntireResult(results), isExpired };
   }
 
   /**
@@ -147,7 +159,7 @@ export class ExecutionAPI extends Router {
   ): Promise<ExecutionResponseCSV> {
     const response = await this._get<Response>(
       `query/${queryId}/results/csv`,
-      params,
+      withDefaults(params, { limit: MAX_NUM_ROWS_PER_BATCH }),
       true,
     );
     return this._fetchEntireResultCSV(await this.buildCSVResponse(response));

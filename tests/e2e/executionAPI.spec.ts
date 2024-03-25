@@ -105,13 +105,13 @@ describe("ExecutionAPI: native routes", () => {
     expect(resultCSV.data).to.be.eq(expectedRows.join(""));
   });
 
-  it("getLastResult", async () => {
-    const result = await client.getLastExecutionResults(testQueryId, {
+  it("gets LastResult", async () => {
+    const { results } = await client.getLastExecutionResults(testQueryId, {
       query_parameters: [QueryParameter.text("TextField", "Plain Text")],
     });
-    expect(result.result?.rows).to.be.deep.equal([
+    expect(results.result?.rows).to.be.deep.equal([
       {
-        date_field: "2022-05-04 00:00:00.000",
+        date_field: "2022-05-04T00:00:00Z",
         list_field: "Option 1",
         number_field: "3.1415926535",
         text_field: "Plain Text",
@@ -119,14 +119,14 @@ describe("ExecutionAPI: native routes", () => {
     ]);
   });
 
-  it("getLastResultCSV", async () => {
+  it("gets LastResultCSV", async () => {
     // https://dune.com/queries/1215383
     const resultCSV = await client.getLastResultCSV(testQueryId, {
       query_parameters: [QueryParameter.text("TextField", "Plain Text")],
     });
     const expectedRows = [
       "text_field,number_field,date_field,list_field\n",
-      "Plain Text,3.1415926535,2022-05-04 00:00:00.000,Option 1\n",
+      "Plain Text,3.1415926535,2022-05-04T00:00:00Z,Option 1\n",
     ];
     expect(resultCSV.data).to.be.eq(expectedRows.join(""));
   });

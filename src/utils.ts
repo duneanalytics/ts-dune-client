@@ -24,3 +24,20 @@ export function ageInHours(timestamp: Date | string): number {
   // Convert milliseconds to hours and return
   return resultAge / (1000 * 60 * 60);
 }
+
+/**
+ *
+ * @param obj Used to populate partial payloads with required defaults
+ * @param defaults
+ * @returns
+ */
+export function withDefaults<T>(obj: T, defaults: Partial<T>): T {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result: any = { ...obj };
+  for (const key in defaults) {
+    if (result[key] === undefined) {
+      result[key] = defaults[key];
+    }
+  }
+  return result as T;
+}

@@ -138,6 +138,11 @@ export interface ResultsResponse extends TimeData {
   result?: ExecutionResult;
 }
 
+export interface LatestResultsResponse {
+  results: ResultsResponse;
+  isExpired?: boolean;
+}
+
 export function concatResultResponse(
   left: ResultsResponse,
   right: ResultsResponse,
