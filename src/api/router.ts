@@ -7,6 +7,7 @@ import {
   payloadJSON,
   payloadSearchParams,
 } from "../types/requestPayload";
+import { version } from "../../package.json";
 
 const BASE_URL = "https://api.dune.com/api";
 
@@ -88,7 +89,7 @@ export class Router {
       method,
       headers: {
         "x-dune-api-key": this.apiKey,
-        "User-Agent": `ts-client-sdk (https://www.npmjs.com/package/@duneanalytics/client-sdk)`,
+        "User-Agent": `client-sdk@${version} (https://www.npmjs.com/package/@duneanalytics/client-sdk)`,
       },
       // conditionally add the body property
       ...(method !== RequestMethod.GET && {

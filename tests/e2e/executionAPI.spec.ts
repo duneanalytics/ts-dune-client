@@ -19,7 +19,7 @@ describe("ExecutionAPI: native routes", () => {
 
   // This doesn't work if run too many times at once:
   // https://discord.com/channels/757637422384283659/1019910980634939433/1026840715701010473
-  it("returns expected results on sequence execute-cancel-get_status", async () => {
+  it.skip("returns expected results on sequence execute-cancel-get_status", async () => {
     // Long running query ID.
     const queryID = 1229120;
     // Execute and check state
@@ -87,14 +87,13 @@ describe("ExecutionAPI: native routes", () => {
     });
   });
 
-  it("getResults", async () => {
+  it("gets Results", async () => {
     const execution = await client.executeQuery(testQueryId);
-    await sleep(1);
-    // expect basic query has completed after 1s
+    await sleep(5);
+    // expect basic query has completed after 5s
     const status = await client.getExecutionStatus(execution.execution_id);
     expect(status.state).to.be.eq(ExecutionState.COMPLETED);
 
-    // let resultJSON = await client.getExecutionResults(execution.execution_id);
     await expect(() => client.getExecutionResults(execution.execution_id)).to.not.throw();
 
     const resultCSV = await client.getResultCSV(execution.execution_id);
