@@ -87,14 +87,13 @@ describe("ExecutionAPI: native routes", () => {
     });
   });
 
-  it("getResults", async () => {
+  it("gets Results", async () => {
     const execution = await client.executeQuery(testQueryId);
-    await sleep(1);
-    // expect basic query has completed after 1s
+    await sleep(5);
+    // expect basic query has completed after 5s
     const status = await client.getExecutionStatus(execution.execution_id);
     expect(status.state).to.be.eq(ExecutionState.COMPLETED);
 
-    // let resultJSON = await client.getExecutionResults(execution.execution_id);
     await expect(() => client.getExecutionResults(execution.execution_id)).to.not.throw();
 
     const resultCSV = await client.getResultCSV(execution.execution_id);
