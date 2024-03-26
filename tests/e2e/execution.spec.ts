@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { QueryParameter, ExecutionState, ExecutionAPI } from "../../src/";
+import { QueryParameter, ExecutionState, ExecutionAPI } from "../../src";
 import log from "loglevel";
 import { ExecutionPerformance } from "../../src/types/requestArgs";
 import { BASIC_KEY, expectAsyncThrow } from "./util";
@@ -10,11 +10,14 @@ log.setLevel("silent", true);
 describe("ExecutionAPI: native routes", () => {
   let client: ExecutionAPI;
   let testQueryId: number;
+  let multiRowQuery: number;
 
   beforeEach(() => {
     client = new ExecutionAPI(BASIC_KEY);
     // https://dune.com/queries/1215383
     testQueryId = 1215383;
+    // https://dune.com/queries/3463180
+    multiRowQuery = 3463180;
   });
 
   // This doesn't work if run too many times at once:
@@ -87,21 +90,19 @@ describe("ExecutionAPI: native routes", () => {
     });
   });
 
-  it("gets Results", async () => {
-    const execution = await client.executeQuery(testQueryId);
+  it("gets Results (with limit)", async () => {
+    const execution = await client.executeQuery(multiRowQuery);
     await sleep(5);
     // expect basic query has completed after 5s
     const status = await client.getExecutionStatus(execution.execution_id);
     expect(status.state).to.be.eq(ExecutionState.COMPLETED);
+    const results = await client.getExecutionResults(execution.execution_id, {
+      limit: 2,
+    });
+    expect(results.result?.rows).to.be.deep.equal([{ number: 5 }, { number: 6 }]);
 
-    await expect(() => client.getExecutionResults(execution.execution_id)).to.not.throw();
-
-    const resultCSV = await client.getResultCSV(execution.execution_id);
-    const expectedRows = [
-      "text_field,number_field,date_field,list_field\n",
-      "Plain Text,3.1415926535,2022-05-04 00:00:00.000,Option 1\n",
-    ];
-    expect(resultCSV.data).to.be.eq(expectedRows.join(""));
+    const resultCSV = await client.getResultCSV(execution.execution_id, { limit: 3 });
+    expect(resultCSV.data).to.be.eq("number\n5\n6\n7\n");
   });
 
   it("gets LastResult", async () => {

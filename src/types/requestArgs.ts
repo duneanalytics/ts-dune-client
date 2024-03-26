@@ -1,4 +1,7 @@
+import assert from "assert";
 import { QueryParameter } from "./queryParameter";
+import { withDefaults } from "../utils";
+import { MAX_NUM_ROWS_PER_BATCH } from "../constants";
 
 /// Optional parameters for query exection.
 export interface ExecutionParams {
@@ -53,14 +56,35 @@ function payloadRecords(payload?: RequestPayload): Record<string, any> {
   return {};
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// TODO - this is a "dirty" hack to trick the compiler into thinking the types are well defined.
+interface IntermediaryRequestPayload {
+  query_parameters?: Array<{ name: string; value: any }>;
+  [key: string]: any; // This is the index signature
+}
+
+/**
+ * Converts all arguments into a format
+ * which can be converted into a URL path for GET requests.
+ */
 export function payloadSearchParams(payload?: RequestPayload): Record<string, any> {
   if (payload !== undefined) {
+    const intermPayload = payload as IntermediaryRequestPayload;
     if ("query_parameters" in payload) {
       // Destructure to separate parameters and the rest of the payload
-      const { query_parameters, ...rest } = payload;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const result: Record<string, any> = { ...rest };
+      const { query_parameters, ...rest } = intermPayload;
+      // Remove all undefined keys from payload.
+      const result: Record<string, any> = Object.keys(rest).reduce(
+        (acc, key) => {
+          if (rest[key] !== undefined) {
+            acc[key] = rest[key];
+          }
+          return acc;
+        },
+        {} as Record<string, any>,
+      );
+
+      // Modify query parameter to satisfy API formating requirements.
       if (Array.isArray(payload.query_parameters)) {
         for (const qp of payload.query_parameters) {
           result[`params.${qp.name}`] = qp.value;
@@ -72,6 +96,7 @@ export function payloadSearchParams(payload?: RequestPayload): Record<string, an
   }
   return {};
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 interface BaseParams {
   query_parameters?: QueryParameter[];
@@ -100,11 +125,48 @@ export interface GetResultParams extends BaseParams {
   /// Expression to define the order in which the results should be returned.
   /// This expression is similar to a SQL ORDER BY clause.
   /// More details about it in the [Sorting](https://docs.dune.com/api-reference/executions/sorting) section of the doc.
-  sort_by?: string;
-  /// Specifies a comma-separated list of column names to return.
-  /// If omitted, all columns are included.
+  sort_by?: string[] | string;
+  /// Specified columns to be returned. If omitted, all columns are included.
   /// Tip: use this to limit the result to specific columns, reducing datapoints cost of the call.
-  columns?: string;
+  columns?: string[] | string;
+}
+
+export function validateAndBuildGetResultParams({
+  limit,
+  offset,
+  sample_count,
+  filters,
+  sort_by,
+  columns,
+  query_parameters,
+}: GetResultParams): GetResultParams {
+  assert(
+    sample_count === undefined ||
+      (limit === undefined && offset === undefined && filters === undefined),
+    "sampling cannot be combined with filters or pagination",
+  );
+  if (columns !== undefined) {
+    if (typeof columns === "string") {
+      columns = columns.split(",");
+    }
+    // Escape all quotes and add quotes around it
+    const output: string[] = columns.map((column) => `"${column.replace(/"/g, '\\"')}"`);
+    columns = output.join(",");
+  }
+  if (sort_by !== undefined && Array.isArray(sort_by)) {
+    sort_by = sort_by.join(",");
+  }
+  query_parameters = query_parameters || [];
+  const validated = {
+    limit,
+    offset,
+    sample_count,
+    filters,
+    sort_by,
+    columns,
+    query_parameters,
+  };
+  return withDefaults(validated, { limit: MAX_NUM_ROWS_PER_BATCH });
 }
 
 export interface ExecuteQueryParams extends BaseParams {
@@ -197,10 +259,9 @@ export interface Options {
   maxAgeHours?: number;
 }
 
-export interface RunQueryArgs {
+export interface RunQueryArgs extends GetResultParams, ExecutionParams {
   /// ID of the query.
   queryId: number;
-  params?: ExecutionParams;
   opts?: Options;
 }
 
@@ -211,11 +272,9 @@ export interface LatestResultArgs {
   opts?: Options;
 }
 
-export interface RunSqlArgs {
+export interface RunSqlArgs extends ExecutionParams {
   /// raw sql of query to run (Trino/DuneSQL syntax)
   query_sql: string;
-  /// Query execution parameters.
-  params?: ExecutionParams;
   /// Name of created query.
   name?: string;
   /// Whether the created query should be private or not (default = true).

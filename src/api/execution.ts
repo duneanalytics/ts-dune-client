@@ -11,15 +11,15 @@ import {
   ExecutionParams,
   ExecutionPerformance,
   GetResultParams,
+  validateAndBuildGetResultParams,
 } from "../types";
 import log from "loglevel";
-import { ageInHours, logPrefix, withDefaults } from "../utils";
+import { ageInHours, logPrefix } from "../utils";
 import { Router } from "./router";
 import {
   DEFAULT_GET_PARAMS,
   DUNE_CSV_NEXT_OFFSET_HEADER,
   DUNE_CSV_NEXT_URI_HEADER,
-  MAX_NUM_ROWS_PER_BATCH,
   THREE_MONTHS_IN_HOURS,
 } from "../constants";
 
@@ -95,7 +95,7 @@ export class ExecutionAPI extends Router {
   ): Promise<ResultsResponse> {
     const response: ResultsResponse = await this._get(
       `execution/${executionId}/results`,
-      withDefaults(params, { limit: MAX_NUM_ROWS_PER_BATCH }),
+      validateAndBuildGetResultParams(params),
     );
     log.debug(logPrefix, `get_result response ${JSON.stringify(response)}`);
     return response as ResultsResponse;
@@ -114,7 +114,7 @@ export class ExecutionAPI extends Router {
   ): Promise<ExecutionResponseCSV> {
     const response = await this._get<Response>(
       `execution/${executionId}/results/csv`,
-      params,
+      validateAndBuildGetResultParams(params),
       true,
     );
     log.debug(logPrefix, `get_result response ${JSON.stringify(response)}`);
@@ -137,7 +137,7 @@ export class ExecutionAPI extends Router {
     // The first bit might only return a page.
     const results = await this._get<ResultsResponse>(
       `query/${queryId}/results`,
-      withDefaults(params, { limit: MAX_NUM_ROWS_PER_BATCH }),
+      validateAndBuildGetResultParams(params),
     );
     const lastRun: Date = results.execution_ended_at!;
     const maxAge = expiryAgeHours;
@@ -157,7 +157,7 @@ export class ExecutionAPI extends Router {
   ): Promise<ExecutionResponseCSV> {
     const response = await this._get<Response>(
       `query/${queryId}/results/csv`,
-      withDefaults(params, { limit: MAX_NUM_ROWS_PER_BATCH }),
+      validateAndBuildGetResultParams(params),
       true,
     );
     return this._fetchEntireResultCSV(await this.buildCSVResponse(response));

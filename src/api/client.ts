@@ -57,10 +57,11 @@ export class DuneClient {
    * @returns Execution Results
    */
   async runQuery(args: RunQueryArgs): Promise<ResultsResponse> {
-    const { queryId, params, opts } = args;
+    const { queryId, opts } = args;
+    args.limit = opts?.batchSize || args.limit;
     const { state, execution_id } = await this._runInner(
       queryId,
-      params,
+      args,
       opts?.pingFrequency,
     );
     if (state === ExecutionState.COMPLETED) {
@@ -86,18 +87,16 @@ export class DuneClient {
    * @returns Execution Results as CSV
    */
   async runQueryCSV(args: RunQueryArgs): Promise<ExecutionResponseCSV> {
-    const { queryId, params, opts } = args;
+    const { queryId, opts } = args;
+    args.limit = opts?.batchSize || args.limit;
     const { state, execution_id } = await this._runInner(
       queryId,
-      params,
+      args,
       opts?.pingFrequency,
     );
     if (state === ExecutionState.COMPLETED) {
-      // we can't assert that the execution ids agree here,
-      // so we use max age hours as a "safe guard"
-      return this.exec.getResultCSV(execution_id, {
-        query_parameters: params?.query_parameters,
-      });
+      // we can't assert that the execution ids agree here!
+      return this.exec.getLastResultCSV(queryId, args);
     } else {
       const message = `refresh (execution ${execution_id}) yields incomplete terminal state ${state}`;
       // TODO - log the error in constructor
@@ -114,19 +113,17 @@ export class DuneClient {
    * @returns Latest execution results for the given parameters.
    */
   async getLatestResult(args: RunQueryArgs): Promise<ResultsResponse> {
-    const { queryId, params, opts } = args;
+    const { queryId, opts } = args;
+    args.limit = opts?.batchSize || args.limit;
     const lastestResults = await this.exec.getLastExecutionResults(
       queryId,
-      {
-        query_parameters: params?.query_parameters,
-        limit: opts?.batchSize,
-      },
+      args,
       opts?.maxAgeHours,
     );
     let results: ResultsResponse;
     if (lastestResults.isExpired) {
       log.info(logPrefix, `results expired, re-running query.`);
-      results = await this.runQuery({ queryId, params, opts });
+      results = await this.runQuery(args);
     } else {
       results = lastestResults.results;
     }
@@ -140,13 +137,11 @@ export class DuneClient {
    * @param outFile - location to save CSV.
    */
   async downloadCSV(args: RunQueryArgs, outFile: string): Promise<void> {
-    const { queryId, params, opts } = args;
+    const { queryId, opts } = args;
+    args.limit = opts?.batchSize || args.limit;
     const { isExpired } = await this.exec.getLastExecutionResults(
       queryId,
-      {
-        query_parameters: params?.query_parameters,
-        limit: opts?.batchSize,
-      },
+      args,
       args.opts?.maxAgeHours,
     );
     let results: Promise<ExecutionResponseCSV>;
@@ -154,10 +149,7 @@ export class DuneClient {
       results = this.runQueryCSV(args);
     } else {
       // TODO (user cost savings): transform the lastResults into CSV instead of refetching
-      results = this.exec.getLastResultCSV(args.queryId, {
-        query_parameters: args.params?.query_parameters,
-        limit: args.opts?.batchSize,
-      });
+      results = this.exec.getLastResultCSV(args.queryId, args);
     }
     // Wait for the results promise to resolve and then write the CSV data to the specified outFile
     const csvData = (await results).data;
@@ -174,17 +166,17 @@ export class DuneClient {
    * @returns {Promise<ResultsResponse>}
    */
   public async runSql(args: RunSqlArgs): Promise<ResultsResponse> {
-    const { name, query_sql, params, isPrivate, archiveAfter, opts } = args;
+    const { name, query_sql, isPrivate, query_parameters, archiveAfter } = args;
     const queryId = await this.query.createQuery({
       name: name ? name : "API Query",
       query_sql,
-      query_parameters: params?.query_parameters,
+      query_parameters,
       is_private: isPrivate,
     });
     let results: ResultsResponse;
 
     try {
-      results = await this.runQuery({ queryId, params, opts });
+      results = await this.runQuery({ queryId, ...args });
     } finally {
       if (archiveAfter) {
         this.query.archiveQuery(queryId);
@@ -228,7 +220,7 @@ export class DuneClient {
   ): Promise<ResultsResponse> {
     return this.runQuery({
       queryId: queryID,
-      params: { query_parameters: parameters },
+      query_parameters: parameters,
       opts: { pingFrequency },
     });
   }

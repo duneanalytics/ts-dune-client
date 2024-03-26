@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { QueryParameter, QueryAPI } from "../../src/";
+import { QueryParameter, QueryAPI } from "../../src";
 import { PLUS_KEY, BASIC_KEY, expectAsyncThrow } from "./util";
 
 const PREMIUM_PLAN_MESSAGE =
