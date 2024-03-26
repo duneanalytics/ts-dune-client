@@ -27,7 +27,7 @@ describe("DuneClient Extensions", () => {
     });
     expect(results.result?.rows).to.be.deep.equal([
       {
-        date_field: "2022-05-04T00:00:00Z",
+        date_field: "2022-05-04 00:00:00.000",
         list_field: "Option 1",
         number_field: "3.1415926535",
         text_field: "Plain Text",

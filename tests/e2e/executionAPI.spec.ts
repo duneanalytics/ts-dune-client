@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { QueryParameter, ExecutionState, ExecutionAPI } from "../../src/";
 import log from "loglevel";
-import { ExecutionPerformance } from "../../src/types/requestPayload";
+import { ExecutionPerformance } from "../../src/types/requestArgs";
 import { BASIC_KEY, expectAsyncThrow } from "./util";
 import { sleep } from "../../src/utils";
 
@@ -99,7 +99,7 @@ describe("ExecutionAPI: native routes", () => {
     const resultCSV = await client.getResultCSV(execution.execution_id);
     const expectedRows = [
       "text_field,number_field,date_field,list_field\n",
-      "Plain Text,3.1415926535,2022-05-04T00:00:00Z,Option 1\n",
+      "Plain Text,3.1415926535,2022-05-04 00:00:00.000,Option 1\n",
     ];
     expect(resultCSV.data).to.be.eq(expectedRows.join(""));
   });
@@ -110,7 +110,7 @@ describe("ExecutionAPI: native routes", () => {
     });
     expect(results.result?.rows).to.be.deep.equal([
       {
-        date_field: "2022-05-04T00:00:00Z",
+        date_field: "2022-05-04 00:00:00.000",
         list_field: "Option 1",
         number_field: "3.1415926535",
         text_field: "Plain Text",
@@ -125,7 +125,7 @@ describe("ExecutionAPI: native routes", () => {
     });
     const expectedRows = [
       "text_field,number_field,date_field,list_field\n",
-      "Plain Text,3.1415926535,2022-05-04T00:00:00Z,Option 1\n",
+      "Plain Text,3.1415926535,2022-05-04 00:00:00.000,Option 1\n",
     ];
     expect(resultCSV.data).to.be.eq(expectedRows.join(""));
   });

@@ -1,10 +1,9 @@
-import { GetResultParams } from "./types/requestPayload";
+import { GetResultParams } from "./types/requestArgs";
 
 // Seconds between checking execution status
 export const POLL_FREQUENCY_SECONDS = 1;
 // This is the expiry time on old query results.
 export const THREE_MONTHS_IN_HOURS = 2191;
-
 // Headers used for pagination in CSV results
 export const DUNE_CSV_NEXT_URI_HEADER = "x-dune-next-uri";
 export const DUNE_CSV_NEXT_OFFSET_HEADER = "x-dune-next-offset";

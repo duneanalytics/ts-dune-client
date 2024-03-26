@@ -190,9 +190,13 @@ function concatResultMetadata(
 }
 
 export interface CreateTableResult {
+  /// An example query to use on Dune querying your new table.
   example_query: string;
+  /// The full name of the created table, as it should be referred to in a query.
   full_name: string;
+  /// The namespace of the created table.
   namespace: string;
+  /// The name of the created table.
   table_name: string;
 }
 
