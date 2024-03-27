@@ -11,7 +11,7 @@ describe("DuneClient Extensions", () => {
   let parameterizedQuery: number;
   let multiRowQuery: number;
 
-  beforeEach(() => {
+  before(() => {
     client = new DuneClient(BASIC_KEY);
     parameterizedQuery = 1215383;
     multiRowQuery = 3463180;
@@ -21,13 +21,11 @@ describe("DuneClient Extensions", () => {
     // https://dune.com/queries/1215383
     const results = await client.runQuery({
       queryId: parameterizedQuery,
-      params: {
-        query_parameters: [QueryParameter.text("TextField", "Plain Text")],
-      },
+      query_parameters: [QueryParameter.text("TextField", "Plain Text")],
     });
     expect(results.result?.rows).to.be.deep.equal([
       {
-        date_field: "2022-05-04T00:00:00Z",
+        date_field: "2022-05-04 00:00:00.000",
         list_field: "Option 1",
         number_field: "3.1415926535",
         text_field: "Plain Text",
@@ -37,7 +35,7 @@ describe("DuneClient Extensions", () => {
     // pagination:
     const multiRowResults = await client.runQuery({
       queryId: multiRowQuery,
-      params: { query_parameters: [QueryParameter.number("StartFrom", 10)] },
+      query_parameters: [QueryParameter.number("StartFrom", 10)],
       opts: { batchSize: 4 },
     });
     expect(multiRowResults.result?.rows).to.be.deep.equal(
@@ -45,13 +43,23 @@ describe("DuneClient Extensions", () => {
     );
   });
 
+  it("executes runQuery with filter", async () => {
+    const multiRowResults = await client.runQuery({
+      queryId: multiRowQuery,
+      query_parameters: [QueryParameter.number("StartFrom", 1)],
+      filters: "number < 6",
+      opts: { batchSize: 4 },
+    });
+    expect(multiRowResults.result?.rows).to.be.deep.equal(
+      [1, 2, 3, 4, 5].map((t) => ({ number: t })),
+    );
+  });
+
   it("executes runQueryCSV", async () => {
     // https://dune.com/queries/1215383
     const results = await client.runQueryCSV({
       queryId: parameterizedQuery,
-      params: {
-        query_parameters: [QueryParameter.text("TextField", "Plain Text")],
-      },
+      query_parameters: [QueryParameter.text("TextField", "Plain Text")],
     });
     expect(results.data).to.be.equal(
       [
@@ -63,7 +71,7 @@ describe("DuneClient Extensions", () => {
     // pagination:
     const multiRowResults = await client.runQueryCSV({
       queryId: multiRowQuery,
-      params: { query_parameters: [QueryParameter.number("StartFrom", 3)] },
+      query_parameters: [QueryParameter.number("StartFrom", 3)],
       opts: { batchSize: 4 },
     });
     expect(multiRowResults.data).to.be.deep.equal("number\n3\n4\n5\n6\n7\n8\n");
@@ -73,14 +81,14 @@ describe("DuneClient Extensions", () => {
     // https://dune.com/queries/1215383
     const results = await client.getLatestResult({
       queryId: 1215383,
-      params: { query_parameters: [QueryParameter.text("TextField", "Plain Text")] },
+      query_parameters: [QueryParameter.text("TextField", "Plain Text")],
     });
     expect(results.result?.rows.length).to.be.greaterThan(0);
 
     // pagination:
     const multiRowResults = await client.getLatestResult({
       queryId: multiRowQuery,
-      params: { query_parameters: [QueryParameter.number("StartFrom", 10)] },
+      query_parameters: [QueryParameter.number("StartFrom", 10)],
       opts: { batchSize: 4 },
     });
     expect(multiRowResults.result?.rows.length).to.be.equal(6);
@@ -90,7 +98,7 @@ describe("DuneClient Extensions", () => {
     await client.downloadCSV(
       {
         queryId: multiRowQuery,
-        params: { query_parameters: [QueryParameter.number("StartFrom", 3)] },
+        query_parameters: [QueryParameter.number("StartFrom", 3)],
       },
       "./out.csv",
     );

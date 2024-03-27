@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { QueryParameter, QueryAPI } from "../../src/";
+import { QueryParameter, QueryAPI } from "../../src";
 import { PLUS_KEY, BASIC_KEY, expectAsyncThrow } from "./util";
 
 const PREMIUM_PLAN_MESSAGE =
@@ -8,7 +8,7 @@ const PREMIUM_PLAN_MESSAGE =
 describe("QueryAPI: Premium - CRUD Operations", () => {
   let plusClient: QueryAPI;
 
-  beforeEach(() => {
+  before(() => {
     plusClient = new QueryAPI(PLUS_KEY);
   });
 
@@ -52,7 +52,7 @@ describe("QueryAPI: Premium - CRUD Operations", () => {
 describe("QueryAPI: Errors", () => {
   let basicClient: QueryAPI;
 
-  beforeEach(() => {
+  before(() => {
     basicClient = new QueryAPI(BASIC_KEY);
   });
 

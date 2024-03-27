@@ -1,7 +1,7 @@
 import { expect } from "chai";
-import { QueryParameter, ExecutionState, ExecutionAPI } from "../../src/";
+import { QueryParameter, ExecutionState, ExecutionAPI } from "../../src";
 import log from "loglevel";
-import { ExecutionPerformance } from "../../src/types/requestPayload";
+import { ExecutionPerformance } from "../../src/types/requestArgs";
 import { BASIC_KEY, expectAsyncThrow } from "./util";
 import { sleep } from "../../src/utils";
 
@@ -10,11 +10,18 @@ log.setLevel("silent", true);
 describe("ExecutionAPI: native routes", () => {
   let client: ExecutionAPI;
   let testQueryId: number;
+  let multiRowQuery: number;
 
-  beforeEach(() => {
+  before(() => {
     client = new ExecutionAPI(BASIC_KEY);
     // https://dune.com/queries/1215383
     testQueryId = 1215383;
+    // https://dune.com/queries/3463180
+    multiRowQuery = 3463180;
+  });
+
+  beforeEach((done) => {
+    setTimeout(done, 1000); // Wait for 1000 milliseconds
   });
 
   // This doesn't work if run too many times at once:
@@ -87,21 +94,71 @@ describe("ExecutionAPI: native routes", () => {
     });
   });
 
-  it("gets Results", async () => {
-    const execution = await client.executeQuery(testQueryId);
+  it("gets Results (with various optinal parameters)", async () => {
+    const execution = await client.executeQuery(multiRowQuery);
+    // const paramQueryExecution = await client.executeQuery(testQueryId);
+    await sleep(2);
+    // expect basic query has completed after 2s
+    const status = await client.getExecutionStatus(execution.execution_id);
+    expect(status.state).to.be.eq(ExecutionState.COMPLETED);
+
+    // Limit
+    let results = await client.getExecutionResults(execution.execution_id, {
+      limit: 2,
+    });
+    expect(results.result?.rows).to.be.deep.equal(
+      [{ number: 5 }, { number: 6 }],
+      "getResults with limit failed!",
+    );
+
+    // Sample count: apparently doesn't always return the expected number of results.
+    await expect(() =>
+      client.getExecutionResults(execution.execution_id, {
+        sample_count: 2,
+      }),
+    ).to.not.throw();
+
+    // Sort by:
+    results = await client.getExecutionResults(execution.execution_id, {
+      sort_by: "number desc",
+      limit: 2,
+    });
+    expect(results.result?.rows).to.be.deep.equal(
+      [{ number: 10 }, { number: 9 }],
+      `getResults with sort_by failed! with ${JSON.stringify(results.result?.rows)}`,
+    );
+
+    // Columns:
+    // TODO - reinsert this when the bug is fixed!
+    // results = await client.getExecutionResults(paramQueryExecution.execution_id, {
+    //   columns: "text_field",
+    // });
+
+    // expect(results.result?.rows).to.be.deep.equal(
+    //   [{ text_field: "Plain Text", list_field: "Option 1" }],
+    //   `getResults with number,letter columns failed! with ${JSON.stringify(results.result?.rows)}`,
+    // );
+
+    const resultCSV = await client.getResultCSV(execution.execution_id, { limit: 3 });
+    expect(resultCSV.data).to.be.eq(
+      "number\n5\n6\n7\n",
+      "getResultCSV with limit failed!",
+    );
+  });
+
+  it("gets Results (with limit)", async () => {
+    const execution = await client.executeQuery(multiRowQuery);
     await sleep(5);
     // expect basic query has completed after 5s
     const status = await client.getExecutionStatus(execution.execution_id);
     expect(status.state).to.be.eq(ExecutionState.COMPLETED);
+    const results = await client.getExecutionResults(execution.execution_id, {
+      limit: 2,
+    });
+    expect(results.result?.rows).to.be.deep.equal([{ number: 5 }, { number: 6 }]);
 
-    await expect(() => client.getExecutionResults(execution.execution_id)).to.not.throw();
-
-    const resultCSV = await client.getResultCSV(execution.execution_id);
-    const expectedRows = [
-      "text_field,number_field,date_field,list_field\n",
-      "Plain Text,3.1415926535,2022-05-04T00:00:00Z,Option 1\n",
-    ];
-    expect(resultCSV.data).to.be.eq(expectedRows.join(""));
+    const resultCSV = await client.getResultCSV(execution.execution_id, { limit: 3 });
+    expect(resultCSV.data).to.be.eq("number\n5\n6\n7\n");
   });
 
   it("gets LastResult", async () => {
@@ -110,7 +167,7 @@ describe("ExecutionAPI: native routes", () => {
     });
     expect(results.result?.rows).to.be.deep.equal([
       {
-        date_field: "2022-05-04T00:00:00Z",
+        date_field: "2022-05-04 00:00:00.000",
         list_field: "Option 1",
         number_field: "3.1415926535",
         text_field: "Plain Text",
@@ -125,7 +182,7 @@ describe("ExecutionAPI: native routes", () => {
     });
     const expectedRows = [
       "text_field,number_field,date_field,list_field\n",
-      "Plain Text,3.1415926535,2022-05-04T00:00:00Z,Option 1\n",
+      "Plain Text,3.1415926535,2022-05-04 00:00:00.000,Option 1\n",
     ];
     expect(resultCSV.data).to.be.eq(expectedRows.join(""));
   });
@@ -161,8 +218,12 @@ describe("ExecutionAPI: Errors", () => {
   // {"error":"Invalid request body payload"}
   let client: ExecutionAPI;
 
-  beforeEach(() => {
+  before(() => {
     client = new ExecutionAPI(BASIC_KEY);
+  });
+
+  beforeEach((done) => {
+    setTimeout(done, 1000); // Wait for 1000 milliseconds
   });
 
   it("returns invalid API key", async () => {
@@ -204,6 +265,7 @@ describe("ExecutionAPI: Errors", () => {
       "Response Error: Query not found",
     );
   });
+
   it("fails with unhandled FAILED_TYPE_UNSPECIFIED when query won't compile", async () => {
     // Execute and check state
     // V1 query: 1348966

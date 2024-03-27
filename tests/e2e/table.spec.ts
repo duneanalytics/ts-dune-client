@@ -10,8 +10,12 @@ log.setLevel("silent", true);
 describe("Table API", () => {
   let tableClient: TableAPI;
 
-  beforeEach(() => {
+  before(() => {
     tableClient = new TableAPI(PLUS_KEY);
+  });
+
+  beforeEach((done) => {
+    setTimeout(done, 1000); // Wait for 1000 milliseconds
   });
 
   it("uploads CSV", async () => {

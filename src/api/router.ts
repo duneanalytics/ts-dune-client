@@ -120,7 +120,7 @@ export class Router {
       const searchParams = new URLSearchParams(payloadSearchParams(payload)).toString();
       queryParams = `?${searchParams}`;
     }
-
+    log.debug("Final request URL", url + queryParams);
     const response = fetch(url + queryParams, requestData);
     if (raw) {
       return response as T;
