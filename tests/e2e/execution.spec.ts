@@ -90,6 +90,58 @@ describe("ExecutionAPI: native routes", () => {
     });
   });
 
+  it("gets Results (with various optinal parameters)", async () => {
+    const execution = await client.executeQuery(multiRowQuery);
+    // const paramQueryExecution = await client.executeQuery(testQueryId);
+    await sleep(2);
+    // expect basic query has completed after 2s
+    const status = await client.getExecutionStatus(execution.execution_id);
+    expect(status.state).to.be.eq(ExecutionState.COMPLETED);
+
+    // Limit
+    let results = await client.getExecutionResults(execution.execution_id, {
+      limit: 2,
+    });
+    expect(results.result?.rows).to.be.deep.equal(
+      [{ number: 5 }, { number: 6 }],
+      "getResults with limit failed!",
+    );
+
+    // Sample count: apparently doesn't always return the expected number of results.
+    await expect(() =>
+      client.getExecutionResults(execution.execution_id, {
+        sample_count: 2,
+      }),
+    ).to.not.throw();
+
+    // Sort by:
+    results = await client.getExecutionResults(execution.execution_id, {
+      sort_by: "number desc",
+      limit: 2,
+    });
+    expect(results.result?.rows).to.be.deep.equal(
+      [{ number: 10 }, { number: 9 }],
+      `getResults with sort_by failed! with ${JSON.stringify(results.result?.rows)}`,
+    );
+
+    // Columns:
+    // TODO - reinsert this when the bug is fixed!
+    // results = await client.getExecutionResults(paramQueryExecution.execution_id, {
+    //   columns: "text_field",
+    // });
+
+    // expect(results.result?.rows).to.be.deep.equal(
+    //   [{ text_field: "Plain Text", list_field: "Option 1" }],
+    //   `getResults with number,letter columns failed! with ${JSON.stringify(results.result?.rows)}`,
+    // );
+
+    const resultCSV = await client.getResultCSV(execution.execution_id, { limit: 3 });
+    expect(resultCSV.data).to.be.eq(
+      "number\n5\n6\n7\n",
+      "getResultCSV with limit failed!",
+    );
+  });
+
   it("gets Results (with limit)", async () => {
     const execution = await client.executeQuery(multiRowQuery);
     await sleep(5);

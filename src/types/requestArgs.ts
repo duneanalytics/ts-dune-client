@@ -149,9 +149,19 @@ export function validateAndBuildGetResultParams({
     if (typeof columns === "string") {
       columns = columns.split(",");
     }
-    // Escape all quotes and add quotes around it
-    const output: string[] = columns.map((column) => `"${column.replace(/"/g, '\\"')}"`);
+    const output: string[] = columns.map((column) => {
+      // Check if the column contains quotes
+      if (column.includes('"')) {
+        // Escape quotes and add quotes around the entire string
+        return `"${column.replace(/"/g, '\\"')}"`;
+      } else {
+        // Leave the column unchanged
+        return column;
+      }
+    });
+
     columns = output.join(",");
+    console.log(columns);
   }
   if (sort_by !== undefined && Array.isArray(sort_by)) {
     sort_by = sort_by.join(",");
@@ -166,7 +176,7 @@ export function validateAndBuildGetResultParams({
     columns,
     query_parameters,
   };
-  return withDefaults(validated, { limit: MAX_NUM_ROWS_PER_BATCH });
+  return withDefaults(validated, {});
 }
 
 export interface ExecuteQueryParams extends BaseParams {
