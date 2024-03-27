@@ -12,12 +12,16 @@ describe("ExecutionAPI: native routes", () => {
   let testQueryId: number;
   let multiRowQuery: number;
 
-  beforeEach(() => {
+  before(() => {
     client = new ExecutionAPI(BASIC_KEY);
     // https://dune.com/queries/1215383
     testQueryId = 1215383;
     // https://dune.com/queries/3463180
     multiRowQuery = 3463180;
+  });
+
+  beforeEach((done) => {
+    setTimeout(done, 1000); // Wait for 1000 milliseconds
   });
 
   // This doesn't work if run too many times at once:
@@ -214,8 +218,12 @@ describe("ExecutionAPI: Errors", () => {
   // {"error":"Invalid request body payload"}
   let client: ExecutionAPI;
 
-  beforeEach(() => {
+  before(() => {
     client = new ExecutionAPI(BASIC_KEY);
+  });
+
+  beforeEach((done) => {
+    setTimeout(done, 1000); // Wait for 1000 milliseconds
   });
 
   it("returns invalid API key", async () => {
@@ -257,6 +265,7 @@ describe("ExecutionAPI: Errors", () => {
       "Response Error: Query not found",
     );
   });
+
   it("fails with unhandled FAILED_TYPE_UNSPECIFIED when query won't compile", async () => {
     // Execute and check state
     // V1 query: 1348966

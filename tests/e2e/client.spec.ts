@@ -11,7 +11,7 @@ describe("DuneClient Extensions", () => {
   let parameterizedQuery: number;
   let multiRowQuery: number;
 
-  beforeEach(() => {
+  before(() => {
     client = new DuneClient(BASIC_KEY);
     parameterizedQuery = 1215383;
     multiRowQuery = 3463180;
