@@ -1,7 +1,5 @@
 import assert from "assert";
 import { QueryParameter } from "./queryParameter";
-import { withDefaults } from "../utils";
-import { MAX_NUM_ROWS_PER_BATCH } from "../constants";
 
 /// Optional parameters for query exection.
 export interface ExecutionParams {
@@ -161,13 +159,16 @@ export function validateAndBuildGetResultParams({
     });
 
     columns = output.join(",");
-    console.log(columns);
   }
   if (sort_by !== undefined && Array.isArray(sort_by)) {
     sort_by = sort_by.join(",");
   }
   query_parameters = query_parameters || [];
-  const validated = {
+  return {
+    // It used to be the case that limit was required,
+    // but now that they have introduced some other filters that
+    // are incompatible with this field, it is no longer required.
+    // It is becomes required again later, we will need to use withDefaults here.
     limit,
     offset,
     sample_count,
@@ -176,7 +177,6 @@ export function validateAndBuildGetResultParams({
     columns,
     query_parameters,
   };
-  return withDefaults(validated, {});
 }
 
 export interface ExecuteQueryParams extends BaseParams {
