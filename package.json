@@ -1,11 +1,12 @@
 {
   "name": "@duneanalytics/client-sdk",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Ben Smith <bh2smith@gmail.com>",
   "description": "Node Client for Dune Analytics' officially supported API.",
   "repository": "git@github.com:bh2smith/ts-dune-client.git",
   "main": "index.js",
   "types": "index.d.ts",
+  "files": ["dist/**/*"],
   "scripts": {
     "build": "tsc",
     "test": "ts-mocha 'tests/**/*.spec.ts' -r dotenv/config --timeout 10000",

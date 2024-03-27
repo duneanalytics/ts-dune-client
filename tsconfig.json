@@ -7,8 +7,9 @@
     "moduleResolution": "node",
     "declaration": true,
     "outDir": "dist",
-    "strict": true
+    "strict": true,
+    "rootDir": "src"
   },
   "include": ["src"],
-  "exclude": ["node_modules", "tests"]
+  "exclude": ["node_modules", "dist", "tests"] // Added "dist" to avoid recompiling the output
 }
