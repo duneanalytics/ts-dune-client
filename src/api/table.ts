@@ -7,6 +7,8 @@ import {
   CreateTableArgs,
   InsertTableArgs,
   InsertTableResult,
+  DeleteTableArgs,
+  DeleteTableResult,
 } from "../types";
 import { withDefaults } from "../utils";
 
@@ -47,6 +49,17 @@ export class TableAPI extends Router {
       "table/create",
       withDefaults<CreateTableArgs>(args, { description: "", is_private: false }),
     );
+  }
+
+  /**
+   * https://docs.dune.com/api-reference/tables/endpoint/delete
+   * Delete a Dune table with the specified name and namespace.
+   *
+   * To be able to delete a table, it must have been created with the /create endpoint.
+   */
+  async delete(args: DeleteTableArgs): Promise<DeleteTableResult> {
+    const route = `table/${args.namespace}/${args.table_name}`;
+    return this._delete<DeleteTableResult>(route);
   }
 
   /**
