@@ -10,7 +10,7 @@ if (PLUS_API_KEY === undefined) {
 }
 export const BASIC_KEY: string = BASIC_API_KEY!;
 export const PLUS_KEY: string = PLUS_API_KEY!;
-export const DUNE_USER_NAME: string = DUNE_USER_NAME || "your_username";
+export const USER_NAME: string = DUNE_USER_NAME || "your_username";
 
 export const expectAsyncThrow = async (
   promise: Promise<unknown>,

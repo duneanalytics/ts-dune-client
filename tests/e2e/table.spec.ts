@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import log from "loglevel";
-import { PLUS_KEY, DUNE_USER_NAME } from "./util";
+import { PLUS_KEY, USER_NAME } from "./util";
 import * as fs from "fs/promises";
 import { TableAPI } from "../../src/api";
 import { ColumnType, ContentType } from "../../src";
@@ -14,7 +14,7 @@ describe("Table API", () => {
 
   before(() => {
     tableClient = new TableAPI(PLUS_KEY);
-    namespace = DUNE_USER_NAME;
+    namespace = USER_NAME;
   });
 
   beforeEach((done) => {
