@@ -16,6 +16,7 @@ enum RequestMethod {
   GET = "GET",
   POST = "POST",
   PATCH = "PATCH",
+  DELETE = "DELETE",
 }
 
 /**
@@ -114,14 +115,14 @@ export class Router {
         body,
       }),
     };
-    let queryParams = "";
+    let pathParams = "";
     /// Build Url Search Parameters on GET
     if (method === "GET" && payload) {
       const searchParams = new URLSearchParams(payloadSearchParams(payload)).toString();
-      queryParams = `?${searchParams}`;
+      pathParams = `?${searchParams}`;
     }
-    log.debug("Final request URL", url + queryParams);
-    const response = fetch(url + queryParams, requestData);
+    log.debug("Final request URL", url + pathParams);
+    const response = fetch(url + pathParams, requestData);
     if (raw) {
       return response as T;
     }
@@ -134,6 +135,10 @@ export class Router {
     raw: boolean = false,
   ): Promise<T> {
     return this._request<T>(RequestMethod.GET, this.url(route), params, raw);
+  }
+
+  protected async _delete<T>(route: string): Promise<T> {
+    return this._request<T>(RequestMethod.DELETE, this.url(route));
   }
 
   protected async _getByUrl<T>(

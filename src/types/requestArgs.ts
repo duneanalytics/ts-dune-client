@@ -224,6 +224,13 @@ export interface SchemaRecord {
   type: ColumnType;
 }
 
+export interface DeleteTableArgs {
+  /// The namespace of the table to delete (e.g. my_user).
+  namespace: string;
+  /// The name of the table to delete (e.g. interest_rates).
+  table_name: string;
+}
+
 export interface CreateTableArgs {
   /// A description of the table.
   description?: string;

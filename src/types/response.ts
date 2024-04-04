@@ -189,6 +189,11 @@ function concatResultMetadata(
   };
 }
 
+export interface DeleteTableResult {
+  /// The confirmation message of the deleted table
+  message: string;
+}
+
 export interface CreateTableResult {
   /// An example query to use on Dune querying your new table.
   example_query: string;

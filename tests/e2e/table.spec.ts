@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import log from "loglevel";
-import { PLUS_KEY } from "./util";
+import { PLUS_KEY, DUNE_USER_NAME } from "./util";
 import * as fs from "fs/promises";
 import { TableAPI } from "../../src/api";
 import { ColumnType, ContentType } from "../../src";
@@ -9,9 +9,12 @@ log.setLevel("silent", true);
 
 describe("Table API", () => {
   let tableClient: TableAPI;
+  let namespace: string;
+  const table_name = "dataset_e2e_test";
 
   before(() => {
     tableClient = new TableAPI(PLUS_KEY);
+    namespace = DUNE_USER_NAME;
   });
 
   beforeEach((done) => {
@@ -36,8 +39,6 @@ describe("Table API", () => {
 
   // Skipped because needs valid user name.
   it.skip("creates table", async () => {
-    const namespace = "your_username";
-    const table_name = "dataset_e2e_test";
     const createResult = await tableClient.create({
       namespace,
       table_name,
@@ -50,8 +51,8 @@ describe("Table API", () => {
     });
 
     expect(createResult).to.be.deep.equal({
-      namespace: namespace,
-      table_name: table_name,
+      namespace,
+      table_name,
       full_name: `dune.${namespace}.${table_name}`,
       example_query: `select * from dune.${namespace}.${table_name} limit 10`,
     });
@@ -60,8 +61,8 @@ describe("Table API", () => {
   it.skip("inserts JSON to Table", async () => {
     const data: Buffer = await fs.readFile("./tests/fixtures/sample_table_insert.json");
     const insertResult = await tableClient.insert({
-      namespace: "your_username",
-      table_name: "dataset_e2e_test",
+      namespace,
+      table_name,
       data,
       content_type: ContentType.NDJson,
     });
@@ -72,11 +73,21 @@ describe("Table API", () => {
   it.skip("inserts CSV to Table", async () => {
     const data = await fs.readFile("./tests/fixtures/sample_table_insert.csv");
     const insertResult = await tableClient.insert({
-      namespace: "your_username",
-      table_name: "dataset_e2e_test",
+      namespace,
+      table_name,
       data,
       content_type: ContentType.Csv,
     });
     expect(insertResult).to.be.deep.equal({ rows_written: 1 });
+  });
+
+  it.skip("deletes table", async () => {
+    const result = await tableClient.delete({
+      namespace,
+      table_name,
+    });
+    expect(result).to.be.deep.equal({
+      message: `Table ${namespace}.dataset_e2e_test successfully deleted`,
+    });
   });
 });
