@@ -4,11 +4,11 @@ import { QueryParameter } from "./queryParameter";
 /// Optional parameters for query exection.
 export interface ExecutionParams {
   query_parameters?: QueryParameter[];
-  performance?: ExecutionPerformance;
+  performance?: QueryEngine;
 }
 
 /// Choice of execution engine when executing query via API [default = medium]
-export enum ExecutionPerformance {
+export enum QueryEngine {
   Medium = "medium",
   Large = "large",
 }
@@ -184,7 +184,7 @@ export interface ExecuteQueryParams extends BaseParams {
   /// Can be either medium or large.
   /// Medium consumes 10 credits, and large consumes 20 credits, per run.
   /// Default is medium.
-  performance: ExecutionPerformance;
+  performance: QueryEngine;
 }
 
 export interface BaseCRUDParams extends BaseParams {

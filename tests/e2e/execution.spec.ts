@@ -1,8 +1,8 @@
 import { expect } from "chai";
 import { QueryParameter, ExecutionState, ExecutionAPI } from "../../src";
 import log from "loglevel";
-import { ExecutionPerformance } from "../../src/types/requestArgs";
-import { BASIC_KEY, expectAsyncThrow } from "./util";
+import { QueryEngine } from "../../src/types/requestArgs";
+import { BASIC_KEY, PLUS_KEY, expectAsyncThrow } from "./util";
 import { sleep } from "../../src/utils";
 
 log.setLevel("silent", true);
@@ -69,9 +69,10 @@ describe("ExecutionAPI: native routes", () => {
     expect(execution.execution_id).is.not.eq(null);
   });
 
-  it("execute with Large tier performance", async () => {
+  it("executes with Large tier performance", async () => {
+    client = new ExecutionAPI(PLUS_KEY);
     const execution = await client.executeQuery(testQueryId, {
-      performance: ExecutionPerformance.Large,
+      performance: QueryEngine.Large,
     });
     expect(execution.execution_id).is.not.eq(null);
   });
