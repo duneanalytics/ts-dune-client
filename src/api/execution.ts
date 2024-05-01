@@ -9,7 +9,7 @@ import {
   SuccessResponse,
   LatestResultsResponse,
   ExecutionParams,
-  ExecutionPerformance,
+  QueryEngine,
   GetResultParams,
   validateAndBuildGetResultParams,
 } from "../types";
@@ -37,15 +37,10 @@ export class ExecutionAPI extends Router {
    */
   async executeQuery(
     queryID: number,
-    params?: ExecutionParams,
+    params: ExecutionParams = {},
   ): Promise<ExecutionResponse> {
     // Extract possible ExecutionParams
-    let query_parameters: QueryParameter[] = [];
-    let performance = ExecutionPerformance.Medium;
-    if (params !== undefined) {
-      query_parameters = params.query_parameters ? params.query_parameters : [];
-      performance = performance ? performance : ExecutionPerformance.Medium;
-    }
+    const { query_parameters = [], performance = QueryEngine.Medium } = params;
 
     const response = await this.post<ExecutionResponse>(`query/${queryID}/execute`, {
       query_parameters,
