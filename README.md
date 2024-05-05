@@ -12,22 +12,23 @@ yarn add @duneanalytics/client-sdk
 ```
 
 ```ts
-import { QueryParameter, DuneClient } from "@duneanalytics/client-sdk";
+import { QueryParameter, DuneClient, RunQueryArgs } from "@duneanalytics/client-sdk";
 const { DUNE_API_KEY } = process.env;
 
 const client = new DuneClient(DUNE_API_KEY ?? "");
-const queryID = 1215383;
-const params = {
-  query_parameters = [
+const queryId = 1215383;
+const opts: RunQueryArgs = {
+  queryId,
+  query_parameters: [
     QueryParameter.text("TextField", "Plain Text"),
     QueryParameter.number("NumberField", 3.1415926535),
     QueryParameter.date("DateField", "2022-05-04 00:00:00"),
     QueryParameter.enum("ListField", "Option 1"),
-  ]
+  ],
 };
 
 client
-  .runQuery(queryID, params)
+  .runQuery(opts)
   .then((executionResult) => console.log(executionResult.result?.rows));
 
 // should look like
