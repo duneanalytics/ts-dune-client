@@ -44,6 +44,12 @@ export class DuneClient {
   /// Table Management Interface
   table: TableAPI;
 
+  /**
+   * Constructor for the DuneClient.
+   *
+   * @param {string} apiKey
+   * @returns Execution Results
+   */
   constructor(apiKey: string) {
     this.exec = new ExecutionAPI(apiKey);
     this.query = new QueryAPI(apiKey);
