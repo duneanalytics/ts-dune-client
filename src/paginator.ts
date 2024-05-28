@@ -64,9 +64,8 @@ export class Paginator {
       const nextPage = await this.getPage(this.currentPageNumber + 1);
       this.currentPageNumber++;
       return nextPage;
-    } else {
-      console.log("You are already on the last page!");
     }
+    console.warn("You are already on the last page!");
   }
 
   async previousPage(): Promise<Page | undefined> {
@@ -74,9 +73,8 @@ export class Paginator {
       const previousPage = await this.getPage(this.currentPageNumber - 1);
       this.currentPageNumber--;
       return previousPage;
-    } else {
-      console.log("You are already on the first page.");
     }
+    console.warn("You are already on the first page.");
   }
 
   async lastPage(): Promise<Page | undefined> {
@@ -104,11 +102,10 @@ export class Paginator {
       };
       this.pageCache.set(n, pageN);
       return pageN;
-    } else {
-      console.warn(
-        `Invalid page number requested ${n}: Must be contained in [1, ${this.maxPage()}]`,
-      );
     }
+    console.warn(
+      `Invalid page number requested ${n}: Must be contained in [1, ${this.maxPage()}]`,
+    );
   }
 
   public getCurrentPageValues(): Page {
