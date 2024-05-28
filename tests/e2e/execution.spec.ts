@@ -168,7 +168,7 @@ describe("ExecutionAPI: native routes", () => {
     });
     expect(results.result?.rows).to.be.deep.equal([
       {
-        date_field: "2022-05-04 00:00:00.000",
+        date_field: "2022-05-04 00:00:00",
         list_field: "Option 1",
         number_field: "3.1415926535",
         text_field: "Plain Text",
@@ -183,15 +183,15 @@ describe("ExecutionAPI: native routes", () => {
     });
     const expectedRows = [
       "text_field,number_field,date_field,list_field\n",
-      "Plain Text,3.1415926535,2022-05-04 00:00:00.000,Option 1\n",
+      "Plain Text,3.1415926535,2022-05-04 00:00:00,Option 1\n",
     ];
     expect(resultCSV.data).to.be.eq(expectedRows.join(""));
   });
 
   /// Pagination
   it("uses pagination parameters", async () => {
-    // This execution was run with StartFrom = 1.
-    const result = await client.getExecutionResults("01HQJ996M17AB1D7EWDMPZ79ZS", {
+    // This execution was run with StartFrom = 1 on queryId = 3463180.
+    const result = await client.getExecutionResults("01HZ0KTJEC24251CM5SN8FFR26", {
       limit: 2,
       offset: 1,
     });
@@ -204,7 +204,7 @@ describe("ExecutionAPI: native routes", () => {
       },
     ]);
 
-    const resultCSV = await client.getResultCSV("01HQJ996M17AB1D7EWDMPZ79ZS", {
+    const resultCSV = await client.getResultCSV("01HZ0KTJEC24251CM5SN8FFR26", {
       limit: 1,
       offset: 2,
     });

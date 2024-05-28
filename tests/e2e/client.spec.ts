@@ -25,7 +25,7 @@ describe("DuneClient Extensions", () => {
     });
     expect(results.result?.rows).to.be.deep.equal([
       {
-        date_field: "2022-05-04 00:00:00.000",
+        date_field: "2022-05-04 00:00:00",
         list_field: "Option 1",
         number_field: "3.1415926535",
         text_field: "Plain Text",
@@ -64,7 +64,7 @@ describe("DuneClient Extensions", () => {
     expect(results.data).to.be.equal(
       [
         "text_field,number_field,date_field,list_field\n",
-        "Plain Text,3.1415926535,2022-05-04 00:00:00.000,Option 1\n",
+        "Plain Text,3.1415926535,2022-05-04 00:00:00,Option 1\n",
       ].join(""),
     );
 
