@@ -3,9 +3,9 @@ import log from "loglevel";
 import { BASIC_KEY } from "./util";
 import { expect } from "chai";
 
-log.setLevel("debug", true);
+log.setLevel("silent", true);
 
-describe("DuneClient Extensions", () => {
+describe("Custom API", () => {
   let client: CustomAPI;
   const slug = "test-custom-api";
 
@@ -14,7 +14,8 @@ describe("DuneClient Extensions", () => {
   });
 
   // Skip: This endpoint is very "user specific"
-  it.skip("executes custom api fetch", async () => {
+  it.skip("retrieves data from custom endpoint", async () => {
+    // Note: for DuneClient class this would be `client.custom.getResults`
     const results = await client.getResults({
       username: "bh2smith",
       slug,

@@ -23,6 +23,7 @@ import { ExecutionAPI } from "./execution";
 import { POLL_FREQUENCY_SECONDS } from "../constants";
 import { QueryAPI } from "./query";
 import { TableAPI } from "./table";
+import { CustomAPI } from "./custom";
 
 /// Various states of query execution that are "terminal".
 const TERMINAL_STATES = [
@@ -43,11 +44,14 @@ export class DuneClient {
   query: QueryAPI;
   /// Table Management Interface
   table: TableAPI;
+  /// Custom Endpoint Interface
+  custom: CustomAPI;
 
   constructor(apiKey: string) {
     this.exec = new ExecutionAPI(apiKey);
     this.query = new QueryAPI(apiKey);
     this.table = new TableAPI(apiKey);
+    this.custom = new CustomAPI(apiKey);
   }
 
   /**
