@@ -129,6 +129,13 @@ export interface GetResultParams extends BaseParams {
   columns?: string[] | string;
 }
 
+export interface CustomAPIParams extends Omit<GetResultParams, "query_parameters"> {
+  /// Custom endpoint username
+  username: string;
+  /// Custom endpoint slug
+  slug: string;
+}
+
 export function validateAndBuildGetResultParams({
   limit,
   offset,
