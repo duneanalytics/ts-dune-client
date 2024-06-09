@@ -42,24 +42,6 @@ client
 //  ]
 ```
 
-<<<<<<< Updated upstream
-=======
-## Custom API
-
-```ts
-const { DUNE_API_KEY } = process.env;
-
-const client = new DuneClient(DUNE_API_KEY!);
-const results = await client.custom.getResults({
-  username: "your_username", 
-  slug: "endpoint-slug"
-  // optional arguments: see `GetResultParams`
-  limit: 100,
-});
-```
-
-
->>>>>>> Stashed changes
 Note also that the client has methods `executeQuery`, `getExecutionStatus`, `getExecutionResult` and `cancelExecution`
 
 Check out this [Demo Project](https://github.com/bh2smith/demo-ts-dune-client)!
