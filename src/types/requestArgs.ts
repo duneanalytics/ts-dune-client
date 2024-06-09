@@ -129,10 +129,20 @@ export interface GetResultParams extends BaseParams {
   columns?: string[] | string;
 }
 
+/**
+ * Custom API parameters for creating and managing custom endpoints.
+ * Extends GetResultParams but omits 'query_parameters'.
+ *
+ * @extends {Omit<GetResultParams, "query_parameters">}
+ */
 export interface CustomAPIParams extends Omit<GetResultParams, "query_parameters"> {
-  /// Custom endpoint username
+  /**
+   * Custom endpoint username.
+   */
   username: string;
-  /// Custom endpoint slug
+  /**
+   * Custom endpoint slug.
+   */
   slug: string;
 }
 
