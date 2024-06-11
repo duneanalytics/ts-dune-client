@@ -212,21 +212,21 @@ export interface ExecuteQueryParams extends BaseParams {
 }
 
 export interface BaseCRUDParams extends BaseParams {
-  /*
+  /**
    * Description of the query.
    */
   description?: string;
-  /*
+  /**
    * Name of the query.
    */
   name?: string;
-  /*
+  /**
    * The SQL query text.
    */
   query_sql: string;
 }
 
-/*
+/**
  * Payload sent with query update requests.
  */
 export interface UpdateQueryParams extends BaseCRUDParams {
