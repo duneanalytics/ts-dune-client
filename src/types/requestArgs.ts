@@ -137,9 +137,9 @@ export interface GetResultParams extends BaseParams {
  */
 export interface CustomAPIParams extends Omit<GetResultParams, "query_parameters"> {
   /**
-   * Custom endpoint username.
+   * The team or user handle owning the custom endpoint.
    */
-  username: string;
+  handle: string;
   /**
    * Custom endpoint slug.
    */

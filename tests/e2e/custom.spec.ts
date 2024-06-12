@@ -17,7 +17,7 @@ describe("Custom API", () => {
   it.skip("retrieves data from custom endpoint", async () => {
     // Note: for DuneClient class this would be `client.custom.getResults`
     const results = await client.getResults({
-      username: "bh2smith",
+      handle: "bh2smith",
       slug,
       limit: 1,
     });

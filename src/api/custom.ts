@@ -22,7 +22,7 @@ export class CustomAPI extends Router {
    */
   async getResults(args: CustomAPIParams): Promise<ResultsResponse> {
     const x = await this._get<ResultsResponse>(
-      `endpoints/${args.username}/${args.slug}/results`,
+      `endpoints/${args.handle}/${args.slug}/results`,
       args,
     );
 
