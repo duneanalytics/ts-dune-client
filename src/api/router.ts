@@ -58,14 +58,12 @@ export class Router {
       const response = await responsePromise;
       if (!response.ok) {
         const errorText = await response.text();
-        throw new DuneError(
-          `HTTP error! Status: ${response.status}, Message: ${errorText}`,
-        );
+        throw new DuneError(`HTTP - Status: ${response.status}, Message: ${errorText}`);
       }
 
       return (await response.json()) as T;
     } catch (error) {
-      log.error(logPrefix, `caught unhandled response error ${JSON.stringify(error)}`);
+      log.error(logPrefix, error);
       throw new DuneError(`Response ${error}`);
     }
   }
