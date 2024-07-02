@@ -54,39 +54,20 @@ export class Router {
   }
 
   protected async _handleResponse<T>(responsePromise: Promise<Response>): Promise<T> {
-    let result;
     try {
       const response = await responsePromise;
-
       if (!response.ok) {
-        log.error(
-          logPrefix,
-          `response error ${response.status} - ${response.statusText}`,
+        const errorText = await response.text();
+        throw new DuneError(
+          `HTTP error! Status: ${response.status}, Message: ${errorText}`,
         );
-      }
-      const clonedResponse = response.clone();
-      try {
-        // Attempt to parse JSON
-        result = await response.json();
-      } catch {
-        // Fallback to text if JSON parsing fails
-        // This fallback is used for CSV retrieving methods.
-        result = await clonedResponse.text();
       }
 
-      // Check for error in result after parsing
-      if (result.error) {
-        log.error(logPrefix, `error contained in response ${JSON.stringify(result)}`);
-        // Assuming DuneError is a custom Error you'd like to throw
-        throw new DuneError(
-          result.error instanceof Object ? result.error.type : result.error,
-        );
-      }
+      return (await response.json()) as T;
     } catch (error) {
       log.error(logPrefix, `caught unhandled response error ${JSON.stringify(error)}`);
       throw new DuneError(`Response ${error}`);
     }
-    return result;
   }
 
   protected async _request<T>(
@@ -119,7 +100,7 @@ export class Router {
     /// Build Url Search Parameters on GET
     if (method === "GET" && payload) {
       const searchParams = new URLSearchParams(payloadSearchParams(payload)).toString();
-      pathParams = `?${searchParams}`;
+      pathParams = searchParams ? `?${searchParams}` : "";
     }
     log.debug("Final request URL", url + pathParams);
     const response = fetch(url + pathParams, requestData);
