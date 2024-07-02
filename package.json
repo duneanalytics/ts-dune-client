@@ -1,6 +1,6 @@
 {
   "name": "@duneanalytics/client-sdk",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "Ben Smith <bh2smith@gmail.com>",
   "description": "Node Client for Dune Analytics' officially supported API.",
   "repository": "git@github.com:duneanalytics/ts-dune-client.git",
