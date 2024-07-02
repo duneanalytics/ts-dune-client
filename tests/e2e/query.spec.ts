@@ -53,13 +53,13 @@ describe("QueryAPI: Errors", () => {
     basicClient = new QueryAPI(BASIC_KEY);
   });
 
-  it("Basic Plan Failure", async () => {
+  it.only("Basic Plan Failure", async () => {
     await expectAsyncThrow(
       basicClient.createQuery({
         name: "Query Name",
         query_sql: "select 1",
       }),
-      PREMIUM_PLAN_MESSAGE,
+      `Response Error: ${PREMIUM_PLAN_MESSAGE}`,
     );
   });
 });
