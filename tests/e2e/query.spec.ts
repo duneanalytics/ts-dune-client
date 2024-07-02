@@ -2,8 +2,6 @@ import { expect } from "chai";
 import { QueryParameter, QueryAPI } from "../../src";
 import { PLUS_KEY, BASIC_KEY, expectAsyncThrow } from "./util";
 
-const PREMIUM_PLAN_MESSAGE = `HTTP Error - Status: 403, Message: {"error":"Query management endpoints are only available in our paid plans. Please upgrade to a paid plan to use it."}`;
-
 describe("QueryAPI: Premium - CRUD Operations", () => {
   let plusClient: QueryAPI;
 
@@ -53,13 +51,13 @@ describe("QueryAPI: Errors", () => {
     basicClient = new QueryAPI(BASIC_KEY);
   });
 
-  it.only("Basic Plan Failure", async () => {
+  it("Basic Plan Failure", async () => {
     await expectAsyncThrow(
       basicClient.createQuery({
         name: "Query Name",
         query_sql: "select 1",
       }),
-      `Response Error: ${PREMIUM_PLAN_MESSAGE}`,
+      `Response Error: HTTP - Status: 403, Message: {"error":"Query management endpoints are only available in our paid plans. Please upgrade to a paid plan to use it."}`,
     );
   });
 });
