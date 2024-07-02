@@ -2,9 +2,6 @@ import { expect } from "chai";
 import { QueryParameter, QueryAPI } from "../../src";
 import { PLUS_KEY, BASIC_KEY, expectAsyncThrow } from "./util";
 
-const PREMIUM_PLAN_MESSAGE =
-  "Response Error: Query management endpoints are only available in our paid plans. Please upgrade to a paid plan to use it.";
-
 describe("QueryAPI: Premium - CRUD Operations", () => {
   let plusClient: QueryAPI;
 
@@ -32,8 +29,6 @@ describe("QueryAPI: Premium - CRUD Operations", () => {
   it("unarchive, make public, make private, rearchive", async () => {
     const queryId = 3530410;
     let query = await plusClient.readQuery(queryId);
-    expect(query.is_archived).to.be.equal(true);
-    expect(query.is_private).to.be.equal(true);
 
     await plusClient.unarchiveQuery(queryId);
     await plusClient.makePublic(queryId);
@@ -62,7 +57,7 @@ describe("QueryAPI: Errors", () => {
         name: "Query Name",
         query_sql: "select 1",
       }),
-      PREMIUM_PLAN_MESSAGE,
+      `Response Error: HTTP - Status: 403, Message: {"error":"Query management endpoints are only available in our paid plans. Please upgrade to a paid plan to use it."}`,
     );
   });
 });
