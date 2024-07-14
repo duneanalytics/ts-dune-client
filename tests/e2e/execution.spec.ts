@@ -229,55 +229,59 @@ describe("ExecutionAPI: Errors", () => {
 
   it("returns invalid API key", async () => {
     const bad_client = new ExecutionAPI("Bad Key");
-    await expectAsyncThrow(bad_client.executeQuery(1), "Response Error: invalid API Key");
+    await expectAsyncThrow(
+      bad_client.executeQuery(1),
+      `Response Error: HTTP - Status: 401, Message: {"error":"invalid API Key"}`,
+    );
   });
 
   it("returns query not found error", async () => {
-    await expectAsyncThrow(
-      client.executeQuery(999999999),
-      "Response Error: Query not found",
-    );
-    await expectAsyncThrow(client.executeQuery(0), "Response Error: Query not found");
+    const message = `Response Error: HTTP - Status: 404, Message: {"error":"Query not found"}`;
+    await expectAsyncThrow(client.executeQuery(999999999), message);
+    await expectAsyncThrow(client.executeQuery(0), message);
   });
 
   it("returns invalid job id", async () => {
     const invalidJobID = "Wonky Job ID";
-    const expectedErrorMessage = `Response Error: The requested execution ID (ID: ${invalidJobID}) is invalid.`;
-    await expectAsyncThrow(client.getExecutionStatus(invalidJobID), expectedErrorMessage);
-    await expectAsyncThrow(
-      client.getExecutionResults(invalidJobID),
-      expectedErrorMessage,
-    );
-    await expectAsyncThrow(client.cancelExecution(invalidJobID), expectedErrorMessage);
+    const errorMessage = `Response Error: HTTP - Status: 400, Message: {"error":"The requested execution ID (ID: ${invalidJobID}) is invalid."}`;
+    await expectAsyncThrow(client.getExecutionStatus(invalidJobID), errorMessage);
+    await expectAsyncThrow(client.getExecutionResults(invalidJobID), errorMessage);
+    await expectAsyncThrow(client.cancelExecution(invalidJobID), errorMessage);
   });
   it("fails execute with unknown query parameter", async () => {
     const queryID = 1215383;
-    const invalidParameterName = "Invalid Parameter Name";
+    const invalidParameterName = "Invalid Parameter";
+    const errorMessage = `Response Error: HTTP - Status: 400, Message: {"error":"unknown parameters (${invalidParameterName})"}`;
     await expectAsyncThrow(
       client.executeQuery(queryID, {
         query_parameters: [QueryParameter.text(invalidParameterName, "")],
       }),
-      `Response Error: unknown parameters (${invalidParameterName})`,
+      errorMessage,
     );
   });
   it("does not allow to execute private queries for other accounts.", async () => {
     await expectAsyncThrow(
       client.executeQuery(1348384),
-      "Response Error: Query not found",
+      `Response Error: HTTP - Status: 404, Message: {"error":"Query not found"}`,
     );
   });
 
   it("fails with unhandled FAILED_TYPE_UNSPECIFIED when query won't compile", async () => {
     // Execute and check state
     // V1 query: 1348966
-    await expectAsyncThrow(
-      client.getExecutionResults("01GEHG4AY1Z9JBR3BYB20E7RGH"),
-      "Response Error: FAILED_TYPE_EXECUTION_FAILED",
-    );
-    // V2 -query: :1349019
-    await expectAsyncThrow(
-      client.getExecutionResults("01GEHGXHQ25XWMVFJ4G2HZ5MGS"),
-      "Response Error: FAILED_TYPE_EXECUTION_FAILED",
-    );
+    const result = await client.getExecutionResults("01GEHG4AY1Z9JBR3BYB20E7RGH");
+    expect(result.error).to.be.deep.equal({
+      type: "FAILED_TYPE_EXECUTION_FAILED",
+      message:
+        'column "x" does not exist at line 1, position 8 [Execution ID: 01GEHG4AY1Z9JBR3BYB20E7RGH]',
+      metadata: { line: 1, column: 8 },
+    });
+
+    const result2 = await client.getExecutionResults("01GEHGXHQ25XWMVFJ4G2HZ5MGS");
+    expect(result2.error).to.be.deep.equal({
+      type: "FAILED_TYPE_EXECUTION_FAILED",
+      message:
+        "{42000} [Simba][Hardy] (80) Syntax or semantic analysis error thrown in server while executing query. Error message from server: org.apache.hive.service.cli.HiveSQLException: Error running query: [UNRESOLVED_COLUMN] org.apache.spark.sql.AnalysisException: [UNRESOLVED_COLUMN] A column or function parameter with name `x` cannot be resolved. Did you mean one of the following? []; line [Execution ID: 01GEHGXHQ25XWMVFJ4G2HZ5MGS]",
+    });
   });
 });
