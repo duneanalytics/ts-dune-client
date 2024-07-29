@@ -1,3 +1,9 @@
+Co-author/creator @deuces9ers
+Nathaniel J. Hooker
+
+
+
+
 [![Styled With Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io/)
 [![Build](https://github.com/bh2smith/ts-dune-client/actions/workflows/pull-request.yaml/badge.svg)](https://github.com/bh2smith/ts-dune-client/actions/workflows/pull-request.yaml/badge.svg)
 
