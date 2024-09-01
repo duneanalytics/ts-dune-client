@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import log from "loglevel";
 import { PLUS_KEY, USER_NAME } from "./util";
 import * as fs from "fs/promises";
@@ -12,7 +11,7 @@ describe("Table API", () => {
   let namespace: string;
   const table_name = "dataset_e2e_test";
 
-  before(() => {
+  beforeAll(() => {
     tableClient = new TableAPI(PLUS_KEY);
     namespace = USER_NAME;
   });
@@ -27,14 +26,14 @@ describe("Table API", () => {
       description: "testing csv upload from node",
       data: "column1,column2\nvalue1,value2\nvalue3,value4",
     });
-    expect(public_success).to.be.equal(true);
+    expect(public_success).toEqual(true);
 
     const private_success = await tableClient.uploadCsv({
       table_name: "ts_client_test_private",
       data: "column1,column2\nvalue1,value2\nvalue3,value4",
       is_private: true,
     });
-    expect(private_success).to.be.equal(true);
+    expect(private_success).toEqual(true);
   });
 
   // Skipped because needs valid user name.
@@ -50,7 +49,7 @@ describe("Table API", () => {
       is_private: false,
     });
 
-    expect(createResult).to.be.deep.equal({
+    expect(createResult).toEqual({
       namespace,
       table_name,
       full_name: `dune.${namespace}.${table_name}`,
@@ -67,7 +66,7 @@ describe("Table API", () => {
       content_type: ContentType.NDJson,
     });
 
-    expect(insertResult).to.be.deep.equal({ rows_written: 1 });
+    expect(insertResult).toEqual({ rows_written: 1 });
   });
 
   it.skip("inserts CSV to Table", async () => {
@@ -78,7 +77,7 @@ describe("Table API", () => {
       data,
       content_type: ContentType.Csv,
     });
-    expect(insertResult).to.be.deep.equal({ rows_written: 1 });
+    expect(insertResult).toEqual({ rows_written: 1 });
   });
 
   it.skip("deletes table", async () => {
@@ -86,7 +85,7 @@ describe("Table API", () => {
       namespace,
       table_name,
     });
-    expect(result).to.be.deep.equal({
+    expect(result).toEqual({
       message: `Table ${namespace}.dataset_e2e_test successfully deleted`,
     });
   });

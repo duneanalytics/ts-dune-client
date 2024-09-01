@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import { QueryParameter, ExecutionState, ExecutionAPI } from "../../src";
 import log from "loglevel";
 import { QueryEngine } from "../../src/types/requestArgs";
@@ -12,7 +11,7 @@ describe("ExecutionAPI: native routes", () => {
   let testQueryId: number;
   let multiRowQuery: number;
 
-  before(() => {
+  beforeAll(() => {
     client = new ExecutionAPI(BASIC_KEY);
     // https://dune.com/queries/1215383
     testQueryId = 1215383;
@@ -31,14 +30,11 @@ describe("ExecutionAPI: native routes", () => {
     const queryID = 1229120;
     // Execute and check state
     const execution = await client.executeQuery(queryID);
-    expect(execution.state).to.be.oneOf([
-      ExecutionState.PENDING,
-      ExecutionState.EXECUTING,
-    ]);
+    expect([ExecutionState.PENDING, ExecutionState.EXECUTING]).toContain(execution.state);
 
     // Cancel execution and verify it was canceled.
     const canceled = await client.cancelExecution(execution.execution_id);
-    expect(canceled).to.be.eq(true);
+    expect(canceled).toEqual(true);
 
     // Get execution status
     const status = await client.getExecutionStatus(execution.execution_id);
@@ -52,7 +48,7 @@ describe("ExecutionAPI: native routes", () => {
       execution_id: status.execution_id,
       query_id: status.query_id,
     };
-    expect(expectedStatus).to.be.deep.equal(strippedStatus);
+    expect(expectedStatus).toEqual(strippedStatus);
   });
 
   it("successfully executes with query parameters", async () => {
@@ -66,7 +62,7 @@ describe("ExecutionAPI: native routes", () => {
     const execution = await client.executeQuery(testQueryId, {
       query_parameters: parameters,
     });
-    expect(execution.execution_id).is.not.eq(null);
+    expect(execution.execution_id).not.toEqual(null);
   });
 
   it("executes with Large tier performance", async () => {
@@ -74,14 +70,14 @@ describe("ExecutionAPI: native routes", () => {
     const execution = await client.executeQuery(testQueryId, {
       performance: QueryEngine.Large,
     });
-    expect(execution.execution_id).is.not.eq(null);
+    expect(execution.execution_id).not.toEqual(null);
   });
 
   it("returns expected results on cancelled query exection", async () => {
     // Execute and check state
     const cancelledExecutionId = "01GEHEC1W8P1V5ENF66R2WY54V";
     const result = await client.getExecutionResults(cancelledExecutionId);
-    expect(result).to.deep.equal({
+    expect(result).toEqual({
       execution_id: cancelledExecutionId,
       query_id: 1229120,
       state: "QUERY_STATE_CANCELLED",
@@ -101,33 +97,27 @@ describe("ExecutionAPI: native routes", () => {
     await sleep(2);
     // expect basic query has completed after 2s
     const status = await client.getExecutionStatus(execution.execution_id);
-    expect(status.state).to.be.eq(ExecutionState.COMPLETED);
+    expect(status.state).toEqual(ExecutionState.COMPLETED);
 
     // Limit
     let results = await client.getExecutionResults(execution.execution_id, {
       limit: 2,
     });
-    expect(results.result?.rows).to.be.deep.equal(
-      [{ number: 5 }, { number: 6 }],
-      "getResults with limit failed!",
-    );
+    expect(results.result?.rows).toEqual([{ number: 5 }, { number: 6 }]);
 
     // Sample count: apparently doesn't always return the expected number of results.
     await expect(() =>
       client.getExecutionResults(execution.execution_id, {
         sample_count: 2,
       }),
-    ).to.not.throw();
+    ).not.toThrow();
 
     // Sort by:
     results = await client.getExecutionResults(execution.execution_id, {
       sort_by: "number desc",
       limit: 2,
     });
-    expect(results.result?.rows).to.be.deep.equal(
-      [{ number: 10 }, { number: 9 }],
-      `getResults with sort_by failed! with ${JSON.stringify(results.result?.rows)}`,
-    );
+    expect(results.result?.rows).toEqual([{ number: 10 }, { number: 9 }]);
 
     // Columns:
     // TODO - reinsert this when the bug is fixed!
@@ -135,38 +125,36 @@ describe("ExecutionAPI: native routes", () => {
     //   columns: "text_field",
     // });
 
-    // expect(results.result?.rows).to.be.deep.equal(
+    // expect(results.result?.rows).toEqual(
     //   [{ text_field: "Plain Text", list_field: "Option 1" }],
     //   `getResults with number,letter columns failed! with ${JSON.stringify(results.result?.rows)}`,
     // );
 
     const resultCSV = await client.getResultCSV(execution.execution_id, { limit: 3 });
-    expect(resultCSV.data).to.be.eq(
-      "number\n5\n6\n7\n",
-      "getResultCSV with limit failed!",
-    );
+    expect(resultCSV.data).toEqual("number\n5\n6\n7\n");
   });
 
   it("gets Results (with limit)", async () => {
-    const execution = await client.executeQuery(multiRowQuery);
-    await sleep(5);
+    const {
+      results: { execution_id },
+    } = await client.getLastExecutionResults(multiRowQuery);
     // expect basic query has completed after 5s
-    const status = await client.getExecutionStatus(execution.execution_id);
-    expect(status.state).to.be.eq(ExecutionState.COMPLETED);
-    const results = await client.getExecutionResults(execution.execution_id, {
+    const status = await client.getExecutionStatus(execution_id);
+    expect(status.state).toEqual(ExecutionState.COMPLETED);
+    const results = await client.getExecutionResults(execution_id, {
       limit: 2,
     });
-    expect(results.result?.rows).to.be.deep.equal([{ number: 5 }, { number: 6 }]);
+    expect(results.result?.rows).toEqual([{ number: 3 }, { number: 4 }]);
 
-    const resultCSV = await client.getResultCSV(execution.execution_id, { limit: 3 });
-    expect(resultCSV.data).to.be.eq("number\n5\n6\n7\n");
+    const resultCSV = await client.getResultCSV(execution_id, { limit: 3 });
+    expect(resultCSV.data).toEqual("number\n3\n4\n5\n");
   });
 
   it("gets LastResult", async () => {
     const { results } = await client.getLastExecutionResults(testQueryId, {
       query_parameters: [QueryParameter.text("TextField", "Plain Text")],
     });
-    expect(results.result?.rows).to.be.deep.equal([
+    expect(results.result?.rows).toEqual([
       {
         date_field: "2022-05-04 00:00:00",
         list_field: "Option 1",
@@ -185,31 +173,31 @@ describe("ExecutionAPI: native routes", () => {
       "text_field,number_field,date_field,list_field\n",
       "Plain Text,3.1415926535,2022-05-04 00:00:00,Option 1\n",
     ];
-    expect(resultCSV.data).to.be.eq(expectedRows.join(""));
+    expect(resultCSV.data).toEqual(expectedRows.join(""));
   });
 
   /// Pagination
   it("uses pagination parameters", async () => {
     // This execution was run with StartFrom = 1 on queryId = 3463180.
-    const result = await client.getExecutionResults("01HZ0KTJEC24251CM5SN8FFR26", {
+    const result = await client.getExecutionResults("01J6QN9Z16TP20YCWK6Z2TM0KJ", {
       limit: 2,
       offset: 1,
     });
-    expect(result.result?.rows).to.be.deep.equal([
+    expect(result.result?.rows).toEqual([
       {
-        number: 2,
+        number: 6,
       },
       {
-        number: 3,
+        number: 7,
       },
     ]);
 
-    const resultCSV = await client.getResultCSV("01HZ0KTJEC24251CM5SN8FFR26", {
+    const resultCSV = await client.getResultCSV("01J6QN9Z16TP20YCWK6Z2TM0KJ", {
       limit: 1,
       offset: 2,
     });
-    const expectedRows = ["number\n", "3\n"];
-    expect(resultCSV.data).to.be.eq(expectedRows.join(""));
+    const expectedRows = ["number\n", "7\n"];
+    expect(resultCSV.data).toEqual(expectedRows.join(""));
   });
 });
 
@@ -219,7 +207,7 @@ describe("ExecutionAPI: Errors", () => {
   // {"error":"Invalid request body payload"}
   let client: ExecutionAPI;
 
-  before(() => {
+  beforeAll(() => {
     client = new ExecutionAPI(BASIC_KEY);
   });
 
@@ -270,7 +258,7 @@ describe("ExecutionAPI: Errors", () => {
     // Execute and check state
     // V1 query: 1348966
     const result = await client.getExecutionResults("01GEHG4AY1Z9JBR3BYB20E7RGH");
-    expect(result.error).to.be.deep.equal({
+    expect(result.error).toEqual({
       type: "FAILED_TYPE_EXECUTION_FAILED",
       message:
         'column "x" does not exist at line 1, position 8 [Execution ID: 01GEHG4AY1Z9JBR3BYB20E7RGH]',
@@ -278,7 +266,7 @@ describe("ExecutionAPI: Errors", () => {
     });
 
     const result2 = await client.getExecutionResults("01GEHGXHQ25XWMVFJ4G2HZ5MGS");
-    expect(result2.error).to.be.deep.equal({
+    expect(result2.error).toEqual({
       type: "FAILED_TYPE_EXECUTION_FAILED",
       message:
         "{42000} [Simba][Hardy] (80) Syntax or semantic analysis error thrown in server while executing query. Error message from server: org.apache.hive.service.cli.HiveSQLException: Error running query: [UNRESOLVED_COLUMN] org.apache.spark.sql.AnalysisException: [UNRESOLVED_COLUMN] A column or function parameter with name `x` cannot be resolved. Did you mean one of the following? []; line [Execution ID: 01GEHGXHQ25XWMVFJ4G2HZ5MGS]",

@@ -1,20 +1,22 @@
-import { expect } from "chai";
 import { DuneClient, Paginator } from "../../src/";
 import { BASIC_KEY } from "./util";
 
 describe("Paginator Class", () => {
   let client: DuneClient;
 
-  before(() => {
+  beforeAll(() => {
     client = new DuneClient(BASIC_KEY);
   });
   it("Paginator does the stuff", async () => {
     // Ususally the user would call: client.refreshResults(:966920);
-    // But here we use existinc completed execution state.
-    const status = await client.exec.getExecutionStatus("01HZ0JYRJVN5MGG2CN8PAK63MT");
+    // But here we use existing completed execution state.
+    const {
+      results: { execution_id },
+    } = await client.exec.getLastExecutionResults(966920);
+    const status = await client.exec.getExecutionStatus(execution_id);
     // Example usage:
     const paginator = await Paginator.new(client.exec, status, 2);
-    expect(paginator.maxPage()).to.be.eq(5);
+    expect(paginator.maxPage()).toEqual(5);
     const pageOne = {
       number: 1,
       values: [
@@ -41,11 +43,11 @@ describe("Paginator Class", () => {
         },
       ],
     };
-    expect(paginator.getCurrentPageValues()).to.be.deep.eq(pageOne);
+    expect(paginator.getCurrentPageValues()).toEqual(pageOne);
     await paginator.nextPage(); // Move to page 2
-    expect(paginator.getCurrentPageValues()).to.be.deep.eq(pageTwo);
+    expect(paginator.getCurrentPageValues()).toEqual(pageTwo);
     await paginator.previousPage(); // Move back to page 1
-    expect(paginator.getCurrentPageValues()).to.be.deep.eq(pageOne);
+    expect(paginator.getCurrentPageValues()).toEqual(pageOne);
     const lastPage = {
       number: 5,
       values: [
@@ -56,6 +58,6 @@ describe("Paginator Class", () => {
       ],
     };
     await paginator.lastPage(); // Jump to page 5
-    expect(paginator.getCurrentPageValues()).to.be.deep.eq(lastPage);
+    expect(paginator.getCurrentPageValues()).toEqual(lastPage);
   });
 });

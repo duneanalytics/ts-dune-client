@@ -9,20 +9,15 @@
     "sourceType": "module"
   },
   "rules": {
-    // TypeScript specific rules
     "@typescript-eslint/explicit-function-return-type": ["warn", { "allowExpressions": true }],
-    "@typescript-eslint/type-annotation-spacing": "error",
-
     "@typescript-eslint/no-unused-vars": ["error", { "ignoreRestSiblings": true }],
-    "@typescript-eslint/no-shadow": ["warn"],
+    "@typescript-eslint/no-shadow": ["warn", {}],
     "no-unused-vars": "off",
     "no-shadow": "off",
-
     "semi": "error",
-    // Basic JavaScript/ESLint rules
     "eqeqeq": ["error", "always"],
     "no-unused-expressions": "warn",
     "no-return-await": "error",
-    "no-console": ["warn", { "allow": ["warn", "error"] }]    
+    "no-console": ["warn", { "allow": ["warn", "error"] }]
   }
 }
