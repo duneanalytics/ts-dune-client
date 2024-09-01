@@ -1,7 +1,6 @@
 import { CustomAPI } from "../../src/";
 import log from "loglevel";
 import { BASIC_KEY } from "./util";
-import { expect } from "chai";
 
 log.setLevel("silent", true);
 
@@ -9,7 +8,7 @@ describe("Custom API", () => {
   let client: CustomAPI;
   const slug = "test-custom-api";
 
-  before(() => {
+  beforeAll(() => {
     client = new CustomAPI(BASIC_KEY);
   });
 
@@ -21,6 +20,6 @@ describe("Custom API", () => {
       slug,
       limit: 1,
     });
-    expect(results.result!.rows.length).to.equal(1);
+    expect(results.result!.rows.length).toEqual(1);
   });
 });

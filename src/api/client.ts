@@ -69,13 +69,7 @@ export class DuneClient {
       opts?.pingFrequency,
     );
     if (state === ExecutionState.COMPLETED) {
-      const result = await this.getLatestResult(args);
-      if (result.execution_id !== execution_id) {
-        throw new DuneError(
-          `invalid execution ID: expected ${execution_id}, got ${result.execution_id}`,
-        );
-      }
-      return result;
+      return this.exec.getExecutionResults(execution_id, args);
     } else {
       const message = `refresh (execution ${execution_id}) yields incomplete terminal state ${state}`;
       // TODO - log the error in constructor

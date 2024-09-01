@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import { DuneError } from "../../src";
 
 const { BASIC_API_KEY, PLUS_API_KEY, DUNE_USER_NAME, CUSTOM_SLUG } = process.env;
@@ -20,13 +19,13 @@ export const expectAsyncThrow = async (
   try {
     await promise;
     // Make sure to fail if promise does resolve!
-    expect(false).to.be.equal(true);
-  } catch (error) {
+    expect(false).toEqual(true);
+  } catch (error: unknown) {
     if (message) {
-      expect(error.message).to.be.deep.equal(message);
-      expect(error).instanceOf(DuneError);
+      expect((error as DuneError).message).toEqual(message);
+      expect(error).toBeInstanceOf(DuneError);
     } else {
-      expect(error).instanceOf(DuneError);
+      expect(error).toBeInstanceOf(DuneError);
     }
   }
 };

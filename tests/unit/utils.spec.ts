@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import { withDefaults } from "../../src/utils";
 
 describe("utility methods", () => {
@@ -9,6 +8,6 @@ describe("utility methods", () => {
     }
 
     const x = { a: "1" };
-    expect(withDefaults<MyType>(x, { b: "2" })).to.be.deep.equal({ a: "1", b: "2" });
+    expect(withDefaults<MyType>(x, { b: "2" })).toEqual({ a: "1", b: "2" });
   });
 });

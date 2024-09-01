@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import {
   ExecutionResponseCSV,
   ExecutionResult,
@@ -22,7 +21,7 @@ describe("Type Concatenation", () => {
     };
 
     const result = concatResultCSV(left, right);
-    expect(result).to.be.deep.equal({
+    expect(result).toEqual({
       data: "col_1\n1\n2\n3\n4\n",
       next_offset: 2,
       next_uri: "right",
@@ -86,7 +85,7 @@ describe("Type Concatenation", () => {
     };
     const result = concatResultResponse(left, right);
 
-    expect(result).to.be.deep.equal({
+    expect(result).toEqual({
       execution_id: "XYZ",
       next_offset: 1,
       next_uri: "right",
@@ -104,18 +103,18 @@ describe("Type Concatenation", () => {
 
     // Errors.
     left.execution_id = "Different";
-    expect(() => concatResultResponse(left, right)).to.throw(
+    expect(() => concatResultResponse(left, right)).toThrow(
       `Can't combine results: ExecutionIds (${left.execution_id} != ${right.execution_id})`,
     );
     left.execution_id = right.execution_id;
 
     right.result = undefined;
-    expect(() => concatResultResponse(left, right)).to.throw(
+    expect(() => concatResultResponse(left, right)).toThrow(
       `Can't combine results: Right Entry has no results`,
     );
 
     left.result = undefined;
-    expect(() => concatResultResponse(left, right)).to.throw(
+    expect(() => concatResultResponse(left, right)).toThrow(
       `Can't combine results: Left Entry has no results`,
     );
   });
