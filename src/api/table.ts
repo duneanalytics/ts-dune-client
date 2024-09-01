@@ -29,7 +29,10 @@ export class TableAPI extends Router {
     const response = await this.post<SuccessResponse>("table/upload/csv", args);
     try {
       return Boolean(response.success);
-    } catch (err) {
+    } catch (error: unknown) {
+      console.error(
+        `Upload CSV Error ${error instanceof Error ? error.message : String(error)}`,
+      );
       throw new DuneError(`UploadCsvResponse ${JSON.stringify(response)}`);
     }
   }
