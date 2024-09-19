@@ -4,8 +4,9 @@
   "author": "Ben Smith <bh2smith@gmail.com>",
   "description": "Node Client for Dune Analytics' officially supported API.",
   "repository": "git@github.com:duneanalytics/ts-dune-client.git",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "files": [
     "dist/**/*"
   ],
