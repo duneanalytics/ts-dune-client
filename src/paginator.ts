@@ -66,6 +66,7 @@ export class Paginator {
       return nextPage;
     }
     console.warn("You are already on the last page!");
+    return;
   }
 
   async previousPage(): Promise<Page | undefined> {
@@ -75,6 +76,7 @@ export class Paginator {
       return previousPage;
     }
     console.warn("You are already on the first page.");
+    return;
   }
 
   async lastPage(): Promise<Page | undefined> {
@@ -106,6 +108,7 @@ export class Paginator {
     console.warn(
       `Invalid page number requested ${n}: Must be contained in [1, ${this.maxPage()}]`,
     );
+    return;
   }
 
   public getCurrentPageValues(): Page {
