@@ -41,3 +41,15 @@ export function withDefaults<T>(obj: T, defaults: Partial<T>): T {
   }
   return result as T;
 }
+
+export function getVersion(): string {
+  try {
+    // @ts-expect-error: cheeky hack
+    import { version } from "../package.json";
+    return version;
+  } catch {
+    // @ts-expect-error: cheeky hack
+    import { version } from "../../package.json";
+    return version;
+  }
+}

@@ -22,6 +22,6 @@
     
     "rootDir": "src"
   },
-  "include": ["src"],
+  "include": ["src", "package.json"],
   "exclude": ["node_modules", "dist", "tests"] // Added "dist" to avoid recompiling the output
 }
