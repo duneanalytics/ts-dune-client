@@ -7,9 +7,9 @@ import {
 } from "../types";
 import fetch from "cross-fetch";
 import log from "loglevel";
-import { getVersion, logPrefix } from "../utils";
+import { version } from "../../package.json";
+import { logPrefix } from "../utils";
 
-const CLIENT_VERSION = getVersion();
 const BASE_URL = "https://api.dune.com/api";
 
 enum RequestMethod {
@@ -86,7 +86,7 @@ export class Router {
       method,
       headers: {
         "x-dune-api-key": this.apiKey,
-        "User-Agent": `client-sdk@${CLIENT_VERSION} (https://www.npmjs.com/package/@duneanalytics/client-sdk)`,
+        "User-Agent": `client-sdk@${version} (https://www.npmjs.com/package/@duneanalytics/client-sdk)`,
         "Content-Type": content_type,
       },
       // conditionally add the body property
