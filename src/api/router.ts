@@ -6,7 +6,6 @@ import {
   payloadSearchParams,
 } from "../types";
 import { version } from "../../package.json";
-import fetch from "cross-fetch";
 import log from "loglevel";
 import { logPrefix } from "../utils";
 
