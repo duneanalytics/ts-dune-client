@@ -177,7 +177,7 @@ export class DuneClient {
       results = await this.runQuery({ queryId, ...args });
     } finally {
       if (archiveAfter) {
-        this.query.archiveQuery(queryId);
+        await this.query.archiveQuery(queryId);
       }
     }
 
