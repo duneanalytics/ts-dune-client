@@ -227,10 +227,15 @@ export interface CreateQueryParams extends BaseCRUDParams {
 
 export enum ColumnType {
   Varchar = "varchar",
+  Varbinary = "varbinary",
+  Uint256 = "uint256",
+  Int256 = "int256",
+  Bigint = "bigint",
   Integer = "integer",
   Double = "double",
   Boolean = "boolean",
   Timestamp = "timestamp",
+  Date = "date",
 }
 
 export interface SchemaRecord {
@@ -239,6 +244,7 @@ export interface SchemaRecord {
   name: string;
   /// The column type.
   type: ColumnType;
+  nullable?: boolean;
 }
 
 export interface DeleteTableArgs {
