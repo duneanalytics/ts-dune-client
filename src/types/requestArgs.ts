@@ -238,6 +238,7 @@ export enum ColumnType {
   Date = "date",
 }
 
+// https://docs.dune.com/api-reference/tables/endpoint/create#body-schema
 export interface SchemaRecord {
   /// The column name. Can contain letters, numbers, and underscores,
   /// but must begin with a letter or an underscore.
