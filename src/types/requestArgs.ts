@@ -225,6 +225,7 @@ export interface CreateQueryParams extends BaseCRUDParams {
   is_private?: boolean;
 }
 
+// https://docs.dune.com/api-reference/tables/endpoint/create#body-schema-type
 export enum ColumnType {
   Varchar = "varchar",
   Varbinary = "varbinary",
