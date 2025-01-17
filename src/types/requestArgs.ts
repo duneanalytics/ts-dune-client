@@ -225,20 +225,28 @@ export interface CreateQueryParams extends BaseCRUDParams {
   is_private?: boolean;
 }
 
+// https://docs.dune.com/api-reference/tables/endpoint/create#body-schema-type
 export enum ColumnType {
   Varchar = "varchar",
+  Varbinary = "varbinary",
+  Uint256 = "uint256",
+  Int256 = "int256",
+  Bigint = "bigint",
   Integer = "integer",
   Double = "double",
   Boolean = "boolean",
   Timestamp = "timestamp",
+  Date = "date",
 }
 
+// https://docs.dune.com/api-reference/tables/endpoint/create#body-schema
 export interface SchemaRecord {
   /// The column name. Can contain letters, numbers, and underscores,
   /// but must begin with a letter or an underscore.
   name: string;
   /// The column type.
   type: ColumnType;
+  nullable?: boolean;
 }
 
 export interface DeleteTableArgs {
