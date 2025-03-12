@@ -1,4 +1,5 @@
 [![Styled With Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io/)
+[![](https://github.com/duneanalytics/ts-dune-client/actions/workflows/npm-publish.yaml/badge.svg)](https://github.com/duneanalytics/ts-dune-client/actions/workflows/npm-publish.yaml)
 [![Build](https://github.com/bh2smith/ts-dune-client/actions/workflows/pull-request.yaml/badge.svg)](https://github.com/duneanalytics/ts-dune-client/actions/workflows/pull-request.yaml)
 
 # Dune Client TS
