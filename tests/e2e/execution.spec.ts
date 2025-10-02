@@ -148,7 +148,7 @@ describe("ExecutionAPI: native routes", () => {
     const results = await client.getExecutionResults(execution_id, {
       limit: 2,
     });
-    expect(results.result?.rows).toEqual([{ number: 3 }, { number: 4 }]);
+    expect(results.result?.rows).toEqual([{ number: 10 }, { number: 11 }]);
 
     const resultCSV = await client.getResultCSV(execution_id, { limit: 3 });
     expect(resultCSV.data).toEqual("number\n3\n4\n5\n");

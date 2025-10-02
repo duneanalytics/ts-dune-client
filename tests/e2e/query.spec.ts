@@ -1,5 +1,5 @@
 import { QueryParameter, QueryAPI } from "../../src";
-import { PLUS_KEY, BASIC_KEY, expectAsyncThrow } from "./util";
+import { PLUS_KEY } from "./util";
 
 describe("QueryAPI: Premium - CRUD Operations", () => {
   let plusClient: QueryAPI;
