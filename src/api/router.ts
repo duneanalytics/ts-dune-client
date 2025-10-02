@@ -74,7 +74,7 @@ export class Router {
     raw: boolean = false,
     content_type: ContentType = ContentType.Json,
   ): Promise<T> {
-    let body;
+    let body: string | Buffer | undefined;
     if (Buffer.isBuffer(payload)) {
       body = payload;
     } else {
@@ -90,7 +90,7 @@ export class Router {
       },
       // conditionally add the body property
       ...(method !== RequestMethod.GET && {
-        body,
+        body: body as BodyInit,
       }),
     };
     let pathParams = "";
