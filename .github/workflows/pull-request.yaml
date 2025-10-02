@@ -37,7 +37,7 @@ jobs:
     name: Run Tests
     runs-on: ubuntu-latest
     env:
-      DUNE_API_KEY: ${{ secrets.BASIC_API_KEY }}
+      DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}
 
     steps:
       - name: Checkout code
