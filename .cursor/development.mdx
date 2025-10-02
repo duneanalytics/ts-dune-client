@@ -1,0 +1,49 @@
+# Development Guide
+
+This project uses **pnpm** as its package manager. Always use pnpm commands for development tasks.
+
+## Setup
+
+```bash
+pnpm install
+```
+
+## Development Commands
+
+### Building
+
+```bash
+# Build both ESM and CJS outputs
+pnpm build
+
+# Build ESM only
+pnpm build:esm
+
+# Build CJS only
+pnpm build:cjs
+```
+
+### Testing
+
+```bash
+# Run all tests
+pnpm test
+```
+
+### Code Quality
+
+```bash
+# Format code
+pnpm fmt
+
+# Lint code
+pnpm lint
+```
+
+## Important Notes
+
+- This project builds to both CommonJS (`dist/cjs/`) and ES Modules (`dist/esm/`)
+- Always use `pnpm` instead of `npm` or `yarn`
+- Tests are located in the `tests/` directory (both e2e and unit tests)
+- E2E tests require `BASIC_API_KEY` and `PLUS_API_KEY` environment variables to be set
+
