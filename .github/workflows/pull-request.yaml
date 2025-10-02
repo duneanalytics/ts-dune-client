@@ -37,8 +37,7 @@ jobs:
     name: Run Tests
     runs-on: ubuntu-latest
     env:
-      BASIC_API_KEY: ${{ secrets.BASIC_API_KEY }}
-      PLUS_API_KEY: ${{ secrets.PLUS_API_KEY }}
+      DUNE_API_KEY: ${{ secrets.BASIC_API_KEY }}
 
     steps:
       - name: Checkout code
