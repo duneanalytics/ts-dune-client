@@ -1,10 +1,12 @@
 import log from "loglevel";
-import { API_KEY, USER_NAME } from "./util";
 import * as fs from "fs/promises";
 import { TableAPI } from "../../src/api";
 import { ColumnType, ContentType } from "../../src";
 
 log.setLevel("silent", true);
+
+const API_KEY = process.env.DUNE_API_KEY!;
+const USER_NAME = process.env.DUNE_USER_NAME || "your_username";
 
 describe("Table API", () => {
   let tableClient: TableAPI;

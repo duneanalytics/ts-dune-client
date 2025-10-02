@@ -1,10 +1,35 @@
-import { QueryParameter, ExecutionState, ExecutionAPI, DuneClient } from "../../src";
+import {
+  QueryParameter,
+  ExecutionState,
+  ExecutionAPI,
+  DuneClient,
+  DuneError,
+} from "../../src";
 import log from "loglevel";
 import { QueryEngine } from "../../src/types/requestArgs";
-import { API_KEY, expectAsyncThrow } from "./util";
 import { sleep } from "../../src/utils";
 
 log.setLevel("silent", true);
+
+const API_KEY = process.env.DUNE_API_KEY!;
+
+const expectAsyncThrow = async (
+  promise: Promise<unknown>,
+  message?: string | object,
+): Promise<void> => {
+  try {
+    await promise;
+    // Make sure to fail if promise does resolve!
+    expect(false).toEqual(true);
+  } catch (error: unknown) {
+    if (message) {
+      expect((error as DuneError).message).toEqual(message);
+      expect(error).toBeInstanceOf(DuneError);
+    } else {
+      expect(error).toBeInstanceOf(DuneError);
+    }
+  }
+};
 
 describe("ExecutionAPI: native routes", () => {
   let client: ExecutionAPI;

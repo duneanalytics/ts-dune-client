@@ -1,5 +1,6 @@
 import { DuneClient, Paginator } from "../../src/";
-import { API_KEY } from "./util";
+
+const API_KEY = process.env.DUNE_API_KEY!;
 
 describe("Paginator Class", () => {
   let client: DuneClient;

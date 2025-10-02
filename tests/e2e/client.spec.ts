@@ -1,9 +1,10 @@
 import { DuneClient, QueryParameter } from "../../src/";
 import log from "loglevel";
-import { API_KEY } from "./util";
 import * as fs from "fs/promises";
 
 log.setLevel("silent", true);
+
+const API_KEY = process.env.DUNE_API_KEY!;
 
 describe("DuneClient Extensions", () => {
   let client: DuneClient;

@@ -1,8 +1,9 @@
 import { CustomAPI } from "../../src/";
 import log from "loglevel";
-import { API_KEY } from "./util";
 
 log.setLevel("silent", true);
+
+const API_KEY = process.env.DUNE_API_KEY!;
 
 describe("Custom API", () => {
   let client: CustomAPI;
