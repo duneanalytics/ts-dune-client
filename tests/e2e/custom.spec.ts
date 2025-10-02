@@ -1,6 +1,6 @@
 import { CustomAPI } from "../../src/";
 import log from "loglevel";
-import { BASIC_KEY } from "./util";
+import { API_KEY } from "./util";
 
 log.setLevel("silent", true);
 
@@ -9,7 +9,7 @@ describe("Custom API", () => {
   const slug = "test-custom-api";
 
   beforeAll(() => {
-    client = new CustomAPI(BASIC_KEY);
+    client = new CustomAPI(API_KEY);
   });
 
   // Skip: This endpoint is very "user specific"

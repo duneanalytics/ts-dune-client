@@ -1,7 +1,7 @@
 import { QueryParameter, ExecutionState, ExecutionAPI, DuneClient } from "../../src";
 import log from "loglevel";
 import { QueryEngine } from "../../src/types/requestArgs";
-import { BASIC_KEY, PLUS_KEY, expectAsyncThrow } from "./util";
+import { API_KEY, expectAsyncThrow } from "./util";
 import { sleep } from "../../src/utils";
 
 log.setLevel("silent", true);
@@ -15,7 +15,7 @@ describe("ExecutionAPI: native routes", () => {
   let simpleExecutionId: string;
 
   beforeAll(async () => {
-    client = new ExecutionAPI(BASIC_KEY);
+    client = new ExecutionAPI(API_KEY);
     // https://dune.com/queries/1215383
     testQueryId = 1215383;
     // https://dune.com/queries/3463180
@@ -85,8 +85,8 @@ describe("ExecutionAPI: native routes", () => {
     expect(execution.execution_id).not.toEqual(null);
   });
 
-  it("executes with Large tier performance", async () => {
-    client = new ExecutionAPI(PLUS_KEY);
+  it.skip("executes with Large tier performance", async () => {
+    // Skipped: This test requires specific premium permissions
     const execution = await client.executeQuery(testQueryId, {
       performance: QueryEngine.Large,
     });
@@ -228,7 +228,7 @@ describe("ExecutionAPI: Errors", () => {
   let client: ExecutionAPI;
 
   beforeAll(() => {
-    client = new ExecutionAPI(BASIC_KEY);
+    client = new ExecutionAPI(API_KEY);
   });
 
   beforeEach((done) => {
@@ -276,7 +276,7 @@ describe("ExecutionAPI: Errors", () => {
 
   it("returns error when query execution fails", async () => {
     // Use DuneClient to create a query with bad SQL, execute it, and check the error
-    const fullClient = new DuneClient(PLUS_KEY);
+    const fullClient = new DuneClient(API_KEY);
 
     // Create a query with intentionally bad SQL
     const queryId = await fullClient.query.createQuery({
@@ -286,13 +286,13 @@ describe("ExecutionAPI: Errors", () => {
     });
 
     try {
-      // Execute the query - use fullClient.exec (with PLUS_KEY) since query is private
+      // Execute the query
       const execution = await fullClient.exec.executeQuery(queryId);
 
       // Wait a bit for it to fail
       await sleep(3);
 
-      // Get the results - should have an error - use fullClient.exec (with PLUS_KEY)
+      // Get the results - should have an error
       const result = await fullClient.exec.getExecutionResults(execution.execution_id);
 
       // Verify error structure exists
