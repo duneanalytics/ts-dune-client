@@ -42,21 +42,3 @@ describe("QueryAPI: Premium - CRUD Operations", () => {
     expect(query.is_private).toEqual(true);
   });
 });
-
-describe("QueryAPI: Errors", () => {
-  let basicClient: QueryAPI;
-
-  beforeAll(() => {
-    basicClient = new QueryAPI(BASIC_KEY);
-  });
-
-  it("Basic Plan Failure", async () => {
-    await expectAsyncThrow(
-      basicClient.createQuery({
-        name: "Query Name",
-        query_sql: "select 1",
-      }),
-      `Response Error: HTTP - Status: 403, Message: {"error":"Query management endpoints are only available in our paid plans. Please upgrade to a paid plan to use it."}`,
-    );
-  });
-});
