@@ -1,11 +1,12 @@
 import { DuneClient, Paginator } from "../../src/";
-import { BASIC_KEY } from "./util";
+
+const API_KEY = process.env.DUNE_API_KEY!;
 
 describe("Paginator Class", () => {
   let client: DuneClient;
 
   beforeAll(() => {
-    client = new DuneClient(BASIC_KEY);
+    client = new DuneClient(API_KEY);
   });
   it("Paginator does the stuff", async () => {
     // Ususally the user would call: client.refreshResults(:966920);

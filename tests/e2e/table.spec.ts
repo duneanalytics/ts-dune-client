@@ -1,10 +1,12 @@
 import log from "loglevel";
-import { PLUS_KEY, USER_NAME } from "./util";
 import * as fs from "fs/promises";
 import { TableAPI } from "../../src/api";
 import { ColumnType, ContentType } from "../../src";
 
 log.setLevel("silent", true);
+
+const API_KEY = process.env.DUNE_API_KEY!;
+const USER_NAME = process.env.DUNE_USER_NAME || "your_username";
 
 describe("Table API", () => {
   let tableClient: TableAPI;
@@ -12,7 +14,7 @@ describe("Table API", () => {
   const table_name = "dataset_e2e_test";
 
   beforeAll(() => {
-    tableClient = new TableAPI(PLUS_KEY);
+    tableClient = new TableAPI(API_KEY);
     namespace = USER_NAME;
   });
 

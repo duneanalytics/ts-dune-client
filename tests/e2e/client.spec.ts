@@ -1,9 +1,10 @@
 import { DuneClient, QueryParameter } from "../../src/";
 import log from "loglevel";
-import { BASIC_KEY, PLUS_KEY } from "./util";
 import * as fs from "fs/promises";
 
 log.setLevel("silent", true);
+
+const API_KEY = process.env.DUNE_API_KEY!;
 
 describe("DuneClient Extensions", () => {
   let client: DuneClient;
@@ -11,7 +12,7 @@ describe("DuneClient Extensions", () => {
   let multiRowQuery: number;
 
   beforeAll(() => {
-    client = new DuneClient(BASIC_KEY);
+    client = new DuneClient(API_KEY);
     parameterizedQuery = 1215383;
     multiRowQuery = 3463180;
   });
@@ -107,15 +108,14 @@ describe("DuneClient Extensions", () => {
   });
 
   it("runSQL", async () => {
-    const premiumClient = new DuneClient(PLUS_KEY);
-    const results = await premiumClient.runSql({
+    const results = await client.runSql({
       query_sql: "select 1",
       archiveAfter: true,
       isPrivate: true,
     });
     const queryID = results.query_id;
     expect(results.result?.rows).toEqual([{ _col0: 1 }]);
-    const query = await premiumClient.query.readQuery(queryID);
+    const query = await client.query.readQuery(queryID);
     expect(query.is_archived).toEqual(true);
   });
 });

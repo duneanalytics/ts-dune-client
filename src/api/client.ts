@@ -24,6 +24,7 @@ import { POLL_FREQUENCY_SECONDS } from "../constants";
 import { QueryAPI } from "./query";
 import { TableAPI } from "./table";
 import { CustomAPI } from "./custom";
+import { deprecationWarning } from "../deprecation";
 
 /// Various states of query execution that are "terminal".
 const TERMINAL_STATES = [
@@ -224,6 +225,7 @@ export class DuneClient {
     parameters: QueryParameter[] = [],
     pingFrequency?: number,
   ): Promise<ResultsResponse> {
+    deprecationWarning("refresh", "runQuery", "0.0.2");
     return this.runQuery({
       queryId: queryID,
       query_parameters: parameters,
