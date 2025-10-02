@@ -11,13 +11,32 @@ describe("ExecutionAPI: native routes", () => {
   let testQueryId: number;
   let multiRowQuery: number;
   let multiRowExecutionId: string;
+  let simpleQueryId: number;
+  let simpleExecutionId: string;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     client = new ExecutionAPI(BASIC_KEY);
     // https://dune.com/queries/1215383
     testQueryId = 1215383;
     // https://dune.com/queries/3463180
     multiRowQuery = 3463180;
+    // https://dune.com/queries/5898182
+    // Simple query: SELECT number FROM UNNEST(ARRAY[0, 1, 2, 3, 4]) AS t(number);
+    simpleQueryId = 5898182;
+
+    // Execute simple query once for all tests
+    const execution = await client.executeQuery(simpleQueryId);
+    simpleExecutionId = execution.execution_id;
+
+    // Wait for it to complete
+    let status = await client.getExecutionStatus(simpleExecutionId);
+    while (
+      status.state === ExecutionState.PENDING ||
+      status.state === ExecutionState.EXECUTING
+    ) {
+      await sleep(1);
+      status = await client.getExecutionStatus(simpleExecutionId);
+    }
   });
 
   beforeEach((done) => {
@@ -139,19 +158,14 @@ describe("ExecutionAPI: native routes", () => {
   });
 
   it("gets Results (with limit)", async () => {
-    const {
-      results: { execution_id },
-    } = await client.getLastExecutionResults(multiRowQuery);
-    // expect basic query has completed after 5s
-    const status = await client.getExecutionStatus(execution_id);
-    expect(status.state).toEqual(ExecutionState.COMPLETED);
-    const results = await client.getExecutionResults(execution_id, {
+    // Use pre-executed simple query
+    const results = await client.getExecutionResults(simpleExecutionId, {
       limit: 2,
     });
-    expect(results.result?.rows).toEqual([{ number: 10 }, { number: 11 }]);
+    expect(results.result?.rows).toEqual([{ number: 0 }, { number: 1 }]);
 
-    const resultCSV = await client.getResultCSV(execution_id, { limit: 3 });
-    expect(resultCSV.data).toEqual("number\n3\n4\n5\n");
+    const resultCSV = await client.getResultCSV(simpleExecutionId, { limit: 3 });
+    expect(resultCSV.data).toEqual("number\n0\n1\n2\n");
   });
 
   it("gets LastResult", async () => {
@@ -182,27 +196,27 @@ describe("ExecutionAPI: native routes", () => {
 
   /// Pagination
   it("uses pagination parameters", async () => {
-    // Reuse the execution ID from the previous test
+    // Use pre-executed simple query to test pagination
     // Test pagination with limit and offset
-    const result = await client.getExecutionResults(multiRowExecutionId, {
+    const result = await client.getExecutionResults(simpleExecutionId, {
       limit: 2,
       offset: 1,
     });
     expect(result.result?.rows).toEqual([
       {
-        number: 6,
+        number: 1,
       },
       {
-        number: 7,
+        number: 2,
       },
     ]);
 
     // Test CSV results with pagination
-    const resultCSV = await client.getResultCSV(multiRowExecutionId, {
+    const resultCSV = await client.getResultCSV(simpleExecutionId, {
       limit: 1,
       offset: 2,
     });
-    const expectedRows = ["number\n", "7\n"];
+    const expectedRows = ["number\n", "2\n"];
     expect(resultCSV.data).toEqual(expectedRows.join(""));
   });
 });
