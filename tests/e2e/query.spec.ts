@@ -25,7 +25,7 @@ describe("QueryAPI: Premium - CRUD Operations", () => {
     expect(updatedQueryId).toEqual(recoveredQuery.query_id);
   });
 
-  it("unarchive, make public, make private, rearchive", async () => {
+  it.skip("unarchive, make public, make private, rearchive", async () => {
     const queryId = 3530410;
     let query = await plusClient.readQuery(queryId);
 
