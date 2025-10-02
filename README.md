@@ -8,7 +8,7 @@ This [NPM package](https://www.npmjs.com/package/@duneanalytics/client-sdk) impl
 Install the package
 
 ```sh
-yarn add @duneanalytics/client-sdk
+pnpm add @duneanalytics/client-sdk
 ```
 
 ```ts

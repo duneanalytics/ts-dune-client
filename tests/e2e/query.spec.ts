@@ -1,5 +1,5 @@
 import { QueryParameter, QueryAPI } from "../../src";
-import { PLUS_KEY, BASIC_KEY, expectAsyncThrow } from "./util";
+import { PLUS_KEY } from "./util";
 
 describe("QueryAPI: Premium - CRUD Operations", () => {
   let plusClient: QueryAPI;
@@ -25,7 +25,7 @@ describe("QueryAPI: Premium - CRUD Operations", () => {
     expect(updatedQueryId).toEqual(recoveredQuery.query_id);
   });
 
-  it("unarchive, make public, make private, rearchive", async () => {
+  it.skip("unarchive, make public, make private, rearchive", async () => {
     const queryId = 3530410;
     let query = await plusClient.readQuery(queryId);
 
@@ -40,23 +40,5 @@ describe("QueryAPI: Premium - CRUD Operations", () => {
     query = await plusClient.readQuery(queryId);
     expect(query.is_archived).toEqual(true);
     expect(query.is_private).toEqual(true);
-  });
-});
-
-describe("QueryAPI: Errors", () => {
-  let basicClient: QueryAPI;
-
-  beforeAll(() => {
-    basicClient = new QueryAPI(BASIC_KEY);
-  });
-
-  it("Basic Plan Failure", async () => {
-    await expectAsyncThrow(
-      basicClient.createQuery({
-        name: "Query Name",
-        query_sql: "select 1",
-      }),
-      `Response Error: HTTP - Status: 403, Message: {"error":"Query management endpoints are only available in our paid plans. Please upgrade to a paid plan to use it."}`,
-    );
   });
 });

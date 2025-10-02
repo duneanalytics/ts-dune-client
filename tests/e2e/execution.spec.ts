@@ -1,4 +1,4 @@
-import { QueryParameter, ExecutionState, ExecutionAPI } from "../../src";
+import { QueryParameter, ExecutionState, ExecutionAPI, DuneClient } from "../../src";
 import log from "loglevel";
 import { QueryEngine } from "../../src/types/requestArgs";
 import { BASIC_KEY, PLUS_KEY, expectAsyncThrow } from "./util";
@@ -10,13 +10,33 @@ describe("ExecutionAPI: native routes", () => {
   let client: ExecutionAPI;
   let testQueryId: number;
   let multiRowQuery: number;
+  let multiRowExecutionId: string;
+  let simpleQueryId: number;
+  let simpleExecutionId: string;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     client = new ExecutionAPI(BASIC_KEY);
     // https://dune.com/queries/1215383
     testQueryId = 1215383;
     // https://dune.com/queries/3463180
     multiRowQuery = 3463180;
+    // https://dune.com/queries/5898182
+    // Simple query: SELECT number FROM UNNEST(ARRAY[0, 1, 2, 3, 4]) AS t(number);
+    simpleQueryId = 5898182;
+
+    // Execute simple query once for all tests
+    const execution = await client.executeQuery(simpleQueryId);
+    simpleExecutionId = execution.execution_id;
+
+    // Wait for it to complete
+    let status = await client.getExecutionStatus(simpleExecutionId);
+    while (
+      status.state === ExecutionState.PENDING ||
+      status.state === ExecutionState.EXECUTING
+    ) {
+      await sleep(1);
+      status = await client.getExecutionStatus(simpleExecutionId);
+    }
   });
 
   beforeEach((done) => {
@@ -73,47 +93,50 @@ describe("ExecutionAPI: native routes", () => {
     expect(execution.execution_id).not.toEqual(null);
   });
 
-  it("returns expected results on cancelled query exection", async () => {
-    // Execute and check state
-    const cancelledExecutionId = "01GEHEC1W8P1V5ENF66R2WY54V";
+  it("returns expected results on cancelled query execution", async () => {
+    // Execute a query and immediately cancel it
+    const execution = await client.executeQuery(multiRowQuery);
+    const cancelledExecutionId = execution.execution_id;
+
+    // Cancel the execution
+    const wasCancelled = await client.cancelExecution(cancelledExecutionId);
+    expect(wasCancelled).toEqual(true);
+
+    // Get the results and verify it shows as cancelled
     const result = await client.getExecutionResults(cancelledExecutionId);
-    expect(result).toEqual({
-      execution_id: cancelledExecutionId,
-      query_id: 1229120,
-      state: "QUERY_STATE_CANCELLED",
-      // TODO - this is a new field - not present in our type interfaces.
-      is_execution_finished: true,
-      submitted_at: "2022-10-04T12:08:47.753527Z",
-      expires_at: "2024-10-03T12:08:48.790332Z",
-      execution_started_at: "2022-10-04T12:08:47.756608607Z",
-      cancelled_at: "2022-10-04T12:08:48.790331383Z",
-      execution_ended_at: "2022-10-04T12:08:48.790331383Z",
-    });
+    expect(result.execution_id).toEqual(cancelledExecutionId);
+    expect(result.query_id).toEqual(multiRowQuery);
+    expect(result.state).toEqual(ExecutionState.CANCELLED);
+    // Verify timestamps exist (but don't check exact values since they're dynamic)
+    expect(result.submitted_at).toBeDefined();
+    expect(result.cancelled_at).toBeDefined();
+    expect(result.execution_ended_at).toBeUndefined();
   });
 
   it("gets Results (with various optinal parameters)", async () => {
     const execution = await client.executeQuery(multiRowQuery);
+    multiRowExecutionId = execution.execution_id;
     // const paramQueryExecution = await client.executeQuery(testQueryId);
     await sleep(2);
     // expect basic query has completed after 2s
-    const status = await client.getExecutionStatus(execution.execution_id);
+    const status = await client.getExecutionStatus(multiRowExecutionId);
     expect(status.state).toEqual(ExecutionState.COMPLETED);
 
     // Limit
-    let results = await client.getExecutionResults(execution.execution_id, {
+    let results = await client.getExecutionResults(multiRowExecutionId, {
       limit: 2,
     });
     expect(results.result?.rows).toEqual([{ number: 5 }, { number: 6 }]);
 
     // Sample count: apparently doesn't always return the expected number of results.
     await expect(() =>
-      client.getExecutionResults(execution.execution_id, {
+      client.getExecutionResults(multiRowExecutionId, {
         sample_count: 2,
       }),
     ).not.toThrow();
 
     // Sort by:
-    results = await client.getExecutionResults(execution.execution_id, {
+    results = await client.getExecutionResults(multiRowExecutionId, {
       sort_by: "number desc",
       limit: 2,
     });
@@ -130,24 +153,19 @@ describe("ExecutionAPI: native routes", () => {
     //   `getResults with number,letter columns failed! with ${JSON.stringify(results.result?.rows)}`,
     // );
 
-    const resultCSV = await client.getResultCSV(execution.execution_id, { limit: 3 });
+    const resultCSV = await client.getResultCSV(multiRowExecutionId, { limit: 3 });
     expect(resultCSV.data).toEqual("number\n5\n6\n7\n");
   });
 
   it("gets Results (with limit)", async () => {
-    const {
-      results: { execution_id },
-    } = await client.getLastExecutionResults(multiRowQuery);
-    // expect basic query has completed after 5s
-    const status = await client.getExecutionStatus(execution_id);
-    expect(status.state).toEqual(ExecutionState.COMPLETED);
-    const results = await client.getExecutionResults(execution_id, {
+    // Use pre-executed simple query
+    const results = await client.getExecutionResults(simpleExecutionId, {
       limit: 2,
     });
-    expect(results.result?.rows).toEqual([{ number: 3 }, { number: 4 }]);
+    expect(results.result?.rows).toEqual([{ number: 0 }, { number: 1 }]);
 
-    const resultCSV = await client.getResultCSV(execution_id, { limit: 3 });
-    expect(resultCSV.data).toEqual("number\n3\n4\n5\n");
+    const resultCSV = await client.getResultCSV(simpleExecutionId, { limit: 3 });
+    expect(resultCSV.data).toEqual("number\n0\n1\n2\n");
   });
 
   it("gets LastResult", async () => {
@@ -178,25 +196,27 @@ describe("ExecutionAPI: native routes", () => {
 
   /// Pagination
   it("uses pagination parameters", async () => {
-    // This execution was run with StartFrom = 1 on queryId = 3463180.
-    const result = await client.getExecutionResults("01J6QN9Z16TP20YCWK6Z2TM0KJ", {
+    // Use pre-executed simple query to test pagination
+    // Test pagination with limit and offset
+    const result = await client.getExecutionResults(simpleExecutionId, {
       limit: 2,
       offset: 1,
     });
     expect(result.result?.rows).toEqual([
       {
-        number: 6,
+        number: 1,
       },
       {
-        number: 7,
+        number: 2,
       },
     ]);
 
-    const resultCSV = await client.getResultCSV("01J6QN9Z16TP20YCWK6Z2TM0KJ", {
+    // Test CSV results with pagination
+    const resultCSV = await client.getResultCSV(simpleExecutionId, {
       limit: 1,
       offset: 2,
     });
-    const expectedRows = ["number\n", "7\n"];
+    const expectedRows = ["number\n", "2\n"];
     expect(resultCSV.data).toEqual(expectedRows.join(""));
   });
 });
@@ -254,22 +274,35 @@ describe("ExecutionAPI: Errors", () => {
     );
   });
 
-  it("fails with unhandled FAILED_TYPE_UNSPECIFIED when query won't compile", async () => {
-    // Execute and check state
-    // V1 query: 1348966
-    const result = await client.getExecutionResults("01GEHG4AY1Z9JBR3BYB20E7RGH");
-    expect(result.error).toEqual({
-      type: "FAILED_TYPE_EXECUTION_FAILED",
-      message:
-        'column "x" does not exist at line 1, position 8 [Execution ID: 01GEHG4AY1Z9JBR3BYB20E7RGH]',
-      metadata: { line: 1, column: 8 },
+  it("returns error when query execution fails", async () => {
+    // Use DuneClient to create a query with bad SQL, execute it, and check the error
+    const fullClient = new DuneClient(PLUS_KEY);
+
+    // Create a query with intentionally bad SQL
+    const queryId = await fullClient.query.createQuery({
+      name: "Test Failed Query",
+      query_sql: "SELECT x", // This will fail - column x doesn't exist
+      is_private: true,
     });
 
-    const result2 = await client.getExecutionResults("01GEHGXHQ25XWMVFJ4G2HZ5MGS");
-    expect(result2.error).toEqual({
-      type: "FAILED_TYPE_EXECUTION_FAILED",
-      message:
-        "{42000} [Simba][Hardy] (80) Syntax or semantic analysis error thrown in server while executing query. Error message from server: org.apache.hive.service.cli.HiveSQLException: Error running query: [UNRESOLVED_COLUMN] org.apache.spark.sql.AnalysisException: [UNRESOLVED_COLUMN] A column or function parameter with name `x` cannot be resolved. Did you mean one of the following? []; line [Execution ID: 01GEHGXHQ25XWMVFJ4G2HZ5MGS]",
-    });
+    try {
+      // Execute the query - use fullClient.exec (with PLUS_KEY) since query is private
+      const execution = await fullClient.exec.executeQuery(queryId);
+
+      // Wait a bit for it to fail
+      await sleep(3);
+
+      // Get the results - should have an error - use fullClient.exec (with PLUS_KEY)
+      const result = await fullClient.exec.getExecutionResults(execution.execution_id);
+
+      // Verify error structure exists
+      expect(result.error).toBeDefined();
+      expect(result.error?.type).toEqual("FAILED_TYPE_EXECUTION_FAILED");
+      expect(result.error?.message).toContain("x");
+      expect(result.state).toEqual(ExecutionState.FAILED);
+    } finally {
+      // Cleanup: archive the query even if test fails
+      await fullClient.query.archiveQuery(queryId);
+    }
   });
 });

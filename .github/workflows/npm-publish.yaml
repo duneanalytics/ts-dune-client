@@ -9,14 +9,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
+          cache: "pnpm"
       - name: Build & Set Package Version to Tag
         run: |
-          yarn --frozen-lockfile
-          yarn build
+          pnpm install --frozen-lockfile
+          pnpm build
           VERSION=${GITHUB_REF#refs/tags/}
           npm version $VERSION --no-git-tag-version
       - name: Publish
