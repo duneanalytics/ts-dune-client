@@ -15,8 +15,9 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: Build & Set Package Version to Tag
         run: |
-          yarn --frozen-lockfile
-          yarn build
+          corepack enable
+          pnpm install --frozen-lockfile
+          pnpm build
           VERSION=${GITHUB_REF#refs/tags/}
           npm version $VERSION --no-git-tag-version
       - name: Publish

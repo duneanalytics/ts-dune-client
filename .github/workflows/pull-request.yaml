@@ -17,11 +17,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
+          cache: "pnpm"
       - run: |
-          yarn
-          yarn lint
-          yarn build
+          corepack enable
+          pnpm install --frozen-lockfile
+          pnpm lint
+          pnpm build
 
   test:
     name: Run Tests
@@ -38,7 +39,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
+          cache: "pnpm"
       - run: |
-          yarn
-          yarn test
+          corepack enable
+          pnpm install --frozen-lockfile
+          pnpm test
