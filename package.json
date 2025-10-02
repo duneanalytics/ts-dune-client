@@ -19,7 +19,6 @@
     "lint": "eslint ./src"
   },
   "dependencies": {
-    "deprecated": "^0.0.2",
     "loglevel": "^1.9.2"
   },
   "devDependencies": {

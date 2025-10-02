@@ -16,6 +16,7 @@ import {
 import log from "loglevel";
 import { ageInHours, logPrefix } from "../utils";
 import { Router } from "./router";
+import { deprecationWarning } from "../deprecation";
 import {
   DEFAULT_GET_PARAMS,
   DUNE_CSV_NEXT_OFFSET_HEADER,
@@ -209,6 +210,7 @@ export class ExecutionAPI extends Router {
     queryID: number,
     parameters?: QueryParameter[],
   ): Promise<ExecutionResponse> {
+    deprecationWarning("execute", "executeQuery", "0.0.2");
     return this.executeQuery(queryID, { query_parameters: parameters });
   }
 
@@ -216,6 +218,7 @@ export class ExecutionAPI extends Router {
    * @deprecated since version 0.0.2 Use getExecutionStatus
    */
   async getStatus(jobID: string): Promise<GetStatusResponse> {
+    deprecationWarning("getStatus", "getExecutionStatus", "0.0.2");
     return this.getExecutionStatus(jobID);
   }
 
@@ -223,6 +226,7 @@ export class ExecutionAPI extends Router {
    * @deprecated since version 0.0.2 Use getExecutionResults
    */
   async getResult(jobID: string): Promise<ResultsResponse> {
+    deprecationWarning("getResult", "getExecutionResults", "0.0.2");
     return this.getExecutionResults(jobID);
   }
 }
