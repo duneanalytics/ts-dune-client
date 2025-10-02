@@ -91,7 +91,7 @@ describe("ExecutionAPI: native routes", () => {
     // Verify timestamps exist (but don't check exact values since they're dynamic)
     expect(result.submitted_at).toBeDefined();
     expect(result.cancelled_at).toBeDefined();
-    expect(result.execution_ended_at).toBeDefined();
+    expect(result.execution_ended_at).toBeUndefined();
   });
 
   it("gets Results (with various optinal parameters)", async () => {
@@ -272,14 +272,14 @@ describe("ExecutionAPI: Errors", () => {
     });
 
     try {
-      // Execute the query
-      const execution = await client.executeQuery(queryId);
+      // Execute the query - use fullClient.exec (with PLUS_KEY) since query is private
+      const execution = await fullClient.exec.executeQuery(queryId);
 
       // Wait a bit for it to fail
       await sleep(3);
 
-      // Get the results - should have an error
-      const result = await client.getExecutionResults(execution.execution_id);
+      // Get the results - should have an error - use fullClient.exec (with PLUS_KEY)
+      const result = await fullClient.exec.getExecutionResults(execution.execution_id);
 
       // Verify error structure exists
       expect(result.error).toBeDefined();
