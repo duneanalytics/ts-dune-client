@@ -7,6 +7,9 @@ on:
 jobs:
   publish-npm:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -23,7 +26,5 @@ jobs:
           pnpm build
           VERSION=${GITHUB_REF#refs/tags/}
           npm version $VERSION --no-git-tag-version
-      - name: Publish
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.DUNE_NPM_TOKEN}}
+      - name: Publish to npm (OIDC)
+        run: npm publish --access public --provenance --ignore-scripts
