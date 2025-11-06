@@ -23,7 +23,5 @@ jobs:
           pnpm build
           VERSION=${GITHUB_REF#refs/tags/}
           npm version $VERSION --no-git-tag-version
-      - name: Publish
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.DUNE_NPM_TOKEN}}
+      - name: Publish to npm (OIDC)
+        run: npm publish --access public --provenance --ignore-scripts
