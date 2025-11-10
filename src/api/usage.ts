@@ -14,7 +14,6 @@ export class UsageAPI extends Router {
    * @returns {Promise<UsageResponse>} usage information including credits and storage
    */
   async getUsage(): Promise<UsageResponse> {
-    const response = await this.post<UsageResponse>("usage");
-    return response;
+    return this.post<UsageResponse>("usage");
   }
 }
