@@ -24,6 +24,7 @@ import { POLL_FREQUENCY_SECONDS } from "../constants";
 import { QueryAPI } from "./query";
 import { TableAPI } from "./table";
 import { CustomAPI } from "./custom";
+import { UsageAPI } from "./usage";
 import { deprecationWarning } from "../deprecation";
 
 /// Various states of query execution that are "terminal".
@@ -47,12 +48,15 @@ export class DuneClient {
   table: TableAPI;
   /// Custom Endpoint Interface
   custom: CustomAPI;
+  /// Usage Interface
+  usage: UsageAPI;
 
   constructor(apiKey: string) {
     this.exec = new ExecutionAPI(apiKey);
     this.query = new QueryAPI(apiKey);
     this.table = new TableAPI(apiKey);
     this.custom = new CustomAPI(apiKey);
+    this.usage = new UsageAPI(apiKey);
   }
 
   /**

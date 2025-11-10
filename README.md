@@ -74,6 +74,21 @@ const results = await client.custom.getResults({
 });
 ```
 
+## Usage API
+
+Get information about your API usage, including credits and storage:
+
+```ts
+const { DUNE_API_KEY } = process.env;
+
+const client = new DuneClient(DUNE_API_KEY ?? "");
+const usage = await client.usage.getUsage();
+
+console.log(`Credits used: ${usage.billing_periods[0].credits_used}`);
+console.log(`Private queries: ${usage.private_queries}`);
+console.log(`Storage: ${usage.bytes_used} / ${usage.bytes_allowed} bytes`);
+```
+
 
 Note also that the client has methods `executeQuery`, `getExecutionStatus`, `getExecutionResult` and `cancelExecution`
 

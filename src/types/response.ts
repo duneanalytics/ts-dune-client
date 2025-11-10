@@ -215,3 +215,18 @@ export interface CreateTableResult {
 export interface InsertTableResult {
   rows_written: number;
 }
+
+export interface BillingPeriod {
+  start_date: string;
+  end_date: string;
+  credits_used: number;
+  credits_included: number;
+}
+
+export interface UsageResponse {
+  private_queries: number;
+  private_dashboards: number;
+  bytes_used: number;
+  bytes_allowed: number;
+  billing_periods: BillingPeriod[];
+}
