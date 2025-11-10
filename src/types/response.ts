@@ -91,6 +91,7 @@ interface BaseStatusResponse extends TimeData {
   // Unique identifier of the query.
   query_id: number;
   queue_position?: number;
+  error?: ErrorResult;
 }
 
 /// Format of a `GetStatusResponse` when the query execution is anything but complete.
