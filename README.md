@@ -42,6 +42,24 @@ client
 //  ]
 ```
 
+## Execute Raw SQL
+
+You can execute raw SQL queries directly using the `executeSql` method:
+
+```ts
+const { DUNE_API_KEY } = process.env;
+
+const client = new DuneClient(DUNE_API_KEY ?? "");
+const execution = await client.exec.executeSql({
+  sql: "SELECT * FROM dex.trades WHERE block_time > now() - interval '1' day LIMIT 10",
+  performance: QueryEngine.Medium, // optional
+});
+
+const executionId = execution.execution_id;
+const status = await client.exec.getExecutionStatus(executionId);
+const results = await client.exec.getExecutionResults(executionId);
+```
+
 ## Custom API
 
 ```ts

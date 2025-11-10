@@ -244,6 +244,23 @@ describe("ExecutionAPI: native routes", () => {
     const expectedRows = ["number\n", "2\n"];
     expect(resultCSV.data).toEqual(expectedRows.join(""));
   });
+
+  it("executes raw SQL with executeSql", async () => {
+    const execution = await client.executeSql({
+      sql: "SELECT * FROM dex.trades WHERE block_time > now() - interval '1' day LIMIT 10",
+    });
+    expect(execution.execution_id).not.toEqual(null);
+    expect(execution.state).toBeDefined();
+  });
+
+  it("executes raw SQL with performance parameter", async () => {
+    const execution = await client.executeSql({
+      sql: "SELECT 1 as test_value",
+      performance: QueryEngine.Medium,
+    });
+    expect(execution.execution_id).not.toEqual(null);
+    expect(execution.state).toBeDefined();
+  });
 });
 
 describe("ExecutionAPI: Errors", () => {
