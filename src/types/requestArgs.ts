@@ -24,6 +24,7 @@ export type UploadCSVArgs = {
 export type RequestPayload =
   | GetResultParams
   | ExecuteQueryParams
+  | ExecuteSqlParams
   | UpdateQueryParams
   | CreateQueryParams
   | UploadCSVArgs
@@ -202,6 +203,13 @@ export interface ExecuteQueryParams extends BaseParams {
   /// Medium consumes 10 credits, and large consumes 20 credits, per run.
   /// Default is medium.
   performance: QueryEngine;
+}
+
+export interface ExecuteSqlParams {
+  /// The SQL query to execute
+  sql: string;
+  /// The performance engine tier the execution will be run on
+  performance?: QueryEngine;
 }
 
 export interface BaseCRUDParams extends BaseParams {

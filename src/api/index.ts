@@ -4,3 +4,4 @@ export * from "./execution";
 export * from "./query";
 export * from "./router";
 export * from "./table";
+export * from "./usage";

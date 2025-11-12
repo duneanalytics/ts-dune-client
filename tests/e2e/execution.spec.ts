@@ -244,6 +244,23 @@ describe("ExecutionAPI: native routes", () => {
     const expectedRows = ["number\n", "2\n"];
     expect(resultCSV.data).toEqual(expectedRows.join(""));
   });
+
+  it("executes raw SQL with executeSql", async () => {
+    const execution = await client.executeSql({
+      sql: "SELECT * FROM dex.trades WHERE block_time > now() - interval '1' day LIMIT 10",
+    });
+    expect(execution.execution_id).not.toEqual(null);
+    expect(execution.state).toBeDefined();
+  });
+
+  it("executes raw SQL with performance parameter", async () => {
+    const execution = await client.executeSql({
+      sql: "SELECT 1 as test_value",
+      performance: QueryEngine.Medium,
+    });
+    expect(execution.execution_id).not.toEqual(null);
+    expect(execution.state).toBeDefined();
+  });
 });
 
 describe("ExecutionAPI: Errors", () => {
@@ -306,7 +323,7 @@ describe("ExecutionAPI: Errors", () => {
     // Create a query with intentionally bad SQL
     const queryId = await fullClient.query.createQuery({
       name: "Test Failed Query",
-      query_sql: "SELECT x", // This will fail - column x doesn't exist
+      query_sql: "SELECT x",
       is_private: true,
     });
 
@@ -317,13 +334,18 @@ describe("ExecutionAPI: Errors", () => {
       // Wait a bit for it to fail
       await sleep(3);
 
-      // Get the results - should have an error
-      const result = await fullClient.exec.getExecutionResults(execution.execution_id);
+      // Get the status - should have an error
+      const status = await fullClient.exec.getExecutionStatus(execution.execution_id);
+      expect(status.error).toBeDefined();
+      expect(status.error?.type).toEqual("FAILED_TYPE_EXECUTION_FAILED");
+      expect(status.error?.message).toContain("Column 'x' cannot be resolved");
+      expect(status.state).toEqual(ExecutionState.FAILED);
 
-      // Verify error structure exists
+      // Get the results - should also have an error
+      const result = await fullClient.exec.getExecutionResults(execution.execution_id);
       expect(result.error).toBeDefined();
       expect(result.error?.type).toEqual("FAILED_TYPE_EXECUTION_FAILED");
-      expect(result.error?.message).toContain("x");
+      expect(result.error?.message).toContain("Column 'x' cannot be resolved");
       expect(result.state).toEqual(ExecutionState.FAILED);
     } finally {
       // Cleanup: archive the query even if test fails

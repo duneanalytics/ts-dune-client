@@ -91,6 +91,7 @@ interface BaseStatusResponse extends TimeData {
   // Unique identifier of the query.
   query_id: number;
   queue_position?: number;
+  error?: ErrorResult;
 }
 
 /// Format of a `GetStatusResponse` when the query execution is anything but complete.
@@ -214,4 +215,19 @@ export interface CreateTableResult {
 
 export interface InsertTableResult {
   rows_written: number;
+}
+
+export interface BillingPeriod {
+  start_date: string;
+  end_date: string;
+  credits_used: number;
+  credits_included: number;
+}
+
+export interface UsageResponse {
+  private_queries: number;
+  private_dashboards: number;
+  bytes_used: number;
+  bytes_allowed: number;
+  billing_periods: BillingPeriod[];
 }

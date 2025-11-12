@@ -42,6 +42,24 @@ client
 //  ]
 ```
 
+## Execute Raw SQL
+
+You can execute raw SQL queries directly using the `executeSql` method:
+
+```ts
+const { DUNE_API_KEY } = process.env;
+
+const client = new DuneClient(DUNE_API_KEY ?? "");
+const execution = await client.exec.executeSql({
+  sql: "SELECT * FROM dex.trades WHERE block_time > now() - interval '1' day LIMIT 10",
+  performance: QueryEngine.Medium, // optional
+});
+
+const executionId = execution.execution_id;
+const status = await client.exec.getExecutionStatus(executionId);
+const results = await client.exec.getExecutionResults(executionId);
+```
+
 ## Custom API
 
 ```ts
@@ -54,6 +72,21 @@ const results = await client.custom.getResults({
   // optional arguments: see `GetResultParams`
   limit: 100,
 });
+```
+
+## Usage API
+
+Get information about your API usage, including credits and storage:
+
+```ts
+const { DUNE_API_KEY } = process.env;
+
+const client = new DuneClient(DUNE_API_KEY ?? "");
+const usage = await client.usage.getUsage();
+
+console.log(`Credits used: ${usage.billing_periods[0].credits_used}`);
+console.log(`Private queries: ${usage.private_queries}`);
+console.log(`Storage: ${usage.bytes_used} / ${usage.bytes_allowed} bytes`);
 ```
 
 

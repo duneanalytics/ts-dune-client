@@ -12,6 +12,7 @@ import {
   QueryEngine,
   GetResultParams,
   validateAndBuildGetResultParams,
+  ExecuteSqlParams,
 } from "../types";
 import log from "loglevel";
 import { ageInHours, logPrefix } from "../utils";
@@ -48,6 +49,23 @@ export class ExecutionAPI extends Router {
       performance,
     });
     log.debug(logPrefix, `execute response ${JSON.stringify(response)}`);
+    return response as ExecutionResponse;
+  }
+
+  /**
+   * Executes raw SQL according to:
+   * https://docs.dune.com/api-reference/executions/endpoint/execute-sql
+   * @param {ExecuteSqlParams} params including SQL query and execution performance.
+   * @returns {ExecutionResponse} response containing execution ID and state.
+   */
+  async executeSql(params: ExecuteSqlParams): Promise<ExecutionResponse> {
+    const { sql, performance = QueryEngine.Medium } = params;
+
+    const response = await this.post<ExecutionResponse>(`sql/execute`, {
+      sql,
+      performance,
+    });
+    log.debug(logPrefix, `execute sql response ${JSON.stringify(response)}`);
     return response as ExecutionResponse;
   }
 
