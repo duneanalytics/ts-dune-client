@@ -84,14 +84,9 @@ export class ExecutionAPI extends Router {
   ): Promise<PipelineExecutionResponse> {
     const { performance = QueryEngine.Medium } = params;
 
-    const response = await this.post<PipelineExecutionResponse>(
-      `query/${queryID}/pipeline/execute`,
-      {
-        performance,
-      },
-    );
-    log.debug(logPrefix, `execute query pipeline response ${JSON.stringify(response)}`);
-    return response as PipelineExecutionResponse;
+    return this.post<PipelineExecutionResponse>(`query/${queryID}/pipeline/execute`, {
+      performance,
+    });
   }
 
   /**
