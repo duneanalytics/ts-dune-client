@@ -41,6 +41,10 @@ export interface ExecutionResponse {
   state: ExecutionState;
 }
 
+export interface PipelineExecutionResponse {
+  pipeline_execution_id: string;
+}
+
 /// Response resturned from query creation request.
 export interface CreateQueryResponse {
   query_id: number;

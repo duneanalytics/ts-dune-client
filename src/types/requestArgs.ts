@@ -212,6 +212,10 @@ export interface ExecuteSqlParams {
   performance?: QueryEngine;
 }
 
+export interface PipelineExecutionParams {
+  performance?: QueryEngine;
+}
+
 export interface BaseCRUDParams extends BaseParams {
   /// Description of the query.
   description?: string;
