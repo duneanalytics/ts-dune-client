@@ -13,6 +13,8 @@ import {
   GetResultParams,
   validateAndBuildGetResultParams,
   ExecuteSqlParams,
+  PipelineExecutionResponse,
+  PipelineExecutionParams,
 } from "../types";
 import log from "loglevel";
 import { ageInHours, logPrefix } from "../utils";
@@ -67,6 +69,24 @@ export class ExecutionAPI extends Router {
     });
     log.debug(logPrefix, `execute sql response ${JSON.stringify(response)}`);
     return response as ExecutionResponse;
+  }
+
+  /**
+   * Executes a query pipeline by query ID according to:
+   * https://docs.dune.com/api-reference/executions/endpoint/execute-query-pipeline
+   * @param {number} queryID id of query to execute pipeline for.
+   * @param {PipelineExecutionParams} params including execution performance.
+   * @returns {PipelineExecutionResponse} response containing pipeline execution ID.
+   */
+  async executeQueryPipeline(
+    queryID: number,
+    params: PipelineExecutionParams = {},
+  ): Promise<PipelineExecutionResponse> {
+    const { performance = QueryEngine.Medium } = params;
+
+    return this.post<PipelineExecutionResponse>(`query/${queryID}/pipeline/execute`, {
+      performance,
+    });
   }
 
   /**
