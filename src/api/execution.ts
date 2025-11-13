@@ -72,7 +72,7 @@ export class ExecutionAPI extends Router {
   }
 
   /**
-   * Executes a query pipeline by ID according to:
+   * Executes a query pipeline by query ID according to:
    * https://docs.dune.com/api-reference/executions/endpoint/execute-query-pipeline
    * @param {number} queryID id of query to execute pipeline for.
    * @param {PipelineExecutionParams} params including execution performance.
