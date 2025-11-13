@@ -45,6 +45,18 @@ export interface PipelineExecutionResponse {
   pipeline_execution_id: string;
 }
 
+export interface PipelineStatusResponse {
+  status: string;
+  node_executions: {
+    id: number;
+    query_execution_status: {
+      status: string;
+      query_id: number;
+      execution_id: string;
+    };
+  }[];
+}
+
 /// Response resturned from query creation request.
 export interface CreateQueryResponse {
   query_id: number;

@@ -25,6 +25,7 @@ import { QueryAPI } from "./query";
 import { TableAPI } from "./table";
 import { CustomAPI } from "./custom";
 import { UsageAPI } from "./usage";
+import { PipelineAPI } from "./pipeline";
 import { deprecationWarning } from "../deprecation";
 
 /// Various states of query execution that are "terminal".
@@ -50,6 +51,8 @@ export class DuneClient {
   custom: CustomAPI;
   /// Usage Interface
   usage: UsageAPI;
+  /// Pipeline Interface
+  pipeline: PipelineAPI;
 
   constructor(apiKey: string) {
     this.exec = new ExecutionAPI(apiKey);
@@ -57,6 +60,7 @@ export class DuneClient {
     this.table = new TableAPI(apiKey);
     this.custom = new CustomAPI(apiKey);
     this.usage = new UsageAPI(apiKey);
+    this.pipeline = new PipelineAPI(apiKey);
   }
 
   /**
