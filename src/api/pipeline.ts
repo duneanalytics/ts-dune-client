@@ -1,6 +1,4 @@
 import { PipelineStatusResponse } from "../types";
-import log from "loglevel";
-import { logPrefix } from "../utils";
 import { Router } from "./router";
 
 /**
@@ -13,11 +11,6 @@ export class PipelineAPI extends Router {
    * @returns {PipelineStatusResponse} status of pipeline execution.
    */
   async getPipelineStatus(pipelineExecutionId: string): Promise<PipelineStatusResponse> {
-    const response: PipelineStatusResponse = await this._get(
-      `pipelines/executions/${pipelineExecutionId}/status`,
-    );
-    log.debug(logPrefix, `get_pipeline_status response ${JSON.stringify(response)}`);
-    return response as PipelineStatusResponse;
+    return this._get(`pipelines/executions/${pipelineExecutionId}/status`);
   }
 }
-
