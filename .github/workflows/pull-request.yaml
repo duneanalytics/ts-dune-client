@@ -38,6 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}
+      DUNE_API_KEY_OWNER_HANDLE: ${{ secrets.DUNE_API_KEY_OWNER_HANDLE }}
 
     steps:
       - name: Checkout code
