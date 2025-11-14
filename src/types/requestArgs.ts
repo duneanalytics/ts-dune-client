@@ -304,6 +304,31 @@ export interface InsertTableArgs {
   content_type: ContentType;
 }
 
+export interface ListDatasetsArgs {
+  /// Number of results to return (default 50, max 250)
+  limit?: number;
+  /// Offset for pagination
+  offset?: number;
+  /// Filter by owner handle
+  owner_handle?: string;
+  /// Filter by dataset types (comma-separated: transformation_view, transformation_table, uploaded_table, decoded_table, spell, dune_table)
+  type?: string;
+}
+
+export interface ListUploadsArgs {
+  /// Number of tables to return on a page. Default: 50, max: 10000
+  limit?: number;
+  /// Offset used for pagination. Negative values are treated as 0
+  offset?: number;
+}
+
+export interface ClearTableArgs {
+  /// The namespace of the table to clear (e.g. my_user).
+  namespace: string;
+  /// The name of the table to clear (e.g. interest_rates).
+  table_name: string;
+}
+
 export interface Options {
   /// The page size when retriving results.
   batchSize?: number;

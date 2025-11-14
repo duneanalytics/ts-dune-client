@@ -247,3 +247,68 @@ export interface UsageResponse {
   bytes_allowed: number;
   billing_periods: BillingPeriod[];
 }
+
+export interface DatasetColumnMetadata {
+  description?: string;
+  filtering_column?: boolean;
+}
+
+export interface DatasetColumn {
+  name: string;
+  type: string;
+  nullable?: boolean;
+  metadata?: DatasetColumnMetadata;
+}
+
+export interface DatasetOwner {
+  handle: string;
+  type: string;
+}
+
+export interface DatasetResponse {
+  full_name: string;
+  type: string;
+  columns: DatasetColumn[];
+  owner: DatasetOwner;
+  is_private: boolean;
+  created_at: string;
+  updated_at: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface ListDatasetsResponse {
+  datasets: DatasetResponse[];
+  total: number;
+}
+
+export interface TableOwner {
+  handle: string;
+  type: string;
+}
+
+export interface TableColumnInfo {
+  name: string;
+  type: string;
+  nullable?: boolean;
+  metadata?: Record<string, unknown>;
+}
+
+export interface TableListElement {
+  full_name: string;
+  is_private: boolean;
+  owner: TableOwner;
+  columns: TableColumnInfo[];
+  table_size_bytes?: string;
+  created_at: string;
+  updated_at: string;
+  purged_at?: string;
+}
+
+export interface TableListResponse {
+  tables: TableListElement[];
+  next_offset?: number;
+}
+
+export interface TableClearResponse {
+  message: string;
+}

@@ -26,6 +26,8 @@ import { TableAPI } from "./table";
 import { CustomAPI } from "./custom";
 import { UsageAPI } from "./usage";
 import { PipelineAPI } from "./pipeline";
+import { DatasetAPI } from "./dataset";
+import { UploadsAPI } from "./uploads";
 import { deprecationWarning } from "../deprecation";
 
 /// Various states of query execution that are "terminal".
@@ -45,7 +47,7 @@ export class DuneClient {
   exec: ExecutionAPI;
   /// Query Management Interface.
   query: QueryAPI;
-  /// Table Management Interface
+  /// Table Management Interface (deprecated, use uploads instead)
   table: TableAPI;
   /// Custom Endpoint Interface
   custom: CustomAPI;
@@ -53,6 +55,10 @@ export class DuneClient {
   usage: UsageAPI;
   /// Pipeline Interface
   pipeline: PipelineAPI;
+  /// Dataset Interface
+  dataset: DatasetAPI;
+  /// Uploads Interface
+  uploads: UploadsAPI;
 
   constructor(apiKey: string) {
     this.exec = new ExecutionAPI(apiKey);
@@ -61,6 +67,8 @@ export class DuneClient {
     this.custom = new CustomAPI(apiKey);
     this.usage = new UsageAPI(apiKey);
     this.pipeline = new PipelineAPI(apiKey);
+    this.dataset = new DatasetAPI(apiKey);
+    this.uploads = new UploadsAPI(apiKey);
   }
 
   /**
