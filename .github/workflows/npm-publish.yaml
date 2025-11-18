@@ -20,6 +20,8 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
           cache: "pnpm"
+      - name: Update npm
+        run: npm install -g npm@11.5.1
       - name: Get npm version
         run: npm --version
       - name: Build & Set Package Version to Tag
