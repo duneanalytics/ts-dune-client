@@ -20,6 +20,8 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
           cache: "pnpm"
+      - name: Get npm version
+        run: npm --version
       - name: Build & Set Package Version to Tag
         run: |
           pnpm install --frozen-lockfile
