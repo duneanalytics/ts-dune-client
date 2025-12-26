@@ -88,19 +88,17 @@ export class DuneClient {
     if (state === ExecutionState.COMPLETED) {
       return this.exec.getExecutionResults(execution_id, args);
     } else {
-      const message = `Refresh returned an incomplete terminal state`;
+        const message = `Refresh returned an incomplete terminal state`;
 
-log.error(logPrefix, {
-  message,
-  execution_id,
-  state,
-});
+        log.error(logPrefix, {
+          message,
+          execution_id,
+          state,
+        });
 
-throw new DuneError(
-  `${message} (execution_id=${execution_id}, state=${state})`
-      );
+        throw new DuneError(`${message} (execution_id=${execution_id}, state=${state})`);
+      }
     }
-  }
 
   /**
    * Runs an existing query by ID via execute, await, return Result CSV.
