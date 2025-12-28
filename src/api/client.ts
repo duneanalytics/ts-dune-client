@@ -88,10 +88,15 @@ export class DuneClient {
     if (state === ExecutionState.COMPLETED) {
       return this.exec.getExecutionResults(execution_id, args);
     } else {
-      const message = `refresh (execution ${execution_id}) yields incomplete terminal state ${state}`;
-      // TODO - log the error in constructor
-      log.error(logPrefix, message);
-      throw new DuneError(message);
+      const message = `Refresh returned an incomplete terminal state`;
+
+      log.error(logPrefix, {
+        message,
+        execution_id,
+        state,
+      });
+
+      throw new DuneError(`${message} (execution_id=${execution_id}, state=${state})`);
     }
   }
 
