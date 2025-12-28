@@ -37,7 +37,6 @@ export function payloadJSON(payload?: RequestPayload): string {
   return JSON.stringify(payloadRecords(payload));
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function payloadRecords(payload?: RequestPayload): Record<string, any> {
   if (payload !== undefined) {
     if ("query_parameters" in payload) {
@@ -55,7 +54,6 @@ function payloadRecords(payload?: RequestPayload): Record<string, any> {
   return {};
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // TODO - this is a "dirty" hack to trick the compiler into thinking the types are well defined.
 interface IntermediaryRequestPayload {
   query_parameters?: Array<{ name: string; value: any }>;
@@ -95,7 +93,6 @@ export function payloadSearchParams(payload?: RequestPayload): Record<string, an
   }
   return {};
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
 interface BaseParams {
   query_parameters?: QueryParameter[];
