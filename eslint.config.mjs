@@ -27,7 +27,6 @@ export default [
         { ignoreRestSiblings: true },
       ],
       "@typescript-eslint/no-shadow": ["warn", {}],
-      "no-unused-vars": "off",
       "no-shadow": "off",
       semi: "error",
       eqeqeq: ["error", "always"],

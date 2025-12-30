@@ -16,7 +16,7 @@
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "test": "jest",
     "fmt": "prettier --write \"./**/*.ts\"",
-    "lint": "eslint ./src"
+    "lint": "eslint ./src && prettier --check \"./**/*.ts\""
   },
   "dependencies": {
     "loglevel": "^1.9.2"

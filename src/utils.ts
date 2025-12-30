@@ -32,7 +32,6 @@ export function ageInHours(timestamp: Date | string): number {
  * @returns
  */
 export function withDefaults<T>(obj: T, defaults: Partial<T>): T {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result: any = { ...obj };
   for (const key in defaults) {
     if (result[key] === undefined) {
