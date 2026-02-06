@@ -1,6 +1,6 @@
 [![Styled With Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io/)
 [![Build](https://github.com/bh2smith/ts-dune-client/actions/workflows/pull-request.yaml/badge.svg)](https://github.com/duneanalytics/ts-dune-client/actions/workflows/pull-request.yaml)
-
+CRAZYBOWBOT1
 # Dune Client TS
 
 This [NPM package](https://www.npmjs.com/package/@duneanalytics/client-sdk) implements all the basic routes defined in the [Dune API Docs](https://dune.com/docs/api/). It also introduces a convenience method `refresh` which combines `executeQuery`, `getExecutionStatus` and `gettExecutionResults` in a way that makes it nearly trivial to fetch query execution results.
