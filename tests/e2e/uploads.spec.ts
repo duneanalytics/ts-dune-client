@@ -18,8 +18,8 @@ describe("Uploads API", () => {
     namespace = USER_NAME;
   });
 
-  beforeEach((done) => {
-    setTimeout(done, 1000);
+  beforeEach(async () => {
+    await new Promise((r) => setTimeout(r, 1000));
   });
 
   it("lists uploaded tables", async () => {

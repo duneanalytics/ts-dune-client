@@ -64,8 +64,8 @@ describe("ExecutionAPI: native routes", () => {
     }
   });
 
-  beforeEach((done) => {
-    setTimeout(done, 1000); // Wait for 1000 milliseconds
+  beforeEach(async () => {
+    await new Promise((r) => setTimeout(r, 1000));
   });
 
   // This doesn't work if run too many times at once:
@@ -278,8 +278,8 @@ describe("ExecutionAPI: Errors", () => {
     client = new ExecutionAPI(API_KEY);
   });
 
-  beforeEach((done) => {
-    setTimeout(done, 1000); // Wait for 1000 milliseconds
+  beforeEach(async () => {
+    await new Promise((r) => setTimeout(r, 1000));
   });
 
   it("returns invalid API key", async () => {

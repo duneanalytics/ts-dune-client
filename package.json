@@ -14,24 +14,27 @@
     "build": "rm -rf dist/* && pnpm build:esm && pnpm build:cjs && cp package.json dist",
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:cjs": "tsc -p tsconfig.cjs.json",
-    "test": "jest",
+    "test": "vitest run",
     "fmt": "prettier --write \"./**/*.ts\"",
     "lint": "eslint ./src && prettier --check \"./**/*.ts\""
   },
   "dependencies": {
     "loglevel": "^1.9.2"
   },
+  "pnpm": {
+    "overrides": {
+      "flatted": ">=3.4.2"
+    }
+  },
   "devDependencies": {
-    "@types/jest": "^30.0.0",
     "@types/node": "^25.6.0",
     "@typescript-eslint/eslint-plugin": "^8.59.2",
     "@typescript-eslint/parser": "^8.59.2",
-    "eslint": "^9.39.2",
+    "eslint": "^10.3.0",
     "eslint-config-prettier": "^10.1.8",
-    "jest": "^30.3.0",
     "prettier": "^3.8.3",
-    "ts-jest": "^29.4.9",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.5"
   }
 }

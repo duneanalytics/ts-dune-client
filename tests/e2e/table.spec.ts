@@ -18,8 +18,8 @@ describe("Table API", () => {
     namespace = USER_NAME;
   });
 
-  beforeEach((done) => {
-    setTimeout(done, 1000); // Wait for 1000 milliseconds
+  beforeEach(async () => {
+    await new Promise((r) => setTimeout(r, 1000));
   });
 
   it("uploads CSV", async () => {
