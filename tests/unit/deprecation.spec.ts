@@ -1,15 +1,15 @@
+import { vi } from "vitest";
 import { deprecationWarning } from "../../src/deprecation";
 import log from "loglevel";
 
-// Mock the loglevel logger
-jest.mock("loglevel", () => ({
-  warn: jest.fn(),
+vi.mock("loglevel", () => ({
+  default: { warn: vi.fn() },
+  warn: vi.fn(),
 }));
 
 describe("deprecationWarning", () => {
   beforeEach(() => {
-    // Clear all mocks before each test
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("should log a deprecation warning with all parameters", () => {
