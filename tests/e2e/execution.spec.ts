@@ -142,9 +142,14 @@ describe("ExecutionAPI: native routes", () => {
     const execution = await client.executeQuery(multiRowQuery);
     multiRowExecutionId = execution.execution_id;
     // const paramQueryExecution = await client.executeQuery(testQueryId);
-    await sleep(2);
-    // expect basic query has completed after 2s
-    const status = await client.getExecutionStatus(multiRowExecutionId);
+    let status = await client.getExecutionStatus(multiRowExecutionId);
+    while (
+      status.state === ExecutionState.PENDING ||
+      status.state === ExecutionState.EXECUTING
+    ) {
+      await sleep(1);
+      status = await client.getExecutionStatus(multiRowExecutionId);
+    }
     expect(status.state).toEqual(ExecutionState.COMPLETED);
 
     // Limit
