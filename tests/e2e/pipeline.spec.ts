@@ -19,8 +19,8 @@ describe("PipelineAPI: pipeline execution and status", () => {
     testQueryId = 6090403;
   });
 
-  beforeEach((done) => {
-    setTimeout(done, 1000);
+  beforeEach(async () => {
+    await new Promise((r) => setTimeout(r, 1000));
   });
 
   it("executes a query pipeline successfully", async () => {
