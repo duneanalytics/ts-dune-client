@@ -166,7 +166,7 @@ export function validateAndBuildGetResultParams({
       // Check if the column contains quotes
       if (column.includes('"')) {
         // Escape quotes and add quotes around the entire string
-        return `"${column.replace(/"/g, '\\"')}"`;
+        return `"${column.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
       } else {
         // Leave the column unchanged
         return column;
