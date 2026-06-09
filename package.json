@@ -18,13 +18,9 @@
     "fmt": "prettier --write \"./**/*.ts\"",
     "lint": "eslint ./src && prettier --check \"./**/*.ts\""
   },
+  "packageManager": "pnpm@10.29.2",
   "dependencies": {
     "loglevel": "^1.9.2"
-  },
-  "pnpm": {
-    "overrides": {
-      "flatted": ">=3.4.2"
-    }
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
