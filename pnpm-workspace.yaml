@@ -1,0 +1,7 @@
+minimumReleaseAge: 4320
+
+onlyBuiltDependencies:
+  - esbuild
+
+overrides:
+  flatted: ">=3.4.2"
