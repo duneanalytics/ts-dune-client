@@ -19,7 +19,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
           cache: "pnpm"
       - name: Update npm
-        run: npm install -g npm@11.5.1
+        run: npm install -g npm@11.5.1 --ignore-scripts
       - name: Get npm version
         run: npm --version
       - name: Build & Set Package Version to Tag
