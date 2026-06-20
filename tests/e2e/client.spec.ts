@@ -5,6 +5,7 @@ import * as fs from "fs/promises";
 log.setLevel("silent", true);
 
 const API_KEY = process.env.DUNE_API_KEY!;
+const E2E_TEST_TIMEOUT_MS = 20000;
 
 describe("DuneClient Extensions", () => {
   let client: DuneClient;
@@ -40,7 +41,7 @@ describe("DuneClient Extensions", () => {
     expect(multiRowResults.result?.rows).toEqual(
       [10, 11, 12, 13, 14, 15].map((t) => ({ number: t })),
     );
-  });
+  }, E2E_TEST_TIMEOUT_MS);
 
   it("executes runQuery with filter", async () => {
     const multiRowResults = await client.runQuery({
@@ -51,7 +52,7 @@ describe("DuneClient Extensions", () => {
     expect(multiRowResults.result?.rows).toEqual(
       [1, 2, 3, 4, 5].map((t) => ({ number: t })),
     );
-  }, 10000);
+  }, E2E_TEST_TIMEOUT_MS);
 
   it("executes runQueryCSV", async () => {
     // https://dune.com/queries/1215383
@@ -73,7 +74,7 @@ describe("DuneClient Extensions", () => {
       opts: { batchSize: 4 },
     });
     expect(multiRowResults.data).toEqual("number\n3\n4\n5\n6\n7\n8\n");
-  }, 20000);
+  }, E2E_TEST_TIMEOUT_MS);
 
   it("getsLatestResults", async () => {
     // https://dune.com/queries/1215383
@@ -90,7 +91,7 @@ describe("DuneClient Extensions", () => {
       opts: { batchSize: 4 },
     });
     expect(multiRowResults.result?.rows.length).toEqual(6);
-  });
+  }, E2E_TEST_TIMEOUT_MS);
 
   it("downloads CSV", async () => {
     await client.downloadCSV(
@@ -105,7 +106,7 @@ describe("DuneClient Extensions", () => {
     expect(fileContents).toEqual("number\n3\n4\n5\n6\n7\n8\n");
     // Remove the CSV file after the comparison
     await fs.unlink("./out.csv");
-  });
+  }, E2E_TEST_TIMEOUT_MS);
 
   it("runSQL", async () => {
     const results = await client.runSql({
@@ -117,5 +118,5 @@ describe("DuneClient Extensions", () => {
     expect(results.result?.rows).toEqual([{ _col0: 1 }]);
     const query = await client.query.readQuery(queryID);
     expect(query.is_archived).toEqual(true);
-  });
+  }, E2E_TEST_TIMEOUT_MS);
 });
