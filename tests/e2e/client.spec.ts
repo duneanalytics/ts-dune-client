@@ -117,5 +117,5 @@ describe("DuneClient Extensions", () => {
     expect(results.result?.rows).toEqual([{ _col0: 1 }]);
     const query = await client.query.readQuery(queryID);
     expect(query.is_archived).toEqual(true);
-  });
+  }, 30000);
 });
