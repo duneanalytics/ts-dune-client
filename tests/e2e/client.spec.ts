@@ -73,7 +73,7 @@ describe("DuneClient Extensions", () => {
       opts: { batchSize: 4 },
     });
     expect(multiRowResults.data).toEqual("number\n3\n4\n5\n6\n7\n8\n");
-  });
+  }, 20000);
 
   it("getsLatestResults", async () => {
     // https://dune.com/queries/1215383
