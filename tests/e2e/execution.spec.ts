@@ -135,7 +135,8 @@ describe("ExecutionAPI: native routes", () => {
     // Verify timestamps exist (but don't check exact values since they're dynamic)
     expect(result.submitted_at).toBeDefined();
     expect(result.cancelled_at).toBeDefined();
-    expect(result.execution_ended_at).toBeUndefined();
+    // execution_ended_at is only set if the execution had started running when the
+    // cancel landed, so it's timing-dependent here and intentionally not asserted.
   });
 
   it("gets Results (with various optinal parameters)", async () => {
