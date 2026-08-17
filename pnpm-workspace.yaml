@@ -1,7 +1,10 @@
 minimumReleaseAge: 4320
 
-onlyBuiltDependencies:
-  - esbuild
+allowBuilds:
+  esbuild: true
 
 overrides:
   flatted: ">=3.4.2"
+  esbuild: ">=0.28.1"
+  vite: ">=8.0.16"
+  brace-expansion: ">=5.0.6"
