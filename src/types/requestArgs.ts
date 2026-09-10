@@ -30,6 +30,7 @@ export type RequestPayload =
   | UploadCSVArgs
   | CreateTableArgs
   | InsertTableArgs
+  | DecodeContractsArgs
   | Buffer;
 
 type RequestRecord = Record<string, unknown>;
@@ -386,4 +387,71 @@ export interface RunSqlArgs extends ExecutionParams {
   archiveAfter?: boolean;
   /// Additional options execution options.
   opts?: Options;
+}
+
+/// The kind of change a contract decoding submission describes.
+export type ContractSubmissionType = "new" | "upgrade" | "rename" | "delete" | "other";
+
+/// Lifecycle status of a contract decoding submission.
+export type ContractSubmissionStatus =
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "processed"
+  | "in_progress"
+  | "cancelled"
+  | "needs_manual_review";
+
+/// One contract to submit for decoding. Mirrors the form at https://dune.com/contracts/new.
+export interface ContractSubmissionInput {
+  /// Chain the contract is deployed on, e.g. "ethereum", "base"
+  blockchain_name: string;
+  /// Contract address (hex for EVM chains)
+  address: string;
+  /// Project (namespace) the decoded tables are grouped under
+  project_name: string;
+  /// Contract name used in the decoded table names
+  contract_name: string;
+  /// The ABI, either as its JSON array of fragments or as a JSON string containing it
+  abi: unknown[] | string;
+  /// The contract is a dynamic contract with several instances sharing one ABI
+  has_multiple_instances?: boolean;
+  /// The instances are created by a factory contract
+  is_created_by_factory?: boolean;
+  /// The ABI was written or edited by hand rather than fetched from an explorer
+  is_manual_abi?: boolean;
+  /// The address is a proxy; the ABI belongs to its implementation
+  is_proxy?: boolean;
+  /// Defaults to "new". Upgrades, renames, deletions and other always go to manual review
+  submission_type?: ContractSubmissionType;
+  /// Why the contract is being resubmitted. Required for "delete" and "other"
+  resubmission_reason?: string;
+  /// Current project name; required for "rename"
+  old_project_name?: string;
+  /// Current contract name; required for "rename"
+  old_contract_name?: string;
+  /// Client-chosen key, unique per account, that makes the item safe to retry
+  idempotency_key?: string;
+}
+
+export interface DecodeContractsArgs {
+  /// Between 1 and 100 contracts to submit
+  submissions: ContractSubmissionInput[];
+}
+
+export interface ListContractSubmissionsArgs {
+  /// Number of results to return (default 50, max 250)
+  limit?: number;
+  /// `next_cursor` from a previous response, to fetch the next page
+  cursor?: string;
+  /// Filter by blockchain, e.g. "ethereum"
+  blockchain_name?: string;
+  /// Filter by contract address
+  address?: string;
+  /// Filter by project (namespace) name
+  project_name?: string;
+  /// Filter by contract name
+  contract_name?: string;
+  /// Filter by submission status
+  status?: ContractSubmissionStatus;
 }

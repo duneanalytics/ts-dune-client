@@ -8,6 +8,7 @@ export {
   PipelineAPI,
   DatasetAPI,
   UploadsAPI,
+  ContractsAPI,
 } from "./api";
 export * from "./types";
 export { Paginator } from "./paginator";

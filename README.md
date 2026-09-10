@@ -67,7 +67,7 @@ const { DUNE_API_KEY } = process.env;
 
 const client = new DuneClient(DUNE_API_KEY ?? "");
 const results = await client.custom.getResults({
-  username: "your_username", 
+  username: "your_username",
   slug: "endpoint-slug"
   // optional arguments: see `GetResultParams`
   limit: 100,
@@ -89,6 +89,31 @@ console.log(`Private queries: ${usage.private_queries}`);
 console.log(`Storage: ${usage.bytes_used} / ${usage.bytes_allowed} bytes`);
 ```
 
+## Contracts API
+
+Submit contracts for decoding in batches and track their status. Submissions are attributed to the user who created the API key; see the [docs](https://docs.dune.com/api-reference/contracts/introduction) for plan requirements.
+
+```ts
+const { DUNE_API_KEY } = process.env;
+
+const client = new DuneClient(DUNE_API_KEY ?? "");
+const { results } = await client.contracts.decode({
+  submissions: [
+    {
+      blockchain_name: "ethereum",
+      address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+      project_name: "uniswap",
+      contract_name: "UniswapToken",
+      abi: uniswapTokenAbi, // JSON array, or a string containing it
+      idempotency_key: "uniswap-token/ethereum/1", // optional, makes retries safe
+    },
+  ],
+});
+// One result per submission, matched by index: { submission_id, status: "pending" } or { error }
+
+const page = await client.contracts.listSubmissions({ status: "pending", limit: 20 });
+// Pass page.next_cursor back as `cursor` to fetch the next page
+```
 
 Note also that the client has methods `executeQuery`, `getExecutionStatus`, `getExecutionResult` and `cancelExecution`
 
