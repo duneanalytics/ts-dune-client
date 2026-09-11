@@ -118,7 +118,7 @@ describe("ExecutionAPI: native routes", () => {
     expect(execution.execution_id).not.toEqual(null);
   });
 
-  it("returns expected results on cancelled query execution", async () => {
+  it("returns expected results when cancellation races query completion", async () => {
     // Execute a query and immediately cancel it
     const execution = await client.executeQuery(multiRowQuery);
     const cancelledExecutionId = execution.execution_id;
@@ -127,16 +127,20 @@ describe("ExecutionAPI: native routes", () => {
     const wasCancelled = await client.cancelExecution(cancelledExecutionId);
     expect(wasCancelled).toEqual(true);
 
-    // Get the results and verify it shows as cancelled
+    // The query can complete before the cancellation is processed, especially when
+    // its result is cached. Both outcomes are valid once the cancel request succeeds.
     const result = await client.getExecutionResults(cancelledExecutionId);
     expect(result.execution_id).toEqual(cancelledExecutionId);
     expect(result.query_id).toEqual(multiRowQuery);
-    expect(result.state).toEqual(ExecutionState.CANCELLED);
+    expect([ExecutionState.CANCELLED, ExecutionState.COMPLETED]).toContain(result.state);
     // Verify timestamps exist (but don't check exact values since they're dynamic)
     expect(result.submitted_at).toBeDefined();
-    expect(result.cancelled_at).toBeDefined();
-    // execution_ended_at is only set if the execution had started running when the
-    // cancel landed, so it's timing-dependent here and intentionally not asserted.
+    if (result.state === ExecutionState.CANCELLED) {
+      expect(result.cancelled_at).toBeDefined();
+    } else {
+      expect(result.execution_ended_at).toBeDefined();
+      expect(result.result).toBeDefined();
+    }
   });
 
   it("gets Results (with various optinal parameters)", async () => {
