@@ -1,3 +1,4 @@
+import { ContractSubmissionStatus, ContractSubmissionType } from "./requestArgs";
 /// Various possible states of a query exeuction.
 export enum ExecutionState {
   COMPLETED = "QUERY_STATE_COMPLETED",
@@ -311,4 +312,47 @@ export interface TableListResponse {
 
 export interface TableClearResponse {
   message: string;
+}
+
+/// Per-item outcome of POST /v1/contracts/decode, matched to the request by `index`.
+export type ContractSubmissionResult =
+  | {
+      index: number;
+      submission_id: string;
+      status: "pending";
+      replayed?: boolean;
+      error?: never;
+    }
+  | {
+      index: number;
+      error: string;
+      submission_id?: never;
+      status?: never;
+      replayed?: never;
+    };
+
+export interface DecodeContractsResponse {
+  results: ContractSubmissionResult[];
+}
+
+export interface ContractSubmission {
+  id: string;
+  blockchain_name: string;
+  address: string;
+  project_name: string;
+  contract_name: string;
+  status: ContractSubmissionStatus;
+  submission_type: ContractSubmissionType;
+  /// Reviewer or system comment explaining the current status
+  comment?: string;
+  created_at: string;
+  updated_at: string;
+  idempotency_key?: string;
+}
+
+export interface ListContractSubmissionsResponse {
+  submissions: ContractSubmission[];
+  total: number;
+  /// Present when more results exist; pass it back as `cursor`
+  next_cursor?: string;
 }

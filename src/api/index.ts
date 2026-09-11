@@ -1,4 +1,5 @@
 export * from "./client";
+export * from "./contracts";
 export * from "./custom";
 export * from "./dataset";
 export * from "./execution";

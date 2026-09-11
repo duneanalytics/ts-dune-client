@@ -28,6 +28,7 @@ import { UsageAPI } from "./usage";
 import { PipelineAPI } from "./pipeline";
 import { DatasetAPI } from "./dataset";
 import { UploadsAPI } from "./uploads";
+import { ContractsAPI } from "./contracts";
 import { deprecationWarning } from "../deprecation";
 
 /// Various states of query execution that are "terminal".
@@ -59,6 +60,8 @@ export class DuneClient {
   dataset: DatasetAPI;
   /// Uploads Interface
   uploads: UploadsAPI;
+  /// Contract Decoding Interface
+  contracts: ContractsAPI;
 
   constructor(apiKey: string) {
     this.exec = new ExecutionAPI(apiKey);
@@ -69,6 +72,7 @@ export class DuneClient {
     this.pipeline = new PipelineAPI(apiKey);
     this.dataset = new DatasetAPI(apiKey);
     this.uploads = new UploadsAPI(apiKey);
+    this.contracts = new ContractsAPI(apiKey);
   }
 
   /**
