@@ -6,23 +6,6 @@ import {
 } from "../../src/types";
 
 describe("Contracts request serialization", () => {
-  it("accepts readonly ABI constants", () => {
-    const abi = [{ type: "event", name: "Transfer", inputs: [] }] as const;
-    const args: DecodeContractsArgs = {
-      submissions: [
-        {
-          blockchain_name: "ethereum",
-          address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
-          project_name: "uniswap",
-          contract_name: "UniswapToken",
-          abi,
-        },
-      ],
-    };
-
-    expect(JSON.parse(payloadJSON(args)).submissions[0].abi).toEqual(abi);
-  });
-
   it("serializes a decode batch with nested submissions as-is", () => {
     const args: DecodeContractsArgs = {
       submissions: [

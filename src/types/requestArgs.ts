@@ -413,7 +413,7 @@ export interface ContractSubmissionInput {
   /// Contract name used in the decoded table names
   contract_name: string;
   /// The ABI, either as its JSON array of fragments or as a JSON string containing it
-  abi: readonly unknown[] | string;
+  abi: unknown[] | string;
   /// The contract is a dynamic contract with several instances sharing one ABI
   has_multiple_instances?: boolean;
   /// The instances are created by a factory contract

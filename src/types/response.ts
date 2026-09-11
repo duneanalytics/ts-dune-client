@@ -315,24 +315,17 @@ export interface TableClearResponse {
 }
 
 /// Per-item outcome of POST /v1/contracts/decode, matched to the request by `index`.
-export type ContractSubmissionResult =
-  | {
-      index: number;
-      /// The id to look up in the submissions list
-      submission_id: string;
-      status: "pending";
-      /// True when `idempotency_key` matched an earlier submission and nothing new was created
-      replayed?: boolean;
-      error?: never;
-    }
-  | {
-      index: number;
-      /// Set when the item failed validation
-      error: string;
-      submission_id?: never;
-      status?: never;
-      replayed?: never;
-    };
+export interface ContractSubmissionResult {
+  index: number;
+  /// Set on success; the id to look up in the submissions list
+  submission_id?: string;
+  /// "pending" on success
+  status?: string;
+  /// True when `idempotency_key` matched an earlier submission and nothing new was created
+  replayed?: boolean;
+  /// Set when the item failed validation; the other fields are then absent
+  error?: string;
+}
 
 export interface DecodeContractsResponse {
   results: ContractSubmissionResult[];
