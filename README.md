@@ -118,3 +118,10 @@ const page = await client.contracts.listSubmissions({ status: "pending", limit: 
 Note also that the client has methods `executeQuery`, `getExecutionStatus`, `getExecutionResult` and `cancelExecution`
 
 Check out this [Demo Project](https://github.com/bh2smith/demo-ts-dune-client)!
+
+## Compiler tooling
+
+Builds use TypeScript 7 (`tsc`) through the `typescript-native` dependency alias.
+The `typescript` alias supplies the TypeScript 6 API required by typescript-eslint;
+its compatibility compiler is available as `tsc6`. Keep both aliases until the
+linter supports the stable native compiler API.
