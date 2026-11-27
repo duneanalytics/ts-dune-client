@@ -110,7 +110,9 @@ Execute a saved query and its pipeline dependencies, then check the pipeline's s
 
 ```ts
 const pipeline = await client.exec.executeQueryPipeline(queryId);
-const pipelineStatus = await client.pipeline.getPipelineStatus(pipeline.pipeline_execution_id);
+const pipelineStatus = await client.pipeline.getPipelineStatus(
+  pipeline.pipeline_execution_id,
+);
 console.log(pipelineStatus.status, pipelineStatus.node_executions);
 ```
 
