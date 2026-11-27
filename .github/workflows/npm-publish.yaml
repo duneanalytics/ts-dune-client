@@ -22,11 +22,11 @@ jobs:
         run: npm install -g npm@11.5.1 --ignore-scripts
       - name: Get npm version
         run: npm --version
-      - name: Build & Set Package Version to Tag
+      - name: Set Package Version to Tag & Build
         run: |
           pnpm install --frozen-lockfile
-          pnpm build
           VERSION=${GITHUB_REF#refs/tags/}
-          npm version $VERSION --no-git-tag-version
+          npm version "$VERSION" --no-git-tag-version
+          pnpm build
       - name: Publish to npm (OIDC)
         run: npm publish --access public --ignore-scripts
